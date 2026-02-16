@@ -4,25 +4,19 @@
 
 A full-stack TypeScript framework with vertical feature slicing architecture, running on Bun runtime.
 
+> **🤖 For AI Assistants**: This file contains critical context for code generation. Always follow the patterns below.
+
 ---
 
-## Project Overview
+## Quick Decision Matrix
 
-This is a full-stack web application boilerplate using the EISK stack:
-
-- **Backend**: Elysia (Bun web framework) with TypeBox validation
-- **Frontend**: Svelte 5 with runes, Inertia.js for SPA experience
-- **Database**: SQLite via Kysely (runtime) + Drizzle (migrations)
-- **Styling**: Tailwind CSS v4
-- **Runtime**: Bun (required)
-
-### Key Characteristics
-
-- **Vertical Feature Slicing**: Each feature contains its own API, service, repository, and pages
-- **End-to-End Type Safety**: Database → TypeBox → Svelte props
-- **No API Layer**: Inertia.js handles backend-frontend communication transparently
-- **Native UUID v7**: Custom implementation, no external dependencies
-- **Custom Inertia Plugin**: Built specifically for Elysia (no official plugin exists)
+| If user asks for... | Do this... |
+|---------------------|------------|
+| New feature/module | Create vertical slice: `features/[name]/api.ts, service.ts, repository.ts, pages/*.svelte` |
+| Database changes | Update `DatabaseSchema` → `bun run db:generate` → `bun run db:migrate` |
+| UI components | Inline Tailwind classes, NO component abstraction |
+| Form validation | TypeBox schema in service.ts |
+| Authentication | Use `authApi` and `.auth(true)` macro |
 
 ---
 
@@ -76,32 +70,338 @@ src/
 │   ├── plugin.ts           # Custom Elysia-Inertia adapter
 │   └── app.ts              # Client-side bootstrap
 ├── shared/                  # Cross-cutting concerns
-│   ├── layouts/            # Inertia layouts
-│   │   ├── AppLayout.svelte
-│   │   └── PublicLayout.svelte
 │   ├── lib/                # Utilities
 │   │   └── uuid.ts         # UUID v7 generator
 │   └── styles/
 │       └── app.css         # Tailwind entry
 └── types/
     └── elysia.d.ts         # Type declarations
-
-db/                        # SQLite databases (gitignored)
-tests/
-├── e2e/                   # Playwright E2E tests
-│   ├── auth.spec.ts
-│   └── setup.ts
-└── README.md
-
-static/                    # Static assets
 ```
 
-### Key Rules
+### Key Rules (NEVER BREAK THESE)
 
 1. **One folder = One feature**: All code for a feature lives together
 2. **No horizontal layers**: No global `controllers/`, `models/`, `views/` folders
 3. **Page naming**: Svelte pages in `features/[name]/pages/` are PascalCase
 4. **Route naming**: Use kebab-case for URLs: `auth/login`, `dashboard/settings`
+5. **No atomic components**: NO `Button.svelte`, `Input.svelte`, `Card.svelte`
+
+---
+
+## Creating a New Feature (Step-by-Step)
+
+### Step 1: Create Folder Structure
+
+```bash
+mkdir -p src/features/invoices/pages
+touch src/features/invoices/{api.ts,service.ts,repository.ts}
+touch src/features/invoices/pages/{Index.svelte,Create.svelte,Edit.svelte}
+```
+
+### Step 2: Update Database Schema (if needed)
+
+Edit `src/features/_core/database/connection.ts`:
+
+```typescript
+export interface DatabaseSchema {
+  // ... existing tables
+  invoices: {
+    id: string
+    customer: string
+    amount: number
+    status: 'pending' | 'paid' | 'cancelled'
+    created_at: string
+    updated_at: string
+  }
+}
+```
+
+### Step 3: Create Migration
+
+```bash
+bun run db:generate
+bun run db:migrate
+```
+
+### Step 4: Implement Repository
+
+```typescript
+// src/features/invoices/repository.ts
+import { db } from '../_core/database/connection'
+import { uuidv7 } from '../../shared/lib/uuid'
+
+export class InvoiceRepository {
+  async findAll() {
+    return db.selectFrom('invoices').selectAll().execute()
+  }
+  
+  async findById(id: string) {
+    return db.selectFrom('invoices')
+      .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirst()
+  }
+  
+  async create(data: { customer: string; amount: number }) {
+    const id = uuidv7()
+    const now = new Date().toISOString()
+    return db.insertInto('invoices')
+      .values({ 
+        id, 
+        ...data, 
+        status: 'pending',
+        created_at: now,
+        updated_at: now 
+      })
+      .returningAll()
+      .executeTakeFirst()
+  }
+  
+  async update(id: string, data: Partial<{ customer: string; amount: number; status: string }>) {
+    return db.updateTable('invoices')
+      .set({ ...data, updated_at: new Date().toISOString() })
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst()
+  }
+  
+  async delete(id: string) {
+    return db.deleteFrom('invoices').where('id', '=', id).execute()
+  }
+}
+```
+
+### Step 5: Implement Service
+
+```typescript
+// src/features/invoices/service.ts
+import { t, type Static } from 'elysia'
+import { InvoiceRepository } from './repository'
+
+export const CreateInvoiceSchema = t.Object({
+  customer: t.String({ minLength: 1, maxLength: 255 }),
+  amount: t.Number({ minimum: 0 })
+}, { additionalProperties: false })
+
+export const UpdateInvoiceSchema = t.Partial(t.Object({
+  customer: t.String({ minLength: 1, maxLength: 255 }),
+  amount: t.Number({ minimum: 0 }),
+  status: t.Union([
+    t.Literal('pending'),
+    t.Literal('paid'),
+    t.Literal('cancelled')
+  ])
+}))
+
+export type CreateInvoicePayload = Static<typeof CreateInvoiceSchema>
+export type UpdateInvoicePayload = Static<typeof UpdateInvoiceSchema>
+
+export class InvoiceService {
+  constructor(private repo: InvoiceRepository = new InvoiceRepository()) {}
+  
+  async getAll() {
+    return this.repo.findAll()
+  }
+  
+  async getById(id: string) {
+    return this.repo.findById(id)
+  }
+  
+  async create(payload: CreateInvoicePayload) {
+    return this.repo.create(payload)
+  }
+  
+  async update(id: string, payload: UpdateInvoicePayload) {
+    return this.repo.update(id, payload)
+  }
+  
+  async delete(id: string) {
+    return this.repo.delete(id)
+  }
+}
+```
+
+### Step 6: Implement API Routes
+
+```typescript
+// src/features/invoices/api.ts
+import { Elysia } from 'elysia'
+import { authApi } from '../_core/auth/api'
+import { InvoiceService, CreateInvoiceSchema, UpdateInvoiceSchema } from './service'
+import { inertia, type Inertia } from '../../inertia/plugin'
+
+export const invoiceApi = new Elysia({ prefix: '/invoices' })
+  .use(authApi)
+  .auth(true)  // Require authentication
+  .use(inertia())
+  .derive(() => ({ invoiceService: new InvoiceService() }))
+  
+  // List all invoices
+  .get('/', async (ctx) => {
+    const { inertia, invoiceService } = ctx as typeof ctx & { inertia: Inertia }
+    const invoices = await invoiceService.getAll()
+    return inertia.render('invoices/Index', { invoices })
+  })
+  
+  // Show create form
+  .get('/create', (ctx) => {
+    const { inertia } = ctx as typeof ctx & { inertia: Inertia }
+    return inertia.render('invoices/Create', { errors: {} })
+  })
+  
+  // Store new invoice
+  .post('/', async (ctx) => {
+    const { body, invoiceService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    try {
+      await invoiceService.create(body)
+      return inertia.redirect('/invoices')
+    } catch (error: any) {
+      return inertia.render('invoices/Create', { errors: { message: error.message } })
+    }
+  }, { body: CreateInvoiceSchema })
+  
+  // Show edit form
+  .get('/:id/edit', async (ctx) => {
+    const { params, invoiceService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const invoice = await invoiceService.getById(params.id)
+    if (!invoice) {
+      return inertia.render('errors/404', { path: ctx.request.url })
+    }
+    return inertia.render('invoices/Edit', { invoice, errors: {} })
+  })
+  
+  // Update invoice
+  .put('/:id', async (ctx) => {
+    const { params, body, invoiceService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    try {
+      await invoiceService.update(params.id, body)
+      return inertia.redirect('/invoices')
+    } catch (error: any) {
+      const invoice = await invoiceService.getById(params.id)
+      return inertia.render('invoices/Edit', { 
+        invoice, 
+        errors: { message: error.message } 
+      })
+    }
+  }, { body: UpdateInvoiceSchema })
+  
+  // Delete invoice
+  .delete('/:id', async (ctx) => {
+    const { params, invoiceService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    await invoiceService.delete(params.id)
+    return inertia.redirect('/invoices')
+  })
+```
+
+### Step 7: Create Svelte Pages
+
+**Index.svelte:**
+```svelte
+<script lang="ts">
+  import { useForm } from '@inertiajs/svelte'
+  import { Plus, Pencil, Trash } from 'lucide-svelte'
+  
+  interface Props {
+    invoices: Array<{
+      id: string
+      customer: string
+      amount: number
+      status: string
+    }>
+  }
+  
+  let { invoices }: Props = $props()
+  
+  const deleteForm = useForm({})
+  
+  function deleteInvoice(id: string) {
+    if (confirm('Delete this invoice?')) {
+      $deleteForm.delete(`/invoices/${id}`)
+    }
+  }
+  
+  function formatCurrency(amount: number) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
+  }
+</script>
+
+<div class="p-6 max-w-5xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Invoices</h1>
+    <a href="/invoices/create" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+      <Plus class="w-4 h-4" />
+      New Invoice
+    </a>
+  </div>
+  
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">Customer</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">Amount</th>
+          <th class="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">Status</th>
+          <th class="px-4 py-3 text-right text-sm font-medium text-slate-700 dark:text-slate-300">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {#each invoices as invoice}
+          <tr>
+            <td class="px-4 py-3 text-slate-900 dark:text-white">{invoice.customer}</td>
+            <td class="px-4 py-3 text-slate-900 dark:text-white">{formatCurrency(invoice.amount)}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex px-2 py-1 text-xs rounded-full" class:status-pending={invoice.status === 'pending'} class:status-paid={invoice.status === 'paid'} class:status-cancelled={invoice.status === 'cancelled'}>
+                {invoice.status}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div class="flex justify-end gap-2">
+                <a href="/invoices/{invoice.id}/edit" class="p-1 text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
+                  <Pencil class="w-4 h-4" />
+                </a>
+                <button onclick={() => deleteInvoice(invoice.id)} class="p-1 text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400">
+                  <Trash class="w-4 h-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+    
+    {#if invoices.length === 0}
+      <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+        No invoices found. Create your first invoice!
+      </div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .status-pending {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+  }
+  .status-paid {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+  .status-cancelled {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+</style>
+```
+
+### Step 8: Mount in Bootstrap
+
+Edit `src/bootstrap.ts`:
+
+```typescript
+import { invoiceApi } from './features/invoices/api'
+
+app.use(invoiceApi)
+```
 
 ---
 
@@ -143,131 +443,6 @@ bun run typecheck       # tsc + svelte-check
 ### Default Credentials
 
 After seeding: `admin@example.com` / `password123`
-
----
-
-## Creating a New Feature
-
-### 1. Create folder structure
-
-```bash
-mkdir -p src/features/invoices/pages
-touch src/features/invoices/{api.ts,service.ts,repository.ts}
-touch src/features/invoices/pages/Index.svelte
-touch src/features/invoices/pages/Create.svelte
-```
-
-### 2. Update database schema (if needed)
-
-Edit `src/features/_core/database/connection.ts` - add to `DatabaseSchema` interface.
-
-### 3. Create migration
-
-```bash
-bun run db:generate
-bun run db:migrate
-```
-
-### 4. Implement repository
-
-```typescript
-// src/features/invoices/repository.ts
-import { db } from '../_core/database/connection'
-import { uuidv7 } from '../../shared/lib/uuid'
-
-export class InvoiceRepository {
-  async findAll() {
-    return db.selectFrom('invoices').selectAll().execute()
-  }
-  
-  async create(data: any) {
-    const id = uuidv7()
-    await db.insertInto('invoices').values({ id, ...data }).execute()
-    return this.findById(id)
-  }
-}
-```
-
-### 5. Implement service
-
-```typescript
-// src/features/invoices/service.ts
-import { InvoiceRepository } from './repository'
-import { t, type Static } from 'elysia'
-
-export const CreateInvoiceSchema = t.Object({
-  customer: t.String(),
-  amount: t.Number()
-})
-
-export type CreateInvoicePayload = Static<typeof CreateInvoiceSchema>
-
-export class InvoiceService {
-  constructor(private repo: InvoiceRepository = new InvoiceRepository()) {}
-  
-  async create(payload: CreateInvoicePayload) {
-    return this.repo.create(payload)
-  }
-}
-```
-
-### 6. Implement API routes
-
-```typescript
-// src/features/invoices/api.ts
-import { Elysia } from 'elysia'
-import { InvoiceService, CreateInvoiceSchema } from './service'
-import { inertia, type Inertia } from '../../inertia/plugin'
-
-export const invoiceApi = new Elysia({ prefix: '/invoices' })
-  .use(inertia())
-  .derive(() => ({ invoiceService: new InvoiceService() }))
-  
-  .get('/', (ctx) => {
-    const { inertia } = ctx as typeof ctx & { inertia: Inertia }
-    return inertia.render('invoices/Index', { 
-      invoices: [] 
-    })
-  })
-  
-  .post('/', async (ctx) => {
-    const { body, invoiceService, inertia } = ctx as typeof ctx & { inertia: Inertia }
-    await invoiceService.create(body)
-    return inertia.redirect('/invoices')
-  }, {
-    body: CreateInvoiceSchema
-  })
-```
-
-### 7. Create Svelte page
-
-```svelte
-<!-- src/features/invoices/pages/Index.svelte -->
-<script lang="ts">
-  import { useForm } from '@inertiajs/svelte'
-  
-  interface Props {
-    invoices: Array<{ id: string; customer: string; amount: number }>
-  }
-  
-  let { invoices }: Props = $props()
-</script>
-
-<div class="p-8">
-  <h1 class="text-2xl font-bold">Invoices</h1>
-  <!-- UI here -->
-</div>
-```
-
-### 8. Mount in bootstrap
-
-Edit `src/bootstrap.ts`:
-
-```typescript
-import { invoiceApi } from './features/invoices/api'
-
-app.use(invoiceApi)
-```
 
 ---
 

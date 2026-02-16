@@ -1,0 +1,223 @@
+# EISK Stack - AI Development Guidelines
+
+## Stack Overview
+- **E**lysia (Bun web framework with TypeBox validation)
+- **I**nertia.js 2 (SPA bridge - custom plugin)
+- **S**velte 5 (Runes-based reactivity)
+- **K**ysely (Type-safe SQL query builder)
+- **Runtime**: Bun
+- **Database**: SQLite via bun:sqlite
+
+## Architecture Rules
+
+### 1. Vertical Feature Slicing
+ALWAYS organize code by feature, not by layer:
+```
+src/features/[featureName]/
+  ├── api.ts           # Elysia routes
+  ├── service.ts       # Business logic
+  ├── repository.ts    # Database access
+  └── pages/
+      ├── Index.svelte
+      └── Create.svelte
+```
+
+NEVER create:
+- `src/controllers/`
+- `src/models/`
+- `src/views/`
+
+### 2. API Implementation Pattern
+```typescript
+// src/features/[feature]/api.ts
+import { Elysia } from 'elysia'
+import { inertia, type Inertia } from '../../inertia/plugin'
+import { FeatureService, CreateSchema } from './service'
+
+export const featureApi = new Elysia({ prefix: '/features' })
+  .use(inertia())
+  .derive(() => ({ service: new FeatureService() }))
+  
+  .get('/', async (ctx) => {
+    const { inertia, service } = ctx as typeof ctx & { inertia: Inertia }
+    const items = await service.getAll()
+    return inertia.render('feature/Index', { items })
+  })
+  
+  .post('/', async (ctx) => {
+    const { body, service, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    await service.create(body)
+    return inertia.redirect('/features')
+  }, { body: CreateSchema })
+```
+
+### 3. Service Pattern
+```typescript
+// src/features/[feature]/service.ts
+import { t, type Static } from 'elysia'
+import { FeatureRepository } from './repository'
+
+export const CreateSchema = t.Object({
+  name: t.String({ minLength: 1, maxLength: 255 }),
+  description: t.Optional(t.String())
+})
+
+export type CreatePayload = Static<typeof CreateSchema>
+
+export class FeatureService {
+  constructor(private repo: FeatureRepository = new FeatureRepository()) {}
+  
+  async create(payload: CreatePayload) {
+    return this.repo.create(payload)
+  }
+}
+```
+
+### 4. Repository Pattern
+```typescript
+// src/features/[feature]/repository.ts
+import { db } from '../_core/database/connection'
+import { uuidv7 } from '../../shared/lib/uuid'
+
+export class FeatureRepository {
+  async findAll() {
+    return db.selectFrom('table').selectAll().execute()
+  }
+  
+  async create(data: any) {
+    const id = uuidv7()
+    return db.insertInto('table')
+      .values({ id, ...data, created_at: new Date().toISOString() })
+      .returningAll()
+      .executeTakeFirst()
+  }
+}
+```
+
+### 5. Svelte 5 Page Pattern
+```svelte
+<!-- src/features/[feature]/pages/Index.svelte -->
+<script lang="ts">
+  import { useForm } from '@inertiajs/svelte'
+  import { Plus, Trash } from 'lucide-svelte'
+  
+  interface Props {
+    items: Array<{ id: string; name: string }>
+  }
+  
+  let { items }: Props = $props()
+  
+  const deleteForm = useForm({})
+  
+  function deleteItem(id: string) {
+    if (confirm('Are you sure?')) {
+      $deleteForm.delete(`/features/${id}`)
+    }
+  }
+</script>
+
+<div class="p-6 max-w-4xl mx-auto">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Features</h1>
+    <a href="/features/create" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+      <Plus class="w-4 h-4" />
+      <span>Create</span>
+    </a>
+  </div>
+  
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow">
+    {#each items as item}
+      <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700 last:border-0">
+        <span class="text-slate-900 dark:text-white">{item.name}</span>
+        <button onclick={() => deleteItem(item.id)} class="text-red-600 hover:text-red-700">
+          <Trash class="w-4 h-4" />
+        </button>
+      </div>
+    {/each}
+  </div>
+</div>
+```
+
+## Key Conventions
+
+### Database
+- Use **UUID v7** for all IDs: `import { uuidv7 } from '$shared/lib/uuid'`
+- Use **snake_case** for DB columns
+- Use **ISO strings** for timestamps: `new Date().toISOString()`
+- Use Kysely for runtime queries, Drizzle ONLY for migrations
+
+### Naming
+- Files: `camelCase.ts` or `PascalCase.svelte`
+- Classes: `PascalCase`
+- Functions/Variables: `camelCase`
+- Routes: `kebab-case`
+
+### Styling (Tailwind v4)
+- NO atomic components (Button.svelte, Input.svelte)
+- Use inline Tailwind classes directly
+- Dark mode: `dark:` prefix
+- Icons: `lucide-svelte` only
+
+### Type Safety
+- ALWAYS export types from service.ts
+- Use TypeBox schemas for validation AND types
+- Use `Static<typeof Schema>` for inferred types
+
+## Common Tasks
+
+### Creating a New Feature
+1. Create folder: `mkdir -p src/features/name/pages`
+2. Create files: `api.ts`, `service.ts`, `repository.ts`
+3. Create Svelte pages in `pages/`
+4. Mount in `bootstrap.ts`: `.use(featureApi)`
+5. Add table to schema in `src/features/_core/database/connection.ts`
+6. Create migration: `bun run db:generate`
+7. Run migration: `bun run db:migrate`
+
+### Adding a Database Table
+1. Add to `DatabaseSchema` interface in `connection.ts`
+2. Generate migration: `bun run db:generate`
+3. Review migration SQL in `src/features/_core/database/migrations/`
+4. Run: `bun run db:migrate`
+
+### Forms with Validation
+```typescript
+// Backend
+.post('/', async (ctx) => {
+  const { body, inertia } = ctx
+  try {
+    await service.create(body)
+    return inertia.redirect('/route')
+  } catch (error) {
+    return inertia.render('feature/Create', {
+      errors: { name: error.message }
+    })
+  }
+}, { body: Schema })
+
+// Frontend
+const form = useForm({ name: '' })
+<form onsubmit={(e) => { e.preventDefault(); $form.post('/route') }}>
+  <input bind:value={$form.name} />
+  {#if $form.errors.name}
+    <span class="text-red-500">{$form.errors.name}</span>
+  {/if}
+</form>
+```
+
+## Important Notes
+
+1. **Bun ONLY** - Never use npm/node commands except for Playwright
+2. **Custom Inertia Plugin** - Located at `src/inertia/plugin.ts`
+3. **No API Layer** - Inertia handles backend-frontend communication
+4. **Environment** - Check `process.env.NODE_ENV` for dev/prod
+5. **Password Hashing** - Use `Bun.password.hash()` with bcrypt
+
+## Code Generation Template
+
+When asked to create a feature, generate:
+1. Repository with CRUD operations
+2. Service with TypeBox schemas
+3. API routes with Inertia responses
+4. Svelte pages (Index, Create, Edit)
+5. Migration if new table needed
