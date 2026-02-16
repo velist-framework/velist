@@ -4,15 +4,15 @@ Multi-agent workflow system untuk development yang terstruktur dan scalable.
 
 ---
 
-## Agent Instructions
+## Agents
 
 | Agent | File | Role |
 |-------|------|------|
-| @ProductAgent | [`instructions/product.md`](instructions/product.md) | Define what to build |
-| @TechLeadAgent | [`instructions/tech-lead.md`](instructions/tech-lead.md) | Define how to build |
-| @DeveloperAgent | [`instructions/developer.md`](instructions/developer.md) | Implement the code |
-| @QAAgent | [`instructions/qa.md`](instructions/qa.md) | Review and test |
-| @DevOpsAgent | [`instructions/devops.md`](instructions/devops.md) | Deploy and operate |
+| @ProductAgent | [`agents/product.md`](agents/product.md) | Define what to build |
+| @TechLeadAgent | [`agents/tech-lead.md`](agents/tech-lead.md) | Define how to build |
+| @DeveloperAgent | [`agents/developer.md`](agents/developer.md) | Implement the code |
+| @QAAgent | [`agents/qa.md`](agents/qa.md) | Review and test |
+| @DevOpsAgent | [`agents/devops.md`](agents/devops.md) | Deploy and operate |
 
 ---
 

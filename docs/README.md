@@ -14,7 +14,7 @@ For development process and agent instructions, see:
 
 | Resource | Location |
 |----------|----------|
-| Agent Instructions | [`workflow/instructions/`](../workflow/instructions/) |
+| Agent Instructions | [`workflow/agents/`](../workflow/agents/) |
 | Workflow Examples | [`workflow/examples.md`](../workflow/examples.md) |
 | Quick Reference | [`workflow/quick-reference.md`](../workflow/quick-reference.md) |
 

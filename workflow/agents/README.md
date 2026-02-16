@@ -1,4 +1,4 @@
-# Agent Instructions
+# Agents
 
 Template instruksi untuk setiap agent.
 
@@ -17,7 +17,7 @@ Acceptance Criteria:
 - [criteria 2]
 ```
 
-## Agents
+## Available Agents
 
 | File | Agent | Purpose |
 |------|-------|---------|
