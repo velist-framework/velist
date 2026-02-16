@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} | EISK App</title>
+  <meta name="description" content="EISK Stack - Elysia + Inertia + Svelte + Kysely">
+  
+  <!-- Tailwind CSS CDN (for development) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Vite HMR (development only) -->
+  <script type="module" src="http://localhost:5173/@vite/client"></script>
+  
+  <!-- Inertia page data -->
+  <script type="text/javascript">
+    window.__inertia_page = {{ page }};
+  </script>
+</head>
+<body class="font-sans antialiased">
+  <div id="app" data-page="{{ page }}"></div>
+  
+  <!-- Main script -->
+  <script type="module" src="http://localhost:5173/src/inertia/app.ts"></script>
+</body>
+</html>

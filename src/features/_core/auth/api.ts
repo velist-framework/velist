@@ -1,0 +1,148 @@
+import { Elysia } from 'elysia'
+import { AuthService, LoginSchema, RegisterSchema } from './service'
+import { AuthRepository } from './repository'
+import { cookie } from '@elysiajs/cookie'
+import { jwt } from '@elysiajs/jwt'
+import { inertia, type Inertia } from '../../../inertia/plugin'
+
+// Extend Elysia context
+declare module 'elysia' {
+  interface ElysiaInstance {
+    inertia: Inertia
+    user: {
+      id: string  // UUID v7
+      email: string
+      name: string
+    } | null
+  }
+}
+
+export const authApi = new Elysia({ prefix: '/auth' })
+  .use(inertia())
+  .use(cookie())
+  .use(jwt({
+    secret: process.env.JWT_SECRET || 'your-secret-key',
+    exp: '7d'
+  }))
+  
+  // Dependency injection ke context
+  .derive(() => ({
+    authService: new AuthService(),
+    authRepo: new AuthRepository()
+  }))
+
+  // GET /auth/login - Show login page
+  .get('/login', (ctx) => {
+    return ctx.inertia.render('auth/Login', {
+      errors: {},
+      status: null
+    })
+  })
+
+  // POST /auth/login - Handle login
+  .post('/login', async (ctx) => {
+    const { body, authService, jwt, cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    try {
+      const user = await authService.attempt(body.email, body.password)
+      
+      // Create token with UUID sub
+      const token = await jwt.sign({ 
+        sub: user.id,  // UUID v7
+        email: user.email,
+        name: user.name
+      })
+
+      // Set cookie
+      cookie.auth.set({
+        value: token,
+        httpOnly: true,
+        maxAge: body.remember ? 86400 * 30 : 86400, // 30 days or 1 day
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+
+      return inertia.redirect('/dashboard')
+      
+    } catch (error) {
+      return inertia.render('auth/Login', {
+        errors: { email: error instanceof Error ? error.message : 'Login failed' },
+        status: null
+      })
+    }
+  }, {
+    body: LoginSchema
+  })
+
+  // GET /auth/register
+  .get('/register', (ctx) => {
+    const { inertia } = ctx as typeof ctx & { inertia: Inertia }
+    return inertia.render('auth/Register', { errors: {} })
+  })
+
+  // POST /auth/register
+  .post('/register', async (ctx) => {
+    const { body, authService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    try {
+      await authService.register(body)
+      
+      return inertia.render('auth/Login', {
+        status: 'Registration successful. Please login.'
+      })
+      
+    } catch (error) {
+      return inertia.render('auth/Register', {
+        errors: { 
+          email: error instanceof Error ? error.message : 'Registration failed' 
+        }
+      })
+    }
+  }, {
+    body: RegisterSchema
+  })
+
+  // POST /auth/logout
+  .post('/logout', async (ctx) => {
+    const { cookie, jwt, authRepo, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const token = (cookie.auth as { value?: string }).value
+    if (token) {
+      try {
+        await jwt.verify(token) // Just to decode
+        await authRepo.deleteSession(token)
+      } catch {
+        // Ignore invalid token
+      }
+    }
+    
+    ;(cookie.auth as { remove: () => void }).remove()
+    return inertia.redirect('/auth/login')
+  })
+
+  // Middleware: Attach user to context
+  .derive(async (ctx) => {
+    const { cookie, jwt } = ctx
+    const token = (cookie.auth as { value?: string }).value
+    if (!token) return { user: null }
+    
+    try {
+      const payload = await jwt.verify(token)
+      return { 
+        user: payload as unknown as { id: string; email: string; name: string } 
+      }
+    } catch {
+      return { user: null }
+    }
+  })
+
+  // Macro untuk protected routes
+  .macro(({ onBeforeHandle }) => ({
+    auth(required: boolean) {
+      if (!required) return
+      onBeforeHandle((ctx: any) => {
+        const { user, inertia } = ctx
+        if (!user) {
+          return inertia.redirect('/auth/login')
+        }
+      })
+    }
+  }))
