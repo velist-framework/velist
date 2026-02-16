@@ -11,9 +11,9 @@ Dari Tech Lead Agent (setelah client approve design).
 
 Atau manual dari client:
 ```
-@DeveloperAgent
+@workflow/agents/developer.md
 
-Fix bug: [deskripsi]
+Fix bug: [deskripsi].
 ```
 
 ---
@@ -33,7 +33,7 @@ Fix bug: [deskripsi]
 
 **Setelah implementasi selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
 
-Jangan lanjutkan ke QA Agent tanpa persetujuan client.
+Jangan lanjutkan ke agent berikutnya tanpa persetujuan client.
 
 ---
 
@@ -56,7 +56,7 @@ Implement semua sekaligus.
 Silakan test aplikasi di localhost:3000
 
 Apakah implementasi sesuai ekspektasi?
-[ ] Approve - Lanjut ke QA
+[ ] Approve - Lanjut ke @workflow/agents/qa.md
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -74,7 +74,7 @@ Kasih list prioritas jika client bingung.
 Client: "Approve" atau "Lanjutkan"
 
 You:
-@QAAgent
+@workflow/agents/qa.md
 
 Development selesai dan di-approve client.
 Siap untuk testing.

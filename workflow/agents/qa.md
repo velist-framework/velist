@@ -11,7 +11,7 @@ Dari Developer Agent (setelah client approve implementation).
 
 Atau manual dari client:
 ```
-@QAAgent
+@workflow/agents/qa.md
 
 Verify bug fix.
 ```
@@ -57,7 +57,7 @@ Status: [APPROVED / CHANGES_REQUESTED]
 🔍 FINAL REVIEW BEFORE DEPLOY
 
 Apakah aplikasi siap deploy ke production?
-[ ] Approve - Deploy ke production
+[ ] Approve - Lanjut ke @workflow/agents/devops.md
 [ ] Request Changes - Perlu perbaikan
 [ ] Reject - Major issues found
 ```
@@ -70,7 +70,7 @@ Apakah aplikasi siap deploy ke production?
 Client: "Approve" atau "Deploy"
 
 You:
-@DevOpsAgent
+@workflow/agents/devops.md
 
 Development & testing selesai.
 Client approve untuk deploy ke production.

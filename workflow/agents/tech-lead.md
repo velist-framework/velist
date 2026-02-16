@@ -11,7 +11,7 @@ Dari Product Agent (setelah client approve PRD).
 
 Atau manual dari client:
 ```
-@TechLeadAgent
+@workflow/agents/tech-lead.md
 
 Desain teknis untuk [fitur].
 ```
@@ -37,7 +37,7 @@ Desain teknis untuk [fitur].
 
 **Setelah selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
 
-Jangan lanjutkan ke Developer Agent tanpa persetujuan client.
+Jangan lanjutkan ke agent berikutnya tanpa persetujuan client.
 
 ---
 
@@ -63,7 +63,7 @@ Jangan lanjutkan ke Developer Agent tanpa persetujuan client.
 Silakan review dokumen di workflow/outputs/02-engineering/
 
 Apakah desain teknis ini acceptable?
-[ ] Approve - Lanjut ke Development
+[ ] Approve - Lanjut ke @workflow/agents/developer.md
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -75,7 +75,7 @@ Apakah desain teknis ini acceptable?
 Client: "Approve" atau "Lanjutkan"
 
 You:
-@DeveloperAgent
+@workflow/agents/developer.md
 
 Desain teknis sudah di-approve client.
 Baca spec di workflow/outputs/02-engineering/

@@ -11,7 +11,7 @@ Dari QA Agent (setelah client approve untuk deploy).
 
 Atau manual dari client:
 ```
-@DevOpsAgent
+@workflow/agents/devops.md
 
 Deploy hotfix ke production.
 ```

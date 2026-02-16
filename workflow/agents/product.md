@@ -8,7 +8,7 @@ Menerjemahkan kebutuhan bisnis client menjadi dokumentasi produk.
 ## When Activated
 
 ```
-@ProductAgent
+@workflow/agents/product.md
 
 Saya mau [deskripsi aplikasi/fitur].
 ```
@@ -33,7 +33,7 @@ Saya mau [deskripsi aplikasi/fitur].
 
 **Setelah selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
 
-Jangan lanjutkan ke Tech Lead Agent tanpa persetujuan client.
+Jangan lanjutkan ke agent berikutnya tanpa persetujuan client.
 
 ---
 
@@ -57,7 +57,7 @@ Jangan lanjutkan ke Tech Lead Agent tanpa persetujuan client.
 Silakan review dokumen di workflow/outputs/01-product/
 
 Apakah PRD ini sudah sesuai kebutuhan?
-[ ] Approve - Lanjut ke Tech Lead
+[ ] Approve - Lanjut ke @workflow/agents/tech-lead.md
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -68,8 +68,8 @@ Apakah PRD ini sudah sesuai kebutuhan?
 ```
 Client: "Approve" atau "Lanjutkan"
 
-You: 
-@TechLeadAgent
+You:
+@workflow/agents/tech-lead.md
 
 Lanjutkan dari Product Agent.
 Kebutuhan produk sudah di-approve client.
