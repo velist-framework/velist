@@ -4,14 +4,17 @@ Real-world examples menggunakan multi-agent workflow.
 
 ---
 
-## Agent Call Format
+## Cara Panggil Agent
 
-Gunakan PascalCase tanpa spasi:
-- `@ProductAgent` (bukan `@Product Agent`)
-- `@TechLeadAgent` (bukan `@Tech Lead Agent`)
-- `@DeveloperAgent`
-- `@QAAgent`
-- `@DevOpsAgent`
+Format lengkap:
+```
+@workflow/agents/[nama-file].md [instruksi]
+```
+
+Contoh:
+```
+@workflow/agents/product.md Saya mau bikin aplikasi todolist.
+```
 
 ---
 
@@ -20,23 +23,23 @@ Gunakan PascalCase tanpa spasi:
 Setiap agent **WAJIB** menunggu client review dan approve sebelum handoff.
 
 ```
-@ProductAgent
+@workflow/agents/product.md [instruksi]
     ↓
 [Client Review: Approve PRD?]
     ↓ YES
-@TechLeadAgent
+@workflow/agents/tech-lead.md Lanjutkan dari Product Agent
     ↓
 [Client Review: Approve Tech Design?]
     ↓ YES
-@DeveloperAgent
+@workflow/agents/developer.md [instruksi]
     ↓
 [Client Review: Approve Implementation?]
     ↓ YES
-@QAAgent
+@workflow/agents/qa.md Test aplikasi
     ↓
 [Client Review: Approve for Deploy?]
     ↓ YES
-@DevOpsAgent
+@workflow/agents/devops.md Deploy ke production
     ↓
 🎉 DEPLOYED
 ```
@@ -47,7 +50,7 @@ Setiap agent **WAJIB** menunggu client review dan approve sebelum handoff.
 
 ### Step 1: Product Agent
 ```
-@ProductAgent
+@workflow/agents/product.md
 
 Saya mau bikin aplikasi inventory untuk UMKM.
 
@@ -83,7 +86,7 @@ Timeline: MVP 2 bulan, full 4 bulan
 Silakan review dokumen di workflow/outputs/01-product/
 
 Apakah PRD ini sudah sesuai kebutuhan?
-[ ] Approve - Lanjut ke @TechLeadAgent
+[ ] Approve - Lanjut ke @workflow/agents/tech-lead.md
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -92,6 +95,13 @@ Apakah PRD ini sudah sesuai kebutuhan?
 ---
 
 ### Step 2: Tech Lead Agent
+
+```
+@workflow/agents/tech-lead.md
+
+Lanjutkan dari Product Agent.
+Kebutuhan produk sudah di-approve client.
+```
 
 **TLA akan baca output PA, lalu buat:**
 - ✅ TECH_SPEC.md
@@ -124,7 +134,7 @@ Apakah PRD ini sudah sesuai kebutuhan?
 Silakan review dokumen di workflow/outputs/02-engineering/
 
 Apakah desain teknis ini acceptable?
-[ ] Approve - Lanjut ke @DeveloperAgent
+[ ] Approve - Lanjut ke @workflow/agents/developer.md
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -134,13 +144,15 @@ Apakah desain teknis ini acceptable?
 
 ### Step 3: Developer Agent
 
-**DevA akan implement sesuai mode:**
-
 **Mode A: One-Shot (Default)**
 ```
-DevA: Implement semua fitur...
-[Progress update setiap modul]
+@workflow/agents/developer.md
 
+Implement semua fitur inventory system.
+```
+
+**DevA Output:**
+```
 ✅ IMPLEMENTATION SELESAI
 
 📦 Modules Completed:
@@ -157,22 +169,15 @@ DevA: Implement semua fitur...
 Silakan test aplikasi di localhost:3000
 
 Apakah implementasi ini sesuai ekspektasi?
-[ ] Approve - Lanjut ke @QAAgent
+[ ] Approve - Lanjut ke @workflow/agents/qa.md
 [ ] Request Changes - Berikan feedback
 ```
 
 **Mode B: Per Fitur**
 ```
-DevA: Implement modul Warehouse...
+@workflow/agents/developer.md
 
-✅ WAREHOUSE MODULE SELESAI
-
-🔍 REVIEW REQUIRED
-
-Silakan test modul Warehouse.
-Lanjut ke Product Catalog?
-[ ] Approve & Continue
-[ ] Request Changes
+Implement modul Warehouse Management.
 ```
 
 **Client:** "Approve" → Lanjut ke QAA
@@ -181,8 +186,13 @@ Lanjut ke Product Catalog?
 
 ### Step 4: QA Agent
 
-**QAA akan test dan buat report:**
+```
+@workflow/agents/qa.md
 
+Test aplikasi inventory.
+```
+
+**QAA Output:**
 ```
 ✅ TESTING SELESAI
 
@@ -211,8 +221,13 @@ Apakah aplikasi siap deploy ke production?
 
 ### Step 5: DevOps Agent
 
-**DOA akan deploy:**
+```
+@workflow/agents/devops.md
 
+Deploy ke production.
+```
+
+**DOA Output:**
 ```
 ✅ DEPLOYMENT SELESAI
 
@@ -221,20 +236,7 @@ Apakah aplikasi siap deploy ke production?
 ✅ SSL: Active
 ✅ Monitoring: Active
 
-📋 Production Checklist:
-[✓] Database migrated
-[✓] Environment configured
-[✓] Backups scheduled
-[✓] Health monitoring active
-
 🎉 APLIKASI SUDAH LIVE!
-
-📖 Dokumentasi:
-- DEPLOYMENT_GUIDE.md
-- INFRASTRUCTURE.md
-- RELEASE_NOTES.md
-
-Selamat menggunakan! 🚀
 ```
 
 ---
@@ -242,121 +244,82 @@ Selamat menggunakan! 🚀
 ## Scenario 2: Feature Enhancement
 
 ```
-@ProductAgent
+@workflow/agents/product.md
 
 Saya punya aplikasi invoice, mau tambah fitur kategori.
 
 Invoice bisa dikategorikan dan filter by kategori.
 ```
 
-**PA Output:**
+**Client:** "Approve" →
+
 ```
-✅ FITUR KATEGORI - DEFINED
+@workflow/agents/tech-lead.md
 
-User Stories:
-• US-001: Create category
-• US-002: Edit category
-• US-003: Delete category
-• US-004: Assign invoice to category
-• US-005: Filter by category
-
-🔍 REVIEW REQUIRED
-
-Approve untuk desain teknis?
-[ ] Approve - Lanjut ke @TechLeadAgent
-[ ] Request Changes
+Lanjutkan dari Product Agent.
 ```
 
-**Client:** "Approve"
+**Client:** "Approve" →
 
-→ **@TechLeadAgent** → Design → **Review** → Approve
+```
+@workflow/agents/developer.md
 
-→ **@DeveloperAgent** → Implement → **Review** → Approve
+Implement fitur kategori.
+```
 
-→ **@QAAgent** → Test → **Review** → Approve
+**Client:** "Approve" →
 
-→ **@DevOpsAgent** → Deploy
+```
+@workflow/agents/qa.md
+
+Test fitur kategori.
+```
+
+**Client:** "Approve" →
+
+```
+@workflow/agents/devops.md
+
+Deploy ke production.
+```
 
 ---
 
 ## Scenario 3: Bug Fix
 
 ```
-@DeveloperAgent
+@workflow/agents/developer.md
 
 Fix bug: amount invoice tidak tersimpan.
 
 Input $100, tersimpan $0.
 ```
 
-**DevA Output:**
+**Client:** "Approve" →
+
 ```
-✅ BUG FIX SELESAI
+@workflow/agents/qa.md
 
-Root Cause: Type coercion error di amount field
-Fix: Explicit number conversion
-
-🔍 REVIEW REQUIRED
-
-Silakan verify fix di localhost:5173/invoices/create
-
-Bug sudah teratasi?
-[ ] Approve - Lanjut ke @QAAgent verify
-[ ] Reject - Bug masih ada
+Verify bug fix.
 ```
 
-**Client:** "Approve"
+---
 
-→ **@QAAgent** → Verify → **Review** → Approve → Done
+## Quick Reference
+
+| Panggil | Deskripsi |
+|---------|-----------|
+| `@workflow/agents/product.md` | Define product requirements |
+| `@workflow/agents/tech-lead.md` | Design technical architecture |
+| `@workflow/agents/developer.md` | Implement code |
+| `@workflow/agents/qa.md` | Test and review |
+| `@workflow/agents/devops.md` | Deploy to production |
 
 ---
 
-## Review Checklist per Tahap
+## Catatan
 
-### 1. Product Review
-- [ ] Fitur lengkap sesuai kebutuhan
-- [ ] User personas sesuai target
-- [ ] Timeline acceptable
-- [ ] Prioritas fitur sesuai
-
-### 2. Tech Design Review
-- [ ] Tech stack sesuai
-- [ ] Architecture scalable
-- [ ] Security adequate
-- [ ] Timeline realistic
-
-### 3. Implementation Review
-- [ ] Fitur berfungsi
-- [ ] UI/UX acceptable
-- [ ] Performance ok
-- [ ] Bug-free (major)
-
-### 4. QA Review
-- [ ] All tests pass
-- [ ] No critical/major issues
-- [ ] Ready for production
-
----
-
-## Catatan Penting
-
-⚠️ **Setiap tahap WAJIB ada review point.**
-
-Tidak ada auto-skip review.
-
-Ini untuk memastikan:
-- ✅ Kualitas terjaga
-- ✅ Client puas dengan hasil
-- ✅ Tidak ada surprise di akhir
-
----
-
-## File to Agent Mapping
-
-| File | Agent Call |
-|------|-----------|
-| `workflow/agents/product.md` | `@ProductAgent` |
-| `workflow/agents/tech-lead.md` | `@TechLeadAgent` |
-| `workflow/agents/developer.md` | `@DeveloperAgent` |
-| `workflow/agents/qa.md` | `@QAAgent` |
-| `workflow/agents/devops.md` | `@DevOpsAgent` |
+- Setiap agent file (`product.md`, `tech-lead.md`, dll.) berisi **instruksi lengkap** untuk agent tersebut
+- Agent files saling **independen** dan self-contained
+- File `workflow/README.md` dan `workflow/examples.md` hanya untuk **referensi manusia**
+- Untuk development, **cukup panggil agent file langsung**

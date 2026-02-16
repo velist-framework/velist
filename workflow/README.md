@@ -4,40 +4,53 @@ Multi-agent workflow dengan **mandatory review points**.
 
 ---
 
-## Agent Naming Convention
+## Cara Penggunaan
 
-| File | Agent Name | Call As |
-|------|-----------|---------|
-| `agents/product.md` | Product Agent | `@ProductAgent` |
-| `agents/tech-lead.md` | Tech Lead Agent | `@TechLeadAgent` |
-| `agents/developer.md` | Developer Agent | `@DeveloperAgent` |
-| `agents/qa.md` | QA Agent | `@QAAgent` |
-| `agents/devops.md` | DevOps Agent | `@DevOpsAgent` |
+### Format Panggil Agent
 
-**Cara panggil:** Gunakan PascalCase tanpa spasi: `@ProductAgent`
+```
+@workflow/agents/[nama-file].md [instruksi]
+```
+
+**Contoh:**
+```
+@workflow/agents/product.md Saya mau bikin aplikasi todolist.
+```
+
+### File ke Agent Mapping
+
+| Panggil | File yang Dibaca | Deskripsi |
+|---------|------------------|-----------|
+| `@workflow/agents/product.md` | `agents/product.md` | Define requirements |
+| `@workflow/agents/tech-lead.md` | `agents/tech-lead.md` | Design system |
+| `@workflow/agents/developer.md` | `agents/developer.md` | Implement code |
+| `@workflow/agents/qa.md` | `agents/qa.md` | Test & review |
+| `@workflow/agents/devops.md` | `agents/devops.md` | Deploy & operate |
+
+**Catatan:** Setiap agent file berisi instruksi lengkap untuk agent tersebut. File ini saling independen.
 
 ---
 
 ## Workflow Flow
 
 ```
-@ProductAgent
+@workflow/agents/product.md Saya mau aplikasi X...
     ↓
 [🔍 CLIENT REVIEW: Approve PRD?]
     ↓ YES
-@TechLeadAgent
+@workflow/agents/tech-lead.md Lanjutkan dari Product Agent
     ↓
 [🔍 CLIENT REVIEW: Approve Tech Design?]
     ↓ YES
-@DeveloperAgent
+@workflow/agents/developer.md Implement fitur...
     ↓
 [🔍 CLIENT REVIEW: Approve Implementation?]
     ↓ YES
-@QAAgent
+@workflow/agents/qa.md Test aplikasi
     ↓
 [🔍 CLIENT REVIEW: Approve for Deploy?]
     ↓ YES
-@DevOpsAgent
+@workflow/agents/devops.md Deploy ke production
     ↓
 🎉 DEPLOYED
 ```
@@ -46,36 +59,62 @@ Multi-agent workflow dengan **mandatory review points**.
 
 ---
 
-## How It Works
+## Contoh Penggunaan Lengkap
 
-1. **Client panggil @ProductAgent** dengan kebutuhan
-2. **PA selesai → TUNGGU CLIENT REVIEW**
-3. **Client approve → @TechLeadAgent mulai**
-4. **TLA selesai → TUNGGU CLIENT REVIEW**
-5. **Client approve → @DeveloperAgent mulai**
-6. **DevA selesai → TUNGGU CLIENT REVIEW**
-7. **Client approve → @QAAgent mulai**
-8. **QA selesai → TUNGGU CLIENT REVIEW**
-9. **Client approve → @DevOpsAgent deploy**
+### 1. Mulai Project Baru
 
----
+```
+@workflow/agents/product.md
 
-## Agents
+Saya mau bikin aplikasi todolist.
 
-| Agent | Output | Review Point |
-|-------|--------|--------------|
-| `@ProductAgent` | PRD, User Stories, Roadmap | Approve requirements? |
-| `@TechLeadAgent` | Tech Spec, Architecture, Tasks | Approve design? |
-| `@DeveloperAgent` | Working code | Approve implementation? |
-| `@QAAgent` | Test Report | Approve for production? |
-| `@DevOpsAgent` | Live application | - |
+Fitur:
+- Bisa bikin todo list
+- Set deadline
+- Mark as complete
+- Filter by status
+
+User: Personal use
+Timeline: 1 minggu
+```
+
+**PA akan:**
+1. Interview jika perlu
+2. Buat PRD, User Stories, Roadmap
+3. Present ke client
+4. Tunggu review & approve
+
+**Setelah client approve:**
+```
+@workflow/agents/tech-lead.md
+
+Lanjutkan dari Product Agent.
+Kebutuhan sudah di-approve client.
+```
+
+### 2. Fix Bug
+
+```
+@workflow/agents/developer.md
+
+Fix bug: todo tidak bisa di-save.
+Error: "Failed to save" muncul setiap kali create todo.
+```
 
 ---
 
 ## Resources
 
-- [**examples.md**](examples.md) - Real scenarios dengan review points
-- [**quick-reference.md**](quick-reference.md) - Cheat sheet
+File-file berikut adalah **referensi untuk manusia** (tidak perlu dibaca agent):
+
+| File | Purpose |
+|------|---------|
+| `workflow/README.md` | Dokumen ini - overview workflow |
+| `workflow/examples.md` | Contoh skenario lengkap |
+| `workflow/quick-reference.md` | Cheat sheet |
+| `workflow/agents/README.md` | Daftar agents |
+
+**Untuk development, cukup panggil agent file langsung.**
 
 ---
 
@@ -94,4 +133,20 @@ bun run db:migrate
 bun run dev
 ```
 
-Then call `@ProductAgent`.
+Then call agent.
+
+---
+
+## Agent Outputs
+
+Hasil kerja agent tersimpan di:
+
+```
+workflow/outputs/
+├── 01-product/       # Product Agent output
+├── 02-engineering/   # Tech Lead Agent output
+├── 03-tasks/         # Task breakdowns
+└── 04-reports/       # QA Agent output
+```
+
+Agent-agent bisa membaca output agent lain dari folder ini.

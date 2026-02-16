@@ -2,36 +2,54 @@
 
 Template instruksi untuk setiap agent.
 
-## File to Agent Call Mapping
+---
 
-| File | Call As | Description |
-|------|---------|-------------|
-| `product.md` | `@ProductAgent` | Define requirements |
-| `tech-lead.md` | `@TechLeadAgent` | Design system |
-| `developer.md` | `@DeveloperAgent` | Implement code |
-| `qa.md` | `@QAAgent` | Test & review |
-| `devops.md` | `@DevOpsAgent` | Deploy & operate |
+## Cara Panggil
 
-## Usage Format
-
-Panggil agent dengan PascalCase tanpa spasi:
-
+Format lengkap:
 ```
-@ProductAgent
-
-[Deskripsikan task]
+@workflow/agents/[nama-file].md [instruksi]
 ```
 
-Jangan gunakan spasi:
-- ❌ `@Product Agent`
-- ✅ `@ProductAgent`
+---
 
-## Available Agents
+## Mapping
 
-| Agent | Purpose |
-|-------|---------|
-| `@ProductAgent` | Requirements & roadmap |
-| `@TechLeadAgent` | Architecture & design |
-| `@DeveloperAgent` | Code implementation |
-| `@QAAgent` | Testing & review |
-| `@DevOpsAgent` | Deployment & ops |
+| File | Panggil Sebagai | Deskripsi |
+|------|-----------------|-----------|
+| `product.md` | `@workflow/agents/product.md` | Define requirements |
+| `tech-lead.md` | `@workflow/agents/tech-lead.md` | Design system |
+| `developer.md` | `@workflow/agents/developer.md` | Implement code |
+| `qa.md` | `@workflow/agents/qa.md` | Test & review |
+| `devops.md` | `@workflow/agents/devops.md` | Deploy & ops |
+
+---
+
+## Contoh
+
+```
+@workflow/agents/product.md
+
+Saya mau bikin aplikasi todolist.
+Fitur: create todo, set deadline, mark complete.
+```
+
+```
+@workflow/agents/developer.md
+
+Implement modul authentication.
+```
+
+```
+@workflow/agents/qa.md
+
+Test aplikasi.
+```
+
+---
+
+## Catatan
+
+- Setiap file di folder ini adalah **self-contained** - berisi instruksi lengkap untuk agent
+- File-file ini **independen** satu sama lain
+- Untuk referensi workflow, lihat `workflow/README.md` dan `workflow/examples.md`

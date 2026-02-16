@@ -4,52 +4,56 @@ Cheat sheet untuk multi-agent workflow.
 
 ---
 
-## File to Agent Mapping
+## Cara Panggil Agent
 
-| File | Agent Call |
-|------|-----------|
-| `agents/product.md` | `@ProductAgent` |
-| `agents/tech-lead.md` | `@TechLeadAgent` |
-| `agents/developer.md` | `@DeveloperAgent` |
-| `agents/qa.md` | `@QAAgent` |
-| `agents/devops.md` | `@DevOpsAgent` |
+```
+@workflow/agents/[nama-file].md [instruksi]
+```
+
+| Panggil | Fungsi |
+|---------|--------|
+| `@workflow/agents/product.md` | Define product requirements |
+| `@workflow/agents/tech-lead.md` | Design technical architecture |
+| `@workflow/agents/developer.md` | Implement code |
+| `@workflow/agents/qa.md` | Test and review |
+| `@workflow/agents/devops.md` | Deploy to production |
 
 ---
 
 ## Workflow dengan Mandatory Review
 
 ```
-Client: @ProductAgent Saya mau aplikasi X...
+Client: @workflow/agents/product.md Saya mau aplikasi X...
     ↓
 PA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
-@TechLeadAgent
+@workflow/agents/tech-lead.md Lanjutkan dari Product Agent
     ↓
 TLA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
-@DeveloperAgent
+@workflow/agents/developer.md Implement fitur...
     ↓
 DevA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
-@QAAgent
+@workflow/agents/qa.md Test aplikasi
     ↓
 QA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
-@DevOpsAgent
+@workflow/agents/devops.md Deploy ke production
     ↓
 DOA: Deployed! 🎉
 ```
 
 ---
 
-## Agent Calls
+## Contoh Penggunaan
 
 ### Start New Project
 ```
-@ProductAgent
+@workflow/agents/product.md
 
-Saya mau [aplikasi].
-Kebutuhan: [1], [2], [3].
+Saya mau bikin aplikasi todolist.
+Kebutuhan: [deskripsikan].
 ```
 
 ### Approve & Continue
@@ -64,9 +68,16 @@ Client: "Revisi: [detail perubahan]"
 
 ### Fix Bug
 ```
-@DeveloperAgent
+@workflow/agents/developer.md
 
 Fix: [deskripsi bug]
+```
+
+### Deploy
+```
+@workflow/agents/devops.md
+
+Deploy ke production.
 ```
 
 ---
@@ -84,11 +95,11 @@ Fix: [deskripsi bug]
 
 ## Developer Modes
 
-| Mode | When to Use |
-|------|-------------|
-| **One-Shot** | Small project, quick result |
-| **Per Feature** | Large project, gradual review |
-| **Auto-Prioritize** | Non-technical client |
+| Mode | Trigger | When to Use |
+|------|---------|-------------|
+| **One-Shot** | Default | Small project, quick result |
+| **Per Feature** | Request "per fitur" | Large project, gradual review |
+| **Auto-Prioritize** | "Bingung mulai dari mana" | Non-technical client |
 
 ---
 
@@ -96,17 +107,17 @@ Fix: [deskripsi bug]
 
 ```
 workflow/outputs/
-├── 01-product/       # PA output
-├── 02-engineering/   # TLA output
+├── 01-product/       # Product Agent output
+├── 02-engineering/   # Tech Lead Agent output
 ├── 03-tasks/         # Tasks
-└── 04-reports/       # QA output
+└── 04-reports/       # QA Agent output
 ```
 
 ---
 
 ## ⚠️ Important Rules
 
-1. **Every stage has mandatory review**
-2. **No auto-skip without client approval**
-3. **Use PascalCase for agent calls: `@ProductAgent`**
-4. **Client can approve or request changes**
+1. **Panggil agent dengan full path:** `@workflow/agents/[file].md`
+2. **Every stage has mandatory review** - tunggu client approve
+3. **No auto-skip** - client harus eksplisit approve
+4. **README dan examples hanya referensi** - agent files yang self-contained
