@@ -1,201 +1,149 @@
-# Quick Reference - Multi-Agent Workflow
+# Quick Reference
 
-Cheat sheet untuk memanggil agent dengan cepat.
+Cheat sheet untuk multi-agent workflow.
 
 ---
 
-## Agent Call Templates
+## Agent Calls (Minimal)
 
 ### @ProductAgent
 ```
 @ProductAgent
 
-[Nama Fitur] - [Deskripsi singkat]
-
-User Story:
-Sebagai [user], saya ingin [action], agar [benefit]
-
-Acceptance Criteria:
-1. [Kriteria 1]
-2. [Kriteria 2]
-3. [Kriteria 3]
-
-Deliverable:
-- PRD.md
-- USER_STORIES.md
-- ROADMAP.md
+Saya mau [deskripsi aplikasi/fitur].
+Kebutuhan: [point 1], [point 2], [point 3].
+User: [siapa yang pakai]
+Timeline: [kapan butuh]
 ```
 
 ### @TechLeadAgent
 ```
 @TechLeadAgent
 
-Design: [Nama Fitur]
+Lanjutkan dari Product Agent.
+```
 
-Referensi:
-- PRD: docs/01-product/PRD.md
+atau
 
-Deliverable:
-- TECH_SPEC.md
-- ARCHITECTURE.md
-- API_CONTRACT.md
-- DATABASE_SCHEMA.md
-- TASKS.md
+```
+@TechLeadAgent
+
+Desain teknis untuk [fitur].
 ```
 
 ### @DeveloperAgent
 ```
 @DeveloperAgent
 
-Implement: [Task Name]
+Sprint X: [nama modul].
+```
 
-Referensi:
-- Task: docs/03-implementation/TASKS.md [Task-XXX]
-- Tech Spec: docs/02-engineering/TECH_SPEC.md [Section]
+atau
 
-Acceptance Criteria:
-- [AC 1]
-- [AC 2]
+```
+@DeveloperAgent
 
-Files:
-- [List files yang perlu dibuat/diubah]
+Implement [fitur].
+```
+
+atau
+
+```
+@DeveloperAgent
+
+Fix bug: [deskripsi bug].
 ```
 
 ### @QAAgent
 ```
 @QAAgent
 
-Review: [Nama Fitur/Task]
+Test [sprint/fitur].
+```
 
-Scope:
-- [Files yang direview]
+atau
 
-Acceptance Criteria:
-- [AC 1]
-- [AC 2]
+```
+@QAAgent
 
-Deliverable:
-- TEST_REPORT.md
+Verify fix.
 ```
 
 ### @DevOpsAgent
 ```
 @DevOpsAgent
 
-[Deploy/Setup/Infrastructure task]
+Setup project.
+```
 
-Environment: [staging/production]
-Changes: [Database/API/UI]
-Deliverable: [DEPLOYMENT_GUIDE/Config files]
+atau
+
+```
+@DevOpsAgent
+
+Deploy ke [staging/production].
 ```
 
 ---
 
-## Common Patterns
+## Workflow Patterns
 
-### New Feature (Full Flow)
+### New Application
 ```
-1. @ProductAgent -> [PRD]
-2. @TechLeadAgent -> [TECH_SPEC, TASKS]
-3. @DeveloperAgent Task-001 -> [Code]
-4. @QAAgent -> [Review]
-5. @DeveloperAgent (fix if needed)
-6. @DevOpsAgent (deploy)
-```
-
-### Bug Fix (Fast Track)
-```
-1. @DeveloperAgent -> [Fix]
-2. @QAAgent -> [Verify]
-3. @DevOpsAgent (deploy if critical)
+1. @ProductAgent     -> Define product
+2. @TechLeadAgent    -> Design system
+3. @DevOpsAgent      -> Setup project
+4. @DeveloperAgent   -> Implement sprint 1
+5. @QAAgent          -> Test sprint 1
+6. Repeat 4-5 for next sprints
+7. @DevOpsAgent      -> Deploy production
 ```
 
-### Refactoring
+### New Feature
 ```
-1. @TechLeadAgent -> [Refactor Plan]
-2. @DeveloperAgent -> [Refactored Code]
-3. @QAAgent -> [Regression Test]
+1. @ProductAgent     -> Define feature
+2. @TechLeadAgent    -> Design feature
+3. @DeveloperAgent   -> Implement
+4. @QAAgent          -> Test
+```
+
+### Bug Fix
+```
+1. @DeveloperAgent   -> Fix
+2. @QAAgent          -> Verify
 ```
 
 ---
 
-## Document Checklist
+## Document Locations
 
-| Fase | Dokumen | Dibuat Oleh | Template |
-|------|---------|-------------|----------|
-| Discover | PRD.md | PA | docs/06-agents/AGENT_PRODUCT.md |
-| Discover | USER_STORIES.md | PA | docs/06-agents/AGENT_PRODUCT.md |
-| Discover | ROADMAP.md | PA | docs/06-agents/AGENT_PRODUCT.md |
-| Design | TECH_SPEC.md | TLA | docs/06-agents/AGENT_TECH_LEAD.md |
-| Design | ARCHITECTURE.md | TLA | docs/06-agents/AGENT_TECH_LEAD.md |
-| Design | API_CONTRACT.md | TLA | docs/06-agents/AGENT_TECH_LEAD.md |
-| Design | DATABASE_SCHEMA.md | TLA | docs/06-agents/AGENT_TECH_LEAD.md |
-| Design | TASKS.md | TLA | docs/06-agents/AGENT_TECH_LEAD.md |
-| Develop | IMPLEMENTATION_LOG.md | DevA | docs/06-agents/AGENT_DEVELOPER.md |
-| Develop | CHANGELOG.md | DevA | docs/06-agents/AGENT_DEVELOPER.md |
-| Test | TEST_REPORT.md | QAA | docs/06-agents/AGENT_QA.md |
-| Deploy | DEPLOYMENT_GUIDE.md | DOA | docs/06-agents/AGENT_DEVOPS.md |
-| Deploy | INFRASTRUCTURE.md | DOA | docs/06-agents/AGENT_DEVOPS.md |
-| Deploy | RELEASE_NOTES.md | DOA | docs/06-agents/AGENT_DEVOPS.md |
+| Type | Location |
+|------|----------|
+| Product docs | `workflow/outputs/01-product/` |
+| Engineering | `workflow/outputs/02-engineering/` |
+| Tasks | `workflow/outputs/03-tasks/` |
+| Reports | `workflow/outputs/04-reports/` |
 
 ---
 
-## Severity Levels (for QA)
+## Commit Types
+
+| Type | Use |
+|------|-----|
+| feat | New feature |
+| fix | Bug fix |
+| refactor | Code improvement |
+| docs | Documentation |
+| test | Tests |
+| chore | Maintenance |
+
+---
+
+## Severity (QA)
 
 | Level | Action |
 |-------|--------|
-| Critical | Must fix before merge |
-| Major | Must fix before merge |
-| Minor | Should fix, can follow-up |
+| Critical | Must fix |
+| Major | Must fix |
+| Minor | Should fix |
 | Suggestion | Optional |
-
----
-
-## Commit Message Types
-
-| Type | Use Case |
-|------|----------|
-| feat | New feature |
-| fix | Bug fix |
-| refactor | Code change, no functional change |
-| docs | Documentation only |
-| test | Adding tests |
-| chore | Maintenance tasks |
-
----
-
-## Quick Commands
-
-### Database
-```bash
-bun run db:generate    # Generate migration
-bun run db:migrate     # Run migrations
-bun run db:seed        # Seed data
-bun run db:refresh     # Reset + migrate + seed
-```
-
-### Development
-```bash
-bun run dev            # Full dev mode
-bun run dev:server     # Backend only
-bun run dev:client     # Frontend only
-bun run build          # Production build
-bun run typecheck      # Type checking
-```
-
-### Testing
-```bash
-npx playwright test    # E2E tests
-```
-
----
-
-## Emergency Contacts (Metaphorical)
-
-| Issue | Call |
-|-------|------|
-| Requirement unclear | @ProductAgent |
-| Technical block | @TechLeadAgent |
-| Implementation stuck | @DeveloperAgent (re-scope) |
-| Bug in production | @DeveloperAgent + @DevOpsAgent |
-| Deploy failed | @DevOpsAgent |

@@ -1,219 +1,168 @@
-# 🤖 QA Agent (QAA) — Instruction Template
+# QA Agent (QAA) — Agent Instructions
 
-## Cara Memanggil
+## Role
+Menjaga kualitas kode dan memastikan fitur bekerja sesuai spec.
+
+---
+
+## When Activated
 
 ```
 @QAAgent
 
-Review PR untuk fitur: [Nama Fitur]
-
-**PR:** [Link/Deskripsi perubahan]
-**Task:** Task-XXX
-**User Story:** US-XXX
+Test Sprint 1.
 ```
 
-## Output yang Diharapkan
+atau
 
-Agent akan menghasilkan:
-
-1. **docs/04-testing/TEST_REPORT.md** — Hasil testing
-2. **Review comments** pada kode (jika ada issue)
-3. **Approval/Rejection** dengan alasan
-
-## Checklist Review
-
-### 1. Code Review
-
-#### Readability & Style
-- [ ] Kode mudah dibaca
-- [ ] Naming conventions sesuai project
-- [ ] Tidak ada magic numbers/strings
-- [ ] Function/class tidak terlalu besar (SRP)
-
-#### EISK Patterns
-- [ ] Repository pattern digunakan dengan benar
-- [ ] Service layer ada business logic (bukan hanya proxy)
-- [ ] API routes menggunakan proper Elysia patterns
-- [ ] Svelte pages menggunakan runes ($props, $state)
-- [ ] Inline Tailwind classes (no unnecessary components)
-
-#### Type Safety
-- [ ] No `any` types
-- [ ] Props interfaces didefinisikan
-- [ ] Return types explicit (untuk functions penting)
-
-#### Error Handling
-- [ ] Async operations ada try-catch
-- [ ] Error messages user-friendly
-- [ ] Edge cases ditangani
-
-#### Security
-- [ ] Input validation dengan TypeBox
-- [ ] No SQL injection vulnerability
-- [ ] No XSS vulnerability
-- [ ] Auth check di protected routes
-- [ ] No sensitive data di response
-
-### 2. Functional Testing
-
-#### Acceptance Criteria Verification
 ```
-US-XXX: [Judul User Story]
+@QAAgent
 
-AC 1: [Deskripsi AC]
-Status: ✅ PASS / ❌ FAIL
-Notes: [Catatan]
-
-AC 2: [Deskripsi AC]
-Status: ✅ PASS / ❌ FAIL
-Notes: [Catatan]
+Review fitur kategori.
 ```
 
-#### Edge Cases
-- [ ] Empty state (no data)
-- [ ] Boundary values (min/max input)
-- [ ] Concurrent operations
-- [ ] Network failure simulation
-- [ ] Invalid input variations
+atau
 
-### 3. Integration Testing
-- [ ] Feature works dengan existing features
-- [ ] Database migrations berjalan smooth
-- [ ] API contracts honored
+```
+@QAAgent
 
-### 4. Performance Check
-- [ ] No N+1 queries
-- [ ] Database queries optimized (indexes digunakan)
-- [ ] UI responsive (no blocking operations)
+Verify bug fix.
+```
 
-## Test Report Template
+---
+
+## Your Job
+
+### Step 1: Gather Context
+- Cek apa yang mau di-test dari client/Developer Agent
+- Baca Tech Spec dan Acceptance Criteria
+- Lihat kode yang diimplementasikan
+
+### Step 2: Review & Test
+- Code review
+- Functional testing
+- Edge case testing
+
+### Step 3: Report
+- Buat `TEST_REPORT.md`
+- Status: APPROVED atau CHANGES_REQUESTED
+- List issues jika ada
+
+---
+
+## Output
+
+**`workflow/outputs/04-reports/TEST_REPORT_[sprint/feature].md`**
 
 ```markdown
-# Test Report: [Feature Name]
+# Test Report: Sprint 1
 
 **Date:** YYYY-MM-DD
-**Tester:** QA Agent
-**PR:** [Reference]
+**Status:** APPROVED / CHANGES_REQUESTED
 
 ## Summary
-- **Status:** APPROVED / CHANGES REQUESTED / REJECTED
-- **Issues Found:** X
-- **Critical:** X
-- **Major:** X
-- **Minor:** X
+- Issues Found: X
+- Critical: X
+- Major: X
+- Minor: X
 
 ## Code Review
-
-### Findings
-| # | Location | Issue | Severity | Suggestion |
-|---|----------|-------|----------|------------|
-| 1 | file.ts:42 | ... | Critical | ... |
+| # | File | Issue | Severity |
+|---|------|-------|----------|
+| 1 | auth.ts:42 | ... | Major |
 
 ## Functional Testing
-
-### Acceptance Criteria
 - AC 1: ✅ PASS
-- AC 2: ❌ FAIL - [Explanation]
-
-### Edge Cases Tested
-- [List edge cases dengan status]
+- AC 2: ❌ FAIL
 
 ## Recommendations
-1. [Recommendation 1]
-2. [Recommendation 2]
+...
 ```
 
-## Instruksi untuk Situasi Berbeda
+---
 
-### Routine PR Review
-```
-@QAAgent
+## Testing Checklist
 
-Review PR untuk Task-010: Implement user profile page.
+### Code Review
+- [ ] Readable & maintainable
+- [ ] Follow project conventions
+- [ ] Type safety (no `any`)
+- [ ] Error handling
+- [ ] Security (input validation, SQL injection, XSS)
 
-**Files changed:**
-- src/features/profile/api.ts
-- src/features/profile/service.ts
-- src/features/profile/pages/Index.svelte
-- src/features/profile/pages/Edit.svelte
+### Functional
+- [ ] Semua Acceptance Criteria tested
+- [ ] Happy path works
+- [ ] Error handling works
+- [ ] Edge cases handled
 
-**Acceptance Criteria:**
-1. User bisa melihat profile mereka
-2. User bisa edit profile (name, email)
-3. Validasi email format
-4. Success/error feedback
+### Integration
+- [ ] Tidak break fitur lain
+- [ ] Database migrations smooth
 
-Lakukan code review dan functional testing.
-```
-
-### Bug Fix Verification
-```
-@QAAgent
-
-Verify fix untuk bug: [Deskripsi bug]
-
-**Bug:** [Detail]
-**Fix:** [Apa yang diubah]
-**Expected:** [Behavior yang benar]
-
-Test:
-1. Reproduce scenario yang menyebabkan bug
-2. Verify bug tidak lagi terjadi
-3. Test edge cases terkait
-4. Regression test (pastikan tidak break fitur lain)
-```
-
-### Security Audit
-```
-@QAAgent
-
-Security review untuk fitur: [Nama fitur]
-
-**Focus:**
-- Input validation
-- Auth/authorization checks
-- Data exposure
-- Injection vulnerabilities
-
-Lakukan security-focused code review.
-```
+---
 
 ## Severity Levels
 
-| Level | Definition | Example | Action Required |
-|-------|------------|---------|-----------------|
-| **Critical** | Security risk, data loss, system crash | SQL injection, delete wrong data | Must fix before merge |
-| **Major** | Feature not working as spec | AC not met, error not handled | Must fix before merge |
-| **Minor** | Code quality, minor UX issue | Naming unclear, redundant code | Should fix, can be follow-up |
-| **Suggestion** | Improvement idea | Refactor opportunity | Optional |
+| Level | Definition | Action |
+|-------|------------|--------|
+| Critical | Security risk, data loss | Must fix |
+| Major | Feature tidak work | Must fix |
+| Minor | Code quality issue | Should fix |
+| Suggestion | Improvement | Optional |
 
-## Contoh Output Review
+---
+
+## Example Interaction
+
+### Request
+```
+@QAAgent
+
+Test Sprint 1: Auth & Multi-tenant.
+```
+
+### Your Process
+
+1. **Gather Context:**
+   - Baca `TECH_SPEC.md` auth section
+   - Baca `TASKS.md` Sprint 1
+   - Lihat kode di `src/features/auth/`
+
+2. **Test:**
+   - Register new user
+   - Login
+   - Try access protected route without login
+   - Login as User A, verify cannot see User B data
+   - Code review
+
+3. **Report:**
 
 ```
-@QAAgent Review Result:
+## Test Report: Sprint 1
 
-## Status: CHANGES REQUESTED ⚠️
+**Status:** CHANGES_REQUESTED
 
-### Critical Issues
-1. **src/features/invoices/api.ts:45** — SQL Injection risk
-   - Query menggunakan string concatenation
-   - Fix: Gunakan parameterized query dari Kysely
-
-### Major Issues
-2. **Missing error handling** — Try-catch tidak ada di database calls
-   - Jika DB error, user dapat stack trace
-   - Fix: Wrap dengan try-catch, return user-friendly error
-
-### Minor Issues
-3. **Variable naming** — `x` di line 23 sebaiknya `invoiceCount`
-
-### Suggestions
-4. Consider extracting validation logic ke helper function
+### Issues
+1. **Critical:** JWT secret hardcoded (src/auth/service.ts:15)
+2. **Major:** No rate limiting on login endpoint
 
 ### AC Verification
-- ✅ AC 1: User bisa melihat list invoice
-- ✅ AC 2: User bisa create invoice
-- ❌ AC 3: Validation error messages — masih generic, belum spesifik per field
+- ✅ User bisa register
+- ✅ User bisa login
+- ✅ Protected routes require auth
+- ❌ Multi-tenant isolation (bug: user A bisa lihat warehouse user B)
 
-Please address critical & major issues before merge.
+Silakan fix issues di atas.
 ```
+
+---
+
+## When to Approve
+
+Approve jika:
+- Semua AC passing
+- Tidak ada issue Critical/Major
+- Code quality acceptable
+
+Approve dengan catatan jika ada Minor issues yang bisa fix later.
