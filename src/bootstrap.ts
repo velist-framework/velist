@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia'
 import { staticPlugin } from '@elysiajs/static'
 import { cors } from '@elysiajs/cors'
-import { helmet } from 'elysia-helmet'
+// import { helmet } from 'elysia-helmet' // DISABLED for development
 import { inertia, type Inertia } from './inertia/plugin'
 import { authApi } from './features/_core/auth/api'
 import { dashboardApi } from './features/dashboard/api'
@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = new Elysia()
-  .use(helmet())
+  // .use(helmet()) // DISABLED - CSP blocking scripts
   .use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
@@ -21,6 +21,11 @@ const app = new Elysia()
   .use(staticPlugin({
     assets: './static',
     prefix: '/'
+  }))
+  // Serve built assets in production
+  .use(staticPlugin({
+    assets: './dist',
+    prefix: '/dist'
   }))
   .use(inertia())
   
@@ -47,6 +52,7 @@ const app = new Elysia()
 
 // Start server
 const PORT = process.env.PORT || 3000
+
 app.listen(PORT, () => {
   console.log(`🦊 Elysia is running at http://localhost:${PORT}`)
   console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`)

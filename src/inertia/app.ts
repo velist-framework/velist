@@ -9,21 +9,47 @@ declare global {
   }
 }
 
+// Pre-load all pages
+const pages = import.meta.glob<{ default: Component; layout?: Component }>('../features/**/pages/**/*.svelte', {
+  eager: false
+})
+
+console.log('[Inertia] Available pages:', Object.keys(pages))
+
 createInertiaApp({
   id: 'app',
   
   resolve: async (name) => {
-    // name format: "auth/login" -> features/auth/pages/Login.svelte
+    // name format: "auth/Login" atau "auth/login" -> features/auth/pages/Login.svelte
     const [feature, page] = name.split('/')
     
-    // Dynamic import dengan glob
-    const pages = import.meta.glob<{ default: Component; layout?: Component }>('../features/**/pages/**/*.svelte', {
-      eager: false
-    })
+    // Coba dengan huruf kapital di awal
+    const pathWithCapital = `../features/${feature}/pages/${page.charAt(0).toUpperCase() + page.slice(1)}.svelte`
+    // Coba dengan lowercase
+    const pathWithLower = `../features/${feature}/pages/${page}.svelte`
     
-    const path = `../features/${feature}/pages/${page.charAt(0).toUpperCase() + page.slice(1)}.svelte`
+    console.log('[Inertia] Resolving:', name)
+    console.log('[Inertia] Trying path:', pathWithCapital)
+    console.log('[Inertia] Available paths:', Object.keys(pages))
     
-    const module = await pages[path]()
+    // Coba cari path yang cocok
+    let matchedPath = Object.keys(pages).find(p => 
+      p.toLowerCase().includes(`/${feature}/pages/${page.toLowerCase()}`)
+    )
+    
+    if (!matchedPath) {
+      matchedPath = pathWithCapital
+    }
+    
+    const loadPage = pages[matchedPath]
+    
+    if (!loadPage) {
+      console.error('[Inertia] Page not found:', name)
+      console.error('[Inertia] Tried path:', matchedPath)
+      throw new Error(`Page not found: ${name}`)
+    }
+    
+    const module = await loadPage()
     return {
       default: module.default as unknown as ResolvedComponent['default'],
       layout: module.layout as any

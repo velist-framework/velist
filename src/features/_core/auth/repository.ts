@@ -1,15 +1,9 @@
-import { db, type DatabaseSchema, type Transaction, type User, type NewUser } from '../database/connection'
+import { db, type DatabaseSchema, type User, type NewUser } from '../database/connection'
 import { uuidv7 } from '../../../shared/lib/uuid'
 
 export class AuthRepository {
-  constructor(private trx?: Transaction) {}
-  
-  private get db() {
-    return this.trx ?? db
-  }
-
   async findById(id: string): Promise<User | undefined> {
-    return this.db
+    return db
       .selectFrom('users')
       .where('id', '=', id)
       .selectAll()
@@ -17,30 +11,34 @@ export class AuthRepository {
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
-    return this.db
+    return db
       .selectFrom('users')
       .where('email', '=', email)
       .selectAll()
       .executeTakeFirst()
   }
 
-  async create(data: NewUser): Promise<User> {
+  async create(data: { email: string; name: string; password_hash: string; role?: string }): Promise<User> {
     const id = uuidv7()
-    const { id: _, ...rest } = data as NewUser & { id?: string }
-    return this.db
+    await db
       .insertInto('users')
       .values({
         id,
-        ...rest,
+        email: data.email,
+        name: data.name,
+        password_hash: data.password_hash,
+        role: data.role || 'user',
+        email_verified_at: null,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as NewUser)
-      .returningAll()
-      .executeTakeFirstOrThrow()
+        updated_at: new Date().toISOString(),
+      })
+      .execute()
+    
+    return this.findById(id) as Promise<User>
   }
 
   async updatePassword(userId: string, hash: string): Promise<void> {
-    await this.db
+    await db
       .updateTable('users')
       .set({ 
         password_hash: hash,
@@ -51,17 +49,9 @@ export class AuthRepository {
   }
 
   async deleteSession(token: string): Promise<void> {
-    await this.db
+    await db
       .deleteFrom('sessions')
       .where('id', '=', token)
       .execute()
-  }
-
-  // Static method untuk transactions
-  static async transaction<T>(callback: (repo: AuthRepository) => Promise<T>): Promise<T> {
-    return db.transaction().execute(async (trx) => {
-      const repo = new AuthRepository(trx)
-      return callback(repo)
-    })
   }
 }
