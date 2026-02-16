@@ -1,63 +1,91 @@
 # Development Workflow
 
-Multi-agent workflow system untuk development yang terstruktur dan scalable.
+Multi-agent workflow system dengan **automatic handoff**.
+
+---
+
+## How It Works
+
+```
+Client: @ProductAgent Saya mau aplikasi X...
+    ↓ (auto)
+PA: Selesai define product
+    ↓ (auto)
+TLA: Selesai desain teknis
+    ↓ (auto setelah approve)
+DevA: Selesai implement
+    ↓ (auto)
+QAA: Selesai test
+    ↓ (auto setelah approve)
+DOA: Deployed! 🎉
+```
+
+**Client cukup:**
+1. Deskripsikan kebutuhan ke @ProductAgent
+2. Approve di titik-titik tertentu (opsional)
+3. Terima hasil akhir
 
 ---
 
 ## Agents
 
-| Agent | File | Role |
-|-------|------|------|
-| @ProductAgent | [`agents/product.md`](agents/product.md) | Define what to build |
-| @TechLeadAgent | [`agents/tech-lead.md`](agents/tech-lead.md) | Define how to build |
-| @DeveloperAgent | [`agents/developer.md`](agents/developer.md) | Implement the code |
-| @QAAgent | [`agents/qa.md`](agents/qa.md) | Review and test |
-| @DevOpsAgent | [`agents/devops.md`](agents/devops.md) | Deploy and operate |
+| Agent | Triggers | Auto Next |
+|-------|----------|-----------|
+| @ProductAgent | Client request | @TechLeadAgent |
+| @TechLeadAgent | PA complete | @DeveloperAgent* |
+| @DeveloperAgent | TLA complete | @QAAgent |
+| @QAAgent | Dev complete | @DevOpsAgent** |
+| @DevOpsAgent | QA complete | Done 🎉 |
+
+\* Setelah client approve (atau auto-approve)
+\*\* Setelah client approve deploy (atau auto-deploy)
 
 ---
 
-## Quick Start
+## Agent Documentation
 
-### New Application
-```
-1. @ProductAgent     -> Define product
-2. @TechLeadAgent    -> Design system
-3. @DeveloperAgent   -> Implement per sprint
-4. @QAAgent          -> Test per sprint
-5. @DevOpsAgent      -> Deploy production
-```
-
-### New Feature
-```
-1. @ProductAgent     -> Define feature
-2. @TechLeadAgent    -> Design feature
-3. @DeveloperAgent   -> Implement
-4. @QAAgent          -> Test
-```
-
-### Bug Fix
-```
-1. @DeveloperAgent   -> Fix
-2. @QAAgent          -> Verify
-```
+- [**agents/product.md**](agents/product.md) - Define requirements
+- [**agents/tech-lead.md**](agents/tech-lead.md) - Design system
+- [**agents/developer.md**](agents/developer.md) - Implement (3 modes)
+- [**agents/qa.md**](agents/qa.md) - Test & review
+- [**agents/devops.md**](agents/devops.md) - Deploy
 
 ---
 
 ## Resources
 
-- [**examples.md**](examples.md) - Real-world usage scenarios
-- [**quick-reference.md**](quick-reference.md) - Cheat sheet for agents
+- [**examples.md**](examples.md) - Real scenarios with auto handoff
+- [**quick-reference.md**](quick-reference.md) - Cheat sheet
+
+---
+
+## Quick Start
+
+### Build New App (Auto Mode)
+```
+@ProductAgent Saya mau aplikasi inventory...
+[...deskripsikan kebutuhan...]
+```
+
+Tunggu sampai selesai. Agent-agent akan otomatis lanjut.
+
+### Build New App (Manual Mode)
+```
+@ProductAgent Saya mau aplikasi X. 
+Tapi saya mau review setiap tahap.
+```
+
+PA akan selesai dan **wait**, tidak auto-lanjut. Client approve untuk next step.
 
 ---
 
 ## Project Setup (Already Done)
 
-This starter project includes:
-- ✅ EISK stack (Elysia, Inertia, Svelte, Kysely)
-- ✅ Database (SQLite) with migrations
-- ✅ Authentication system
-- ✅ Development environment
-- ✅ Build configuration
+This starter includes:
+- ✅ EISK stack ready
+- ✅ Database (SQLite)
+- ✅ Authentication
+- ✅ Dev environment
 
 Just run:
 ```bash
@@ -66,13 +94,13 @@ bun run db:migrate
 bun run dev
 ```
 
-Then start with agents.
+Then call @ProductAgent.
 
 ---
 
 ## Workflow Outputs
 
-Agent outputs are stored in `outputs/`:
+Agent outputs stored in `outputs/`:
 
 ```
 outputs/

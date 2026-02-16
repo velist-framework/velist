@@ -4,6 +4,21 @@ Real-world examples menggunakan multi-agent workflow.
 
 ---
 
+## Automatic Handoff Rule
+
+Setelah satu agent selesai, **agent berikutnya otomatis dilanjutkan** tanpa perlu client panggil lagi.
+
+| Agent | Selesai → Lanjut ke |
+|-------|---------------------|
+| @ProductAgent | @TechLeadAgent (otomatis) |
+| @TechLeadAgent | @DeveloperAgent (otomatis) |
+| @DeveloperAgent | @QAAgent (otomatis) |
+| @QAAgent | @DevOpsAgent (jika deploy) atau Client (jika revisi) |
+
+Client hanya perlu **approve** atau **request changes** di setiap tahap.
+
+---
+
 ## Scenario 1: Full Application Development
 
 ### Step 1: Product Agent
@@ -24,216 +39,225 @@ User: Owner, Manager, Staff
 Timeline: MVP 2 bulan, full 4 bulan
 ```
 
-**PA akan tanya clarifying questions, lalu buat PRD, User Stories, Roadmap.**
+**PA Output:**
+- ✅ PRD.md
+- ✅ USER_STORIES.md
+- ✅ ROADMAP.md
+
+**Otomatis lanjut ke Tech Lead Agent →**
 
 ---
 
-### Step 2: Tech Lead Agent
+### Step 2: Tech Lead Agent (Auto)
+
+**TLA akan baca output PA, lalu buat:**
+- ✅ TECH_SPEC.md
+- ✅ ARCHITECTURE.md
+- ✅ API_CONTRACT.md
+- ✅ DATABASE_SCHEMA.md
+- ✅ TASKS.md
+
+**TLA present ke client:**
 ```
-@TechLeadAgent
+Desain teknis selesai.
 
-Lanjutkan dari Product Agent.
+Stack: EISK + SQLite
+Database: 8 tabel utama
+API: 25 endpoints
+Timeline: 8 sprint (16 minggu)
 
-Saya butuh desain teknis sebelum development dimulai.
+Approve untuk mulai development? (Y/n)
 ```
 
-**TLA akan baca output PA, lalu buat Tech Spec, Architecture, API Contract, Database Schema, dan Task breakdown.**
+**Client approve → Otomatis lanjut ke Developer Agent →**
 
 ---
 
 ### Step 3: Developer Agent (3 Modes)
 
-#### Mode A: One-Shot Development (Semua Fitur Sekaligus)
+**Mode A: One-Shot (Default)**
 ```
-@DeveloperAgent
+DevA akan implement semua fitur sekaligus.
 
-Implement semua fitur inventory system.
+Progress:
+- ✅ Auth & Multi-tenant
+- ✅ Warehouse Management
+- ✅ Product Catalog
+- ✅ Stock Operations
+- ✅ Purchase Order
+- ✅ Sales Order
+- ✅ Reporting
+
+Semua fitur selesai. Lanjut ke QA?
 ```
 
-**DevA akan:**
-- Baca Tech Spec dan semua tasks
-- Implement seluruh modul secara berurutan
-- Bikin semua database, API, UI
-- Update progress setiap selesai modul
+**Mode B: Per Fitur (Request)**
+```
+DevA: Mau per fitur atau sekaligus?
 
-*Cocok untuk: Project kecil, atau client mau lihat hasil cepat*
+Client: Per fitur
+
+DevA: OK, mulai dari Warehouse.
+[Implement Warehouse]
+Selesai. Lanjut ke Product Catalog? (Y/n)
+```
+
+**Mode C: Auto-Prioritize (Jika client bingung)**
+```
+DevA: Ini prioritas fitur:
+
+Phase 1: Foundation
+1. Authentication
+2. Multi-tenant
+
+Phase 2: Core
+3. Warehouse
+4. Product
+
+Mulai dari mana? Atau semua?
+
+Client: Semua
+
+DevA: OK, implement semua.
+```
+
+**Dev selesai → Otomatis lanjut ke QA Agent →**
 
 ---
 
-#### Mode B: Per Fitur/Modul
+### Step 4: QA Agent (Auto)
+
+**QAA akan test dan buat report:**
 ```
-@DeveloperAgent
+TEST REPORT
 
-Implement modul Warehouse Management.
+Status: APPROVED dengan catatan minor
+
+Issues:
+- Minor: Typo di error message (bisa fix later)
+
+Semua fitur working. Deploy ke production?
 ```
 
-atau
-
-```
-@DeveloperAgent
-
-Implement fitur Purchase Order.
-```
-
-**DevA akan:**
-- Implement modul tersebut lengkap (DB, API, UI)
-- Test modul tersebut
-- Siap untuk modul berikutnya
-
-*Cocok untuk: Project besar, ingin test per modul*
+**Client approve → Otomatis lanjut ke DevOps Agent →**
 
 ---
 
-#### Mode C: Auto-Prioritize (Client Bingung Mau Mulai Dari Mana)
+### Step 5: DevOps Agent (Auto)
+
+**DOA akan deploy:**
 ```
-@DeveloperAgent
+Deployed ke production!
 
-Saya mau bikin aplikasi inventory tapi bingung mulai dari mana.
-Bantu saya tentukan fitur apa yang harus dikerjakan duluan.
+URL: https://app.example.com
+Health: OK
+Monitoring: Active
+
+Project selesai! 🎉
 ```
-
-**DevA akan:**
-- Analisis Tech Spec dan Tasks
-- Kasih list prioritas fitur:
-  ```
-  1. **Authentication & Multi-tenant** (Foundation)
-     - User bisa login
-     - Data terisolasi per company
-     
-  2. **Warehouse Management** (Core Data)
-     - Setup gudang
-     - Struktur data dasar
-     
-  3. **Product Catalog** (Core Data)
-     - Master data produk
-     - 
-  4. **Stock Operations** (Main Feature)
-     - Barang masuk/keluar
-     
-  5. **Purchase Order** (Operational)
-  6. **Sales Order** (Operational)
-  7. **Reporting** (Nice to have)
-  ```
-- Recommend mana yang dikerjakan dulu
-- Tunggu konfirmasi client sebelum mulai
-
-*Cocok untuk: Client non-technical, bingung prioritas*
 
 ---
 
-### Step 4: QA Agent
-```
-@QAAgent
+## Workflow Singkat
 
-Test aplikasi inventory.
+```
+@ProductAgent Saya mau aplikasi X...
+    ↓ (auto)
+@TechLeadAgent Desain teknis...
+    ↓ (auto setelah approve)
+@DeveloperAgent Implement...
+    ↓ (auto)
+@QAAgent Test...
+    ↓ (auto setelah approve)
+@DevOpsAgent Deploy!
+    ↓
+🎉 Selesai!
 ```
 
-**QAA akan test semua fitur dan buat report.**
+**Client cukup:**
+1. Deskripsikan kebutuhan
+2. Approve desain teknis (opsional, bisa auto-approve)
+3. Approve untuk deploy (opsional, bisa auto-deploy)
 
 ---
 
-### Step 5: DevOps Agent
-```
-@DevOpsAgent
-
-Deploy ke production.
-```
-
-**DOA akan deploy dan setup monitoring.**
-
----
-
-## Scenario 2: Feature Enhancement
+## Scenario 2: Feature Enhancement (Auto Flow)
 
 ```
 @ProductAgent
 
 Saya punya aplikasi invoice, mau tambah fitur kategori.
 
-Invoice bisa dikategorikan (Marketing, Operasional, Software)
-dan bisa filter by kategori.
-```
-
-```
+Invoice bisa dikategorikan dan filter by kategori.
+    ↓ (auto)
 @TechLeadAgent
 
-Lanjutkan dari Product Agent.
-```
+Desain fitur kategori selesai.
+- Tambah tabel categories
+- Update invoice API
+- UI dropdown kategori
 
-```
+Approve? (Y/n)
+    ↓ (auto setelah approve)
 @DeveloperAgent
 
-Implement fitur kategori.
-```
-
-```
+Implement fitur kategori selesai.
+    ↓ (auto)
 @QAAgent
 
-Test fitur kategori.
+Fitur kategori tested ✅
+Deploy ke production? (Y/n)
+    ↓ (auto setelah approve)
+@DevOpsAgent
+
+Deployed! 🎉
 ```
 
 ---
 
-## Scenario 3: Bug Fix
+## Scenario 3: Bug Fix (Quick Flow)
 
 ```
 @DeveloperAgent
 
 Ada bug: amount invoice tidak tersimpan.
-
-Input $100, tersimpan $0. Field lain normal.
-```
-
-```
+    ↓ (auto setelah fix)
 @QAAgent
 
-Verify fix.
+Bug fix verified ✅
 ```
 
 ---
 
-## Scenario 4: Refactoring
+## Scenario 4: Manual Mode (Jika Perlu)
 
-```
-@TechLeadAgent
-
-Ada duplicated validation di 5 file.
-Mau di-extract jadi shared utilities.
-```
-
-```
-@DeveloperAgent
-
-Implement refactor.
-```
-
-```
-@QAAgent
-
-Regression test.
-```
-
----
-
-## Scenario 5: Change Request
+Jika client mau kontrol manual, bisa dengan **menahan auto-lanjut**:
 
 ```
 @ProductAgent
 
-Change request: Kategori yang sudah jalan mau ditambah icon.
+Saya mau aplikasi X. 
+TAPI: Saya mau review desain teknis dulu sebelum development.
 ```
+
+PA akan selesai, **tidak auto-lanjut**, tunggu client panggil TLA manual:
 
 ```
 @TechLeadAgent
 
-Lanjutkan dari Product Agent.
+OK, lanjutkan desain teknis.
 ```
 
-```
-@DeveloperAgent
+---
 
-Update fitur kategori tambah icon.
-```
+## Keuntungan Auto Handoff
+
+| Sebelum | Sesudah |
+|---------|---------|
+| Client panggil 5 agent manual | Client panggil 1 agent, sisanya auto |
+| Banyak context switching | Seamless flow |
+| Client harus ingat urutan | Agent yang manage workflow |
+| Lama | Cepat |
 
 ---
 
@@ -247,38 +271,9 @@ Starter project EISK ini sudah include:
 - ✅ Development environment
 - ✅ Build configuration
 
-DevOps Agent hanya perlu untuk **deployment ke production**.
+### Approval Points
+Client bisa set auto-approve di:
+- ✅ Desain teknis (langsung dev tanpa review)
+- ✅ Deploy (langsung deploy setelah QA pass)
 
-### Development Workflow
-1. Clone project ini
-2. `bun install`
-3. `bun run db:migrate`
-4. `bun run dev`
-5. Mulai development dengan agent-agent
-
-### Developer Agent Modes
-
-| Mode | Instruksi | Kapan Pakai |
-|------|-----------|-------------|
-| One-Shot | "Implement semua fitur" | Project kecil, mau cepat |
-| Per Fitur | "Implement [nama fitur]" | Project besar, gradual |
-| Auto-Prioritize | "Bingung mulai dari mana" | Client non-technical |
-
----
-
-## Prinsip Utama
-
-### 1. Client Ngomong Business, Bukan Technical
-❌ "Buatkan PRD, user stories, dan roadmap"
-✅ "Saya mau aplikasi inventory untuk UMKM..."
-
-### 2. Agent Tahu Job Description Masing-Masing
-❌ "Baca outputs/01-product/ lalu buat TECH_SPEC.md"
-✅ "Lanjutkan dari Product Agent"
-
-### 3. Minimal Context Passing
-❌ Deskripsi panjang apa yang harus dikerjakan
-✅ Cukup sebut sprint/fitur yang dimaksud
-
-### 4. Agent Initiative
-Agent bertanya jika perlu clarifikasi, bukan client yang harus detailkan semua.
+Atau manual approve untuk kontrol penuh.
