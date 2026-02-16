@@ -186,8 +186,11 @@ function createInertia(request: Request, config: InertiaConfig = {}): Inertia {
     },
     
     redirect(url: string) {
+      // Use 303 (See Other) for all redirects to ensure proper Inertia.js behavior
+      // 303 forces the browser to use GET for the redirect, which is what Inertia expects
+      // This works correctly for POST, PUT, PATCH, DELETE -> redirect scenarios
       return new Response(null, {
-        status: 302,
+        status: 303,
         headers: { Location: url }
       })
     },
