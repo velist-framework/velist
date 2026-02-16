@@ -31,34 +31,35 @@ atau
 Desain teknis untuk [fitur].
 ```
 
-### @DeveloperAgent
+### @DeveloperAgent (3 Modes)
+
+**Mode 1: One-Shot (All Features)**
 ```
 @DeveloperAgent
 
-Sprint X: [nama modul].
+Implement semua fitur.
 ```
 
-atau
-
-```
-@DeveloperAgent
-
-Implement [fitur].
-```
-
-atau
-
+**Mode 2: Per Feature**
 ```
 @DeveloperAgent
 
-Fix bug: [deskripsi bug].
+Implement [nama fitur/modul].
+```
+
+**Mode 3: Auto-Prioritize**
+```
+@DeveloperAgent
+
+Saya bingung mulai dari mana.
+Kasih list prioritas fitur.
 ```
 
 ### @QAAgent
 ```
 @QAAgent
 
-Test [sprint/fitur].
+Test [aplikasi/fitur].
 ```
 
 atau
@@ -73,38 +74,42 @@ Verify fix.
 ```
 @DevOpsAgent
 
-Setup project.
-```
-
-atau
-
-```
-@DevOpsAgent
-
 Deploy ke [staging/production].
 ```
+
+---
+
+## Developer Agent Modes
+
+| Mode | Use Case | Client Says |
+|------|----------|-------------|
+| **One-Shot** | Project kecil, mau cepat | "Implement semua fitur" |
+| **Per Feature** | Project besar, gradual | "Implement modul Warehouse" |
+| **Auto-Prioritize** | Client bingung | "Saya bingung mulai dari mana" |
 
 ---
 
 ## Workflow Patterns
 
 ### New Application
+
+**One-Shot:**
 ```
 1. @ProductAgent     -> Define product
 2. @TechLeadAgent    -> Design system
-3. @DevOpsAgent      -> Setup project
-4. @DeveloperAgent   -> Implement sprint 1
-5. @QAAgent          -> Test sprint 1
-6. Repeat 4-5 for next sprints
-7. @DevOpsAgent      -> Deploy production
+3. @DeveloperAgent   -> Implement ALL
+4. @QAAgent          -> Test all
+5. @DevOpsAgent      -> Deploy
 ```
 
-### New Feature
+**Per Feature:**
 ```
-1. @ProductAgent     -> Define feature
-2. @TechLeadAgent    -> Design feature
-3. @DeveloperAgent   -> Implement
-4. @QAAgent          -> Test
+1. @ProductAgent     -> Define product
+2. @TechLeadAgent    -> Design system
+3. @DeveloperAgent   -> Feature 1
+4. @QAAgent          -> Test Feature 1
+5. Repeat 3-4 for next features
+6. @DevOpsAgent      -> Deploy
 ```
 
 ### Bug Fix

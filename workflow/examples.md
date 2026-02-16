@@ -41,22 +41,83 @@ Saya butuh desain teknis sebelum development dimulai.
 
 ---
 
-### Step 3: Developer Agent (Per Sprint)
+### Step 3: Developer Agent (3 Modes)
+
+#### Mode A: One-Shot Development (Semua Fitur Sekaligus)
 ```
 @DeveloperAgent
 
-Sprint 1: Authentication dan multi-tenant.
+Implement semua fitur inventory system.
 ```
 
-**DevA akan baca Tech Spec dan Tasks, lalu implement fitur authentication.**
+**DevA akan:**
+- Baca Tech Spec dan semua tasks
+- Implement seluruh modul secara berurutan
+- Bikin semua database, API, UI
+- Update progress setiap selesai modul
+
+*Cocok untuk: Project kecil, atau client mau lihat hasil cepat*
+
+---
+
+#### Mode B: Per Fitur/Modul
+```
+@DeveloperAgent
+
+Implement modul Warehouse Management.
+```
+
+atau
 
 ```
 @DeveloperAgent
 
-Sprint 2: Warehouse dan Product management.
+Implement fitur Purchase Order.
 ```
 
-**DevA akan lanjut ke modul berikutnya.**
+**DevA akan:**
+- Implement modul tersebut lengkap (DB, API, UI)
+- Test modul tersebut
+- Siap untuk modul berikutnya
+
+*Cocok untuk: Project besar, ingin test per modul*
+
+---
+
+#### Mode C: Auto-Prioritize (Client Bingung Mau Mulai Dari Mana)
+```
+@DeveloperAgent
+
+Saya mau bikin aplikasi inventory tapi bingung mulai dari mana.
+Bantu saya tentukan fitur apa yang harus dikerjakan duluan.
+```
+
+**DevA akan:**
+- Analisis Tech Spec dan Tasks
+- Kasih list prioritas fitur:
+  ```
+  1. **Authentication & Multi-tenant** (Foundation)
+     - User bisa login
+     - Data terisolasi per company
+     
+  2. **Warehouse Management** (Core Data)
+     - Setup gudang
+     - Struktur data dasar
+     
+  3. **Product Catalog** (Core Data)
+     - Master data produk
+     - 
+  4. **Stock Operations** (Main Feature)
+     - Barang masuk/keluar
+     
+  5. **Purchase Order** (Operational)
+  6. **Sales Order** (Operational)
+  7. **Reporting** (Nice to have)
+  ```
+- Recommend mana yang dikerjakan dulu
+- Tunggu konfirmasi client sebelum mulai
+
+*Cocok untuk: Client non-technical, bingung prioritas*
 
 ---
 
@@ -64,20 +125,14 @@ Sprint 2: Warehouse dan Product management.
 ```
 @QAAgent
 
-Test Sprint 1.
+Test aplikasi inventory.
 ```
 
-**QAA akan test dan buat report.**
-
-```
-@QAAgent
-
-End-to-end test seluruh aplikasi sebelum production.
-```
+**QAA akan test semua fitur dan buat report.**
 
 ---
 
-### Step 5: DevOps Agent (Deployment)
+### Step 5: DevOps Agent
 ```
 @DevOpsAgent
 
@@ -201,6 +256,14 @@ DevOps Agent hanya perlu untuk **deployment ke production**.
 4. `bun run dev`
 5. Mulai development dengan agent-agent
 
+### Developer Agent Modes
+
+| Mode | Instruksi | Kapan Pakai |
+|------|-----------|-------------|
+| One-Shot | "Implement semua fitur" | Project kecil, mau cepat |
+| Per Fitur | "Implement [nama fitur]" | Project besar, gradual |
+| Auto-Prioritize | "Bingung mulai dari mana" | Client non-technical |
+
 ---
 
 ## Prinsip Utama
@@ -215,7 +278,7 @@ DevOps Agent hanya perlu untuk **deployment ke production**.
 
 ### 3. Minimal Context Passing
 ❌ Deskripsi panjang apa yang harus dikerjakan
-✅ Cukup sebut sprint/feature yang dimaksud
+✅ Cukup sebut sprint/fitur yang dimaksud
 
 ### 4. Agent Initiative
 Agent bertanya jika perlu clarifikasi, bukan client yang harus detailkan semua.
