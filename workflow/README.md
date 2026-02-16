@@ -4,6 +4,20 @@ Multi-agent workflow dengan **mandatory review points**.
 
 ---
 
+## Agent Naming Convention
+
+| File | Agent Name | Call As |
+|------|-----------|---------|
+| `agents/product.md` | Product Agent | `@ProductAgent` |
+| `agents/tech-lead.md` | Tech Lead Agent | `@TechLeadAgent` |
+| `agents/developer.md` | Developer Agent | `@DeveloperAgent` |
+| `agents/qa.md` | QA Agent | `@QAAgent` |
+| `agents/devops.md` | DevOps Agent | `@DevOpsAgent` |
+
+**Cara panggil:** Gunakan PascalCase tanpa spasi: `@ProductAgent`
+
+---
+
 ## Workflow Flow
 
 ```
@@ -36,13 +50,13 @@ Multi-agent workflow dengan **mandatory review points**.
 
 1. **Client panggil @ProductAgent** dengan kebutuhan
 2. **PA selesai → TUNGGU CLIENT REVIEW**
-3. **Client approve → TLA mulai**
+3. **Client approve → @TechLeadAgent mulai**
 4. **TLA selesai → TUNGGU CLIENT REVIEW**
-5. **Client approve → DevA mulai**
+5. **Client approve → @DeveloperAgent mulai**
 6. **DevA selesai → TUNGGU CLIENT REVIEW**
-7. **Client approve → QA mulai**
+7. **Client approve → @QAAgent mulai**
 8. **QA selesai → TUNGGU CLIENT REVIEW**
-9. **Client approve → DOA deploy**
+9. **Client approve → @DevOpsAgent deploy**
 
 ---
 
@@ -50,11 +64,11 @@ Multi-agent workflow dengan **mandatory review points**.
 
 | Agent | Output | Review Point |
 |-------|--------|--------------|
-| @ProductAgent | PRD, User Stories, Roadmap | Approve requirements? |
-| @TechLeadAgent | Tech Spec, Architecture, Tasks | Approve design? |
-| @DeveloperAgent | Working code | Approve implementation? |
-| @QAAgent | Test Report | Approve for production? |
-| @DevOpsAgent | Live application | - |
+| `@ProductAgent` | PRD, User Stories, Roadmap | Approve requirements? |
+| `@TechLeadAgent` | Tech Spec, Architecture, Tasks | Approve design? |
+| `@DeveloperAgent` | Working code | Approve implementation? |
+| `@QAAgent` | Test Report | Approve for production? |
+| `@DevOpsAgent` | Live application | - |
 
 ---
 
@@ -80,4 +94,4 @@ bun run db:migrate
 bun run dev
 ```
 
-Then call @ProductAgent.
+Then call `@ProductAgent`.

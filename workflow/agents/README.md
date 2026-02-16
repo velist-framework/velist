@@ -2,27 +2,36 @@
 
 Template instruksi untuk setiap agent.
 
-## Usage
+## File to Agent Call Mapping
 
-Panggil agent dengan format:
+| File | Call As | Description |
+|------|---------|-------------|
+| `product.md` | `@ProductAgent` | Define requirements |
+| `tech-lead.md` | `@TechLeadAgent` | Design system |
+| `developer.md` | `@DeveloperAgent` | Implement code |
+| `qa.md` | `@QAAgent` | Test & review |
+| `devops.md` | `@DevOpsAgent` | Deploy & operate |
+
+## Usage Format
+
+Panggil agent dengan PascalCase tanpa spasi:
 
 ```
-@AgentName
+@ProductAgent
 
-[Deskripsikan task di sini]
-
-Referensi: [file terkait]
-Acceptance Criteria:
-- [criteria 1]
-- [criteria 2]
+[Deskripsikan task]
 ```
+
+Jangan gunakan spasi:
+- ❌ `@Product Agent`
+- ✅ `@ProductAgent`
 
 ## Available Agents
 
-| File | Agent | Purpose |
-|------|-------|---------|
-| `product.md` | @ProductAgent | Requirements & roadmap |
-| `tech-lead.md` | @TechLeadAgent | Architecture & design |
-| `developer.md` | @DeveloperAgent | Code implementation |
-| `qa.md` | @QAAgent | Testing & review |
-| `devops.md` | @DevOpsAgent | Deployment & ops |
+| Agent | Purpose |
+|-------|---------|
+| `@ProductAgent` | Requirements & roadmap |
+| `@TechLeadAgent` | Architecture & design |
+| `@DeveloperAgent` | Code implementation |
+| `@QAAgent` | Testing & review |
+| `@DevOpsAgent` | Deployment & ops |

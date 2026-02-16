@@ -4,6 +4,17 @@ Real-world examples menggunakan multi-agent workflow.
 
 ---
 
+## Agent Call Format
+
+Gunakan PascalCase tanpa spasi:
+- `@ProductAgent` (bukan `@Product Agent`)
+- `@TechLeadAgent` (bukan `@Tech Lead Agent`)
+- `@DeveloperAgent`
+- `@QAAgent`
+- `@DevOpsAgent`
+
+---
+
 ## Mandatory Review Points
 
 Setiap agent **WAJIB** menunggu client review dan approve sebelum handoff.
@@ -72,7 +83,7 @@ Timeline: MVP 2 bulan, full 4 bulan
 Silakan review dokumen di workflow/outputs/01-product/
 
 Apakah PRD ini sudah sesuai kebutuhan?
-[ ] Approve - Lanjut ke Tech Lead
+[ ] Approve - Lanjut ke @TechLeadAgent
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -113,7 +124,7 @@ Apakah PRD ini sudah sesuai kebutuhan?
 Silakan review dokumen di workflow/outputs/02-engineering/
 
 Apakah desain teknis ini acceptable?
-[ ] Approve - Lanjut ke Development
+[ ] Approve - Lanjut ke @DeveloperAgent
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -146,7 +157,7 @@ DevA: Implement semua fitur...
 Silakan test aplikasi di localhost:3000
 
 Apakah implementasi ini sesuai ekspektasi?
-[ ] Approve - Lanjut ke QA Testing
+[ ] Approve - Lanjut ke @QAAgent
 [ ] Request Changes - Berikan feedback
 ```
 
@@ -252,17 +263,19 @@ User Stories:
 🔍 REVIEW REQUIRED
 
 Approve untuk desain teknis?
+[ ] Approve - Lanjut ke @TechLeadAgent
+[ ] Request Changes
 ```
 
 **Client:** "Approve"
 
-→ **TLA** → Design → **Review** → Approve
+→ **@TechLeadAgent** → Design → **Review** → Approve
 
-→ **DevA** → Implement → **Review** → Approve
+→ **@DeveloperAgent** → Implement → **Review** → Approve
 
-→ **QAA** → Test → **Review** → Approve
+→ **@QAAgent** → Test → **Review** → Approve
 
-→ **DOA** → Deploy
+→ **@DevOpsAgent** → Deploy
 
 ---
 
@@ -288,35 +301,13 @@ Fix: Explicit number conversion
 Silakan verify fix di localhost:5173/invoices/create
 
 Bug sudah teratasi?
-[ ] Approve - Lanjut ke QA verify
+[ ] Approve - Lanjut ke @QAAgent verify
 [ ] Reject - Bug masih ada
 ```
 
 **Client:** "Approve"
 
-→ **QAA** → Verify → **Review** → Approve → Done
-
----
-
-## Scenario 4: Fast Track Mode
-
-Jika client sudah percaya proses, bisa set **Fast Track**:
-
-```
-@ProductAgent
-
-Saya mau aplikasi X.
-
-FAST TRACK: Auto-approve semua review points,
-saya akan review final result saja.
-```
-
-**Flow:**
-```
-PA → (auto approve) → TLA → (auto approve) → 
-DevA → (auto approve) → QAA → (auto approve) → 
-DOA → Deploy → Client review final
-```
+→ **@QAAgent** → Verify → **Review** → Approve → Done
 
 ---
 
@@ -351,9 +342,21 @@ DOA → Deploy → Client review final
 
 ⚠️ **Setiap tahap WAJIB ada review point.**
 
-Tidak ada auto-skip review kecuali client explicitly set **Fast Track**.
+Tidak ada auto-skip review.
 
 Ini untuk memastikan:
 - ✅ Kualitas terjaga
 - ✅ Client puas dengan hasil
 - ✅ Tidak ada surprise di akhir
+
+---
+
+## File to Agent Mapping
+
+| File | Agent Call |
+|------|-----------|
+| `workflow/agents/product.md` | `@ProductAgent` |
+| `workflow/agents/tech-lead.md` | `@TechLeadAgent` |
+| `workflow/agents/developer.md` | `@DeveloperAgent` |
+| `workflow/agents/qa.md` | `@QAAgent` |
+| `workflow/agents/devops.md` | `@DevOpsAgent` |

@@ -4,6 +4,18 @@ Cheat sheet untuk multi-agent workflow.
 
 ---
 
+## File to Agent Mapping
+
+| File | Agent Call |
+|------|-----------|
+| `agents/product.md` | `@ProductAgent` |
+| `agents/tech-lead.md` | `@TechLeadAgent` |
+| `agents/developer.md` | `@DeveloperAgent` |
+| `agents/qa.md` | `@QAAgent` |
+| `agents/devops.md` | `@DevOpsAgent` |
+
+---
+
 ## Workflow dengan Mandatory Review
 
 ```
@@ -11,12 +23,20 @@ Client: @ProductAgent Saya mau aplikasi X...
     ↓
 PA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
+@TechLeadAgent
+    ↓
 TLA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
+@DeveloperAgent
+    ↓
 DevA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
-QAA: Selesai - REVIEW REQUIRED
+@QAAgent
+    ↓
+QA: Selesai - REVIEW REQUIRED
     ↓ Client: "Approve"
+@DevOpsAgent
+    ↓
 DOA: Deployed! 🎉
 ```
 
@@ -88,5 +108,5 @@ workflow/outputs/
 
 1. **Every stage has mandatory review**
 2. **No auto-skip without client approval**
-3. **Client can approve or request changes**
-4. **Fast track available if explicitly requested**
+3. **Use PascalCase for agent calls: `@ProductAgent`**
+4. **Client can approve or request changes**
