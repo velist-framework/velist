@@ -1,18 +1,40 @@
-# EISK Stack - Boilerplate
+# EISK Stack
 
 **E**lysia + **I**nertia.js + **S**velte + **K**ysely
 
-Full-stack TypeScript framework dengan vertical feature slicing architecture.
+Full-stack TypeScript framework dengan vertical feature slicing architecture, running on Bun runtime.
 
 ## Features
 
-- ⚡ **Elysia** - Fast Bun web framework dengan type safety
-- 🔄 **Inertia.js** - SPA experience tanpa API complexity
+- ⚡ **Elysia** - Fast Bun web framework dengan type-safe validation
+- 🔄 **Inertia.js** - SPA experience tanpa API complexity (custom plugin)
 - ⚡ **Svelte 5** - Reactive frontend dengan runes
-- 📊 **Kysely** - Type-safe SQL query builder
-- 🔐 **Authentication** - JWT + Cookie based auth built-in
-- 📁 **Vertical Slicing** - Feature-based folder structure
-- 🎯 **Type Safety** - End-to-end type safety dari database ke UI
+- 🎨 **Tailwind CSS v4** - Utility-first styling dengan dark mode
+- 📊 **Kysely + Drizzle** - Type-safe SQL (runtime + migrations)
+- 🔐 **Auth Built-in** - JWT + Cookie based auth dengan password generator
+- 🌙 **Dark Mode** - Toggle dengan localStorage persistence
+- 🧪 **E2E Testing** - Playwright tests included
+
+## Quick Start
+
+```bash
+# 1. Install
+bun install
+
+# 2. Setup environment
+cp .env.example .env
+
+# 3. Database setup
+bun run db:migrate
+bun run db:seed  # Optional: creates admin@example.com / password123
+
+# 4. Start development
+bun run dev
+```
+
+Server berjalan di:
+- Backend: http://localhost:3000
+- Frontend (Vite): http://localhost:5173
 
 ## Project Structure
 
@@ -20,115 +42,93 @@ Full-stack TypeScript framework dengan vertical feature slicing architecture.
 src/
 ├── features/              # VERTICAL SLICES
 │   ├── _core/            # Core infrastructure
-│   │   ├── auth/         # Authentication feature
-│   │   │   ├── api.ts           # Elysia routes
-│   │   │   ├── service.ts       # Business logic
-│   │   │   ├── repository.ts    # Database access
-│   │   │   └── pages/
-│   │   │       ├── Login.svelte
-│   │   │       └── Register.svelte
-│   │   └── database/
-│   │       ├── connection.ts    # Kysely instance
-│   │       └── migrations/
-│   └── dashboard/        # Example feature
-│       ├── api.ts
-│       └── pages/
-│           └── Index.svelte
-├── shared/               # Cross-cutting concerns
-│   ├── layouts/          # Inertia layouts
-│   └── ui/               # UI primitives
-└── inertia/              # Inertia bootstrap
-    └── app.ts
+│   │   ├── auth/         # api.ts, service.ts, repository.ts, pages/*.svelte
+│   │   └── database/     # connection.ts, migrations/
+│   └── [feature]/        # Repeat pattern
+├── shared/
+│   ├── lib/              # uuid.ts (UUID v7 native)
+│   └── styles/           # app.css (Tailwind + dark mode)
+├── inertia/
+│   ├── plugin.ts         # Custom Inertia adapter
+│   └── app.ts            # Client bootstrap
+└── bootstrap.ts          # App entry
 ```
 
-## Quick Start
-
-### 1. Install Dependencies
-
-```bash
-bun install
-```
-
-### 2. Setup Environment
-
-```bash
-cp .env.example .env
-```
-
-### 3. Run Database Migrations
-
-```bash
-bun run db:migrate
-```
-
-### 4. Seed Database (Optional)
-
-```bash
-bun run db:seed
-```
-
-Default admin: `admin@example.com` / `password123`
-
-### 5. Start Development Server
-
-```bash
-bun run dev
-```
-
-Server akan berjalan di:
-- Backend: http://localhost:3000
-- Frontend (Vite): http://localhost:5173
-
-## Development Workflow
-
-### Create New Feature
-
-```bash
-mkdir src/features/invoices
-touch src/features/invoices/{api.ts,service.ts,repository.ts}
-mkdir -p src/features/invoices/pages
-touch src/features/invoices/pages/Index.svelte
-```
-
-### Define Database Schema
-
-1. Update `DatabaseSchema` interface di `src/features/_core/database/connection.ts`
-2. Buat migration file di `src/features/_core/database/migrations/`
-3. Run `bun run db:migrate`
-
-### Build API + UI
-
-1. Implement repository methods
-2. Write business logic di service
-3. Create Elysia routes di `api.ts`
-4. Create Svelte page di `pages/`
+**Key Rule**: 1 feature = API + Service + Repository + Pages dalam 1 folder.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
 | `bun run dev` | Start dev server (backend + frontend) |
-| `bun run dev:server` | Backend only |
-| `bun run dev:client` | Frontend only |
 | `bun run build` | Build for production |
-| `bun run db:migrate` | Run database migrations |
+| `bun run start` | Start production server |
+| `bun run db:migrate` | Run migrations |
 | `bun run db:seed` | Seed database |
+| `bun run refresh` | Reset DB + migrate + seed |
+| `bun run test:e2e` | Run Playwright tests |
 | `bun run typecheck` | TypeScript + Svelte check |
 
-## Architecture Principles
+## Key Features
 
-1. **Vertical Slicing**: 1 folder = 1 feature lengkap (API + UI + DB)
-2. **Type Safety Chain**: Database → TypeBox → Svelte Props
-3. **Co-location**: Backend & frontend logic dalam 1 folder
-4. **No Horizontal Layers**: Tidak ada `controllers/`, `models/` global
-5. **Bun-Native**: Gunakan built-in Bun APIs
+### Custom Inertia Plugin
+
+`@elysiajs/inertia` tidak tersedia → custom implementation dengan:
+- Dev: Vite HMR client
+- Prod: Hashed assets via manifest.json
+
+### Dark Mode
+
+```svelte
+<!-- Toggle button -->
+<button onclick={toggleDarkMode}>
+  {darkMode ? '☀️' : '🌙'}
+</button>
+
+<!-- Styled elements -->
+<div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+```
+
+### Password Features
+
+- **Generator**: 16-char secure password
+- **Strength Indicator**: 5-level visual feedback
+- **Show/Hide Toggle**: Eye icon button
+
+### UUID v7 (Native)
+
+```typescript
+import { uuidv7 } from './shared/lib/uuid'
+
+const id = uuidv7()  // Time-ordered, no external deps
+```
+
+## Creating a Feature
+
+```bash
+mkdir -p src/features/invoices/pages
+touch src/features/invoices/{api.ts,service.ts,repository.ts}
+touch src/features/invoices/pages/Index.svelte
+```
+
+See [AGENTS.md](./AGENTS.md) for detailed guide.
 
 ## Deployment
 
-1. Set `NODE_ENV=production`
-2. Change `JWT_SECRET`
-3. Run `bun run build`
-4. Start dengan `bun src/bootstrap.ts`
+```bash
+# 1. Production build
+bun run build
+
+# 2. Set environment
+NODE_ENV=production
+JWT_SECRET=your-secure-secret
+
+# 3. Run migrations
+bun run db:migrate
+
+# 4. Start
+bun run start
+```
 
 ## License
 
