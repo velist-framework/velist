@@ -7,84 +7,56 @@ Real-world examples menggunakan multi-agent workflow.
 ## Scenario 1: Full Application Development (New Project)
 
 ### Konteks
-Membangun **SaaS Inventory Management System** dari nol dengan EISK stack.
+Client ingin membangun **SaaS Inventory Management System** dari nol.
 
 ### Fase 1: Discovery & Planning
 
-#### Step 1: Product Agent - Define Product
+#### Step 1: Product Agent - Client Needs
 ```
 @ProductAgent
 
-Buat PRD lengkap untuk SaaS Inventory Management System.
+Saya mau bikin aplikasi inventory untuk UMKM.
 
-**Visi:**
-Aplikasi inventory untuk UMKM yang bisa multi-warehouse, 
-track stock real-time, dan generate laporan penjualan.
+**Yang saya butuhkan:**
+- Bisa kelola beberapa gudang (multi-warehouse)
+- Track stok barang real-time
+- Bisa buat purchase order ke supplier
+- Bisa buat sales order dari customer
+- Ada laporan penjualan dan stok
+- Bisa multi-user dengan level akses beda-beda
 
-**Core Modules:**
-1. Authentication & Authorization (multi-tenant)
-2. Warehouse Management (CRUD gudang)
-3. Product Management (SKU, kategori, variant)
-4. Stock Management (in, out, transfer antar gudang)
-5. Supplier Management
-6. Purchase Orders
-7. Sales Orders
-8. Reporting & Analytics (dashboard, export)
-9. User Management & RBAC (Admin, Manager, Staff)
+**User yang akan pakai:**
+- Owner UMKM (lihat laporan semua cabang)
+- Manager per gudang (kelola stok gudangnya)
+- Staff (input barang masuk/keluar)
 
-**Deliverable:**
-- PRD.md lengkap dengan user personas
-- USER_STORIES.md (semua modul)
-- ROADMAP.md (MVP 8 minggu, Full 16 minggu)
-- Prioritisasi MoSCoW per modul
+**Timeline:** Mau launch MVP dalam 2 bulan, full fitur 4 bulan.
+
+Tolong analisis dan buatkan dokumentasi lengkapnya.
 ```
 
-**Output:** `outputs/01-product/PRD.md`, `USER_STORIES.md`, `ROADMAP.md`
+**PA Output (decide sendiri):** `outputs/01-product/PRD.md`, `USER_STORIES.md`, `ROADMAP.md`
 
 ---
 
-#### Step 2: Tech Lead Agent - System Design
+#### Step 2: Tech Lead Agent - Technical Design
 ```
 @TechLeadAgent
 
-Baca PRD di outputs/01-product/ dan desain sistem Inventory Management.
+Baca kebutuhan dari Product Agent di outputs/01-product/
 
-**Scope:** Full system architecture untuk 16-week roadmap
+Bikin desain teknis lengkap untuk sistem ini.
+Yang perlu saya tahu:
+- Tech stack apa yang cocok
+- Database schema seperti apa
+- API structure
+- Cara handle multi-tenant (tiap UMKM data terpisah)
+- Estimasi task per sprint
 
-**Deliverable:**
-1. TECH_SPEC.md:
-   - Technology stack (EISK + tambahan jika perlu)
-   - Architecture patterns (multi-tenancy strategy)
-   - Security considerations
-   - Scalability plan
-
-2. ARCHITECTURE.md:
-   - High-level system diagram
-   - Service boundaries
-   - Data flow diagrams
-   - Deployment architecture
-
-3. DATABASE_SCHEMA.md:
-   - ERD lengkap (semua tabel)
-   - Indexes & constraints
-   - Multi-tenancy approach (tenant_id di setiap tabel)
-
-4. API_CONTRACT.md:
-   - REST API design untuk semua modules
-   - Authentication flow
-   - Rate limiting strategy
-
-5. PROJECT_STRUCTURE.md:
-   - Folder structure
-   - Naming conventions
-   - Feature-based organization
-
-6. TASKS.md breakdown:
-   - Sprint 1-4 (MVP): Auth, Warehouse, Product, Stock
-   - Sprint 5-8: Supplier, PO, SO, Reporting
+Saya butuh ini sebelum development dimulai.
 ```
 
-**Output:** Semua spec di `outputs/02-engineering/`
+**TLA Output:** `TECH_SPEC.md`, `ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `API_CONTRACT.md`, `TASKS.md`
 
 ---
 
@@ -92,35 +64,16 @@ Baca PRD di outputs/01-product/ dan desain sistem Inventory Management.
 ```
 @DevOpsAgent
 
-Setup project foundation untuk Inventory SaaS.
+Setup project baru untuk Inventory SaaS.
 
-**Referensi:** outputs/02-engineering/PROJECT_STRUCTURE.md
+Tech stack: EISK (Elysia + Inertia + Svelte + Kysely)
+Butuh juga: CI/CD, staging environment, database setup.
 
-**Deliverable:**
-1. Project scaffolding:
-   - EISK stack initialization
-   - Folder structure sesuai spec
-   - Base configuration (TypeScript, Tailwind)
-
-2. Database setup:
-   - Migration system
-   - Seeding strategy
-   - Multi-tenancy middleware skeleton
-
-3. CI/CD pipeline:
-   - GitHub Actions workflow
-   - Automated testing
-   - Staging deployment
-
-4. Development environment:
-   - docker-compose.yml (dev)
-   - Environment templates
-   - README untuk onboarding dev
-
-5. DEPLOYMENT_GUIDE.md (staging setup)
+Bikinkan struktur project dan development environment
+biar developer bisa langsung mulai coding.
 ```
 
-**Output:** Base project structure + dev environment
+**DOA Output:** Project scaffolding, CI/CD config, dev environment
 
 ---
 
@@ -130,40 +83,32 @@ Setup project foundation untuk Inventory SaaS.
 ```
 @DeveloperAgent
 
-Implement Sprint 1: Auth & Multi-tenancy System.
+Sprint 1: Buat sistem login dan multi-tenant.
 
-**Referensi:**
-- outputs/03-tasks/TASKS.md Sprint 1
-- outputs/02-engineering/TECH_SPEC.md (auth section)
+Referensi desain: outputs/02-engineering/
 
-**Modules:**
-1. User registration dengan tenant creation
-2. Login/logout dengan JWT
-3. Tenant context middleware
-4. Role-based access control (Admin, Manager, Staff)
-5. Invitation system (invite user ke tenant)
+Fitur yang harus jalan:
+1. User bisa register, otomatis create company/tenant
+2. Login dengan JWT
+3. Setiap API request tahu ini tenant mana
+4. Role: Owner, Manager, Staff (beda akses)
+5. Owner bisa invite user ke company-nya
 
-**Acceptance Criteria:**
-- User bisa register dan otomatis create tenant
-- Setiap API request punya tenant context
-- Role restrictions working
-- User bisa invite member ke tenant
+Testing: Login sebagai user A, pastikan tidak bisa lihat data user B.
 ```
 
 ```
 @QAAgent
 
-Review Sprint 1: Auth & Multi-tenancy.
+Test Sprint 1: Auth & Multi-tenancy.
 
-**Scope:** All auth modules
+Yang harus dicek:
+- JWT aman?
+- Tenant A tidak bisa akses data Tenant B?
+- Role restriction jalan?
+- SQL injection aman?
 
-**Security Testing:**
-- JWT token security
-- Tenant isolation (user A tidak bisa lihat data tenant B)
-- Role access restrictions
-- SQL injection prevention
-
-**Deliverable:** outputs/04-reports/TEST_REPORT_SPRINT1.md
+Buatkan report hasil testing.
 ```
 
 ---
@@ -172,25 +117,16 @@ Review Sprint 1: Auth & Multi-tenancy.
 ```
 @DeveloperAgent
 
-Implement Sprint 2: Warehouse & Product Management.
+Sprint 2: Warehouse dan Product.
 
-**Features:**
-1. Warehouse CRUD (multi-warehouse per tenant)
-2. Product Master Data (SKU, nama, kategori, unit)
-3. Product Variant (size, color, etc)
-4. Barcode generation
-5. Product categorization
+Fitur:
+1. CRUD gudang (tiap company bisa punya banyak gudang)
+2. CRUD produk (SKU, nama, kategori, satuan)
+3. Produk bisa punya varian (ukuran, warna)
+4. Generate barcode
+5. Kategorisasi produk (tree view)
 
-**Database:**
-- warehouses table (with tenant_id)
-- products table
-- product_variants table
-- categories table
-
-**UI:**
-- Warehouse list, create, edit pages
-- Product catalog dengan variant management
-- Category tree view
+Database schema sudah ada di engineering spec.
 ```
 
 ---
@@ -199,20 +135,19 @@ Implement Sprint 2: Warehouse & Product Management.
 ```
 @DeveloperAgent
 
-Implement Sprint 3: Stock Operations.
+Sprint 3: Operasi stok.
 
-**Features:**
-1. Stock In (receipt from supplier)
-2. Stock Out (fulfill sales order)
-3. Stock Transfer (antar warehouse)
-4. Stock Adjustment (correction, damage)
-5. Stock History & Audit Trail
+Fitur:
+1. Barang masuk (dari supplier)
+2. Barang keluar (untuk sales order)
+3. Transfer antar gudang
+4. Adjustment stok (rusak, hilang, correction)
+5. History perubahan stok
 
-**Complex Logic:**
+Logic yang penting:
 - FIFO tracking
-- Stock reservation (saat SO dibuat)
-- Low stock alerts
-- Real-time stock calculation
+- Stok realtime
+- Alert kalau stok dibawah minimum
 ```
 
 ---
@@ -221,19 +156,19 @@ Implement Sprint 3: Stock Operations.
 ```
 @DeveloperAgent
 
-Implement Sprint 4: Dashboard MVP.
+Sprint 4: Dashboard dan laporan dasar.
 
-**Features:**
+Fitur:
 1. Dashboard utama:
-   - Total SKUs
-   - Total stock value
-   - Low stock alerts
-   - Recent transactions
+   - Total SKU
+   - Nilai stok keseluruhan
+   - Stok yang mau habis (alert)
+   - Transaksi terakhir
 
-2. Basic Reports:
-   - Stock levels per warehouse
-   - Product movement history
-   - Export to CSV
+2. Laporan:
+   - Stok per gudang
+   - Pergerakan barang
+   - Export CSV
 ```
 
 ---
@@ -244,19 +179,15 @@ Implement Sprint 4: Dashboard MVP.
 ```
 @DeveloperAgent
 
-Implement Supplier Management & Purchase Order System.
+Sprint 5-6: Supplier dan Purchase Order.
 
-**Supplier Module:**
-- Supplier master data
-- Supplier performance tracking
-- Contact & address management
-
-**Purchase Order:**
-- Create PO dari supplier
-- PO approval workflow
-- Partial receipt handling
-- PO status tracking (draft, sent, partial, received)
-- Auto-update stock saat receipt
+Fitur:
+1. Master data supplier
+2. Track performa supplier
+3. Create Purchase Order ke supplier
+4. PO bisa partial receive
+5. Status PO: draft, sent, partial, received
+6. Auto-update stok saat terima barang
 ```
 
 ---
@@ -265,15 +196,15 @@ Implement Supplier Management & Purchase Order System.
 ```
 @DeveloperAgent
 
-Implement Sales Order System.
+Sprint 7: Sales Order.
 
-**Features:**
-- Create SO dengan customer info
-- Stock reservation saat SO created
-- Fulfillment workflow (pick, pack, ship)
-- Partial fulfillment support
-- SO status tracking
-- Invoice generation
+Fitur:
+1. Create SO dengan data customer
+2. Saat SO dibuat, stok reserved
+3. Proses fulfillment: pick, pack, ship
+4. Bisa partial fulfillment
+5. Status tracking
+6. Generate invoice
 ```
 
 ---
@@ -282,19 +213,16 @@ Implement Sales Order System.
 ```
 @DeveloperAgent
 
-Implement Advanced Reporting & Analytics.
+Sprint 8: Laporan lanjutan.
 
-**Reports:**
-1. Inventory valuation (FIFO/LIFO)
-2. Stock aging report
+Laporan yang dibutuhkan:
+1. Valuasi stok (FIFO)
+2. Stok aging (barang lama)
 3. Fast/slow moving items
-4. Supplier performance report
-5. Sales trend analysis
+4. Performa supplier
+5. Sales trend
 
-**Export Formats:**
-- PDF (with charts)
-- Excel
-- CSV
+Export: PDF (dengan chart), Excel, CSV
 ```
 
 ---
@@ -305,27 +233,25 @@ Implement Advanced Reporting & Analytics.
 ```
 @QAAgent
 
-End-to-end testing seluruh sistem.
+End-to-end testing seluruh aplikasi.
 
-**Test Scope:**
-- Complete user workflows:
-  1. Register → Create warehouse → Add product → Receive stock
-  2. Create SO → Pick → Ship → Generate invoice
-  3. Create PO → Receive partial → Complete PO
-  4. Transfer stock → Check audit trail
+Test scenario lengkap:
+1. Register → Create gudang → Tambah produk → Terima barang
+2. Create SO → Pick → Ship → Invoice
+3. Create PO → Terima partial → Complete
+4. Transfer stok → Cek audit trail
 
-- Performance testing:
-  - 10,000 products load time
-  - 100 concurrent users
-  - Report generation speed
+Performance test:
+- Load 10,000 produk
+- 100 user concurrent
+- Speed report generation
 
-- Security testing:
-  - Tenant isolation
-  - SQL injection
-  - XSS prevention
-  - CSRF protection
+Security test:
+- Tenant isolation
+- SQL injection
+- XSS
 
-**Deliverable:** outputs/04-reports/FINAL_TEST_REPORT.md
+Buat report lengkap.
 ```
 
 ---
@@ -334,25 +260,19 @@ End-to-end testing seluruh sistem.
 ```
 @DevOpsAgent
 
-Production deployment untuk Inventory SaaS.
+Deploy ke production.
 
-**Infrastructure:**
-- VPS setup (Ubuntu)
-- Docker deployment
-- PostgreSQL (production DB)
-- Redis (caching & sessions)
-- Nginx reverse proxy + SSL
-- Backup automation
+Infrastruktur:
+- VPS (Ubuntu)
+- Docker
+- PostgreSQL production
+- Redis (cache)
+- Nginx + SSL
+- Backup otomatis
 
-**Monitoring:**
-- Error tracking (Sentry)
-- Performance monitoring
-- Uptime alerts
+Monitoring: Error tracking, performance, uptime alerts.
 
-**Deliverable:**
-- outputs/DEPLOYMENT_GUIDE_PROD.md
-- outputs/INFRASTRUCTURE.md
-- outputs/RELEASE_NOTES_v1.0.md
+Saya butuh guide lengkap cara deploy dan maintain.
 ```
 
 ---
@@ -360,27 +280,20 @@ Production deployment untuk Inventory SaaS.
 ## Scenario 2: Existing Project Enhancement
 
 ### Konteks
-Tambahkan fitur "Categories" ke aplikasi Invoice yang sudah ada.
+Client punya aplikasi Invoice, mau tambah fitur Categories.
 
 ```
 @ProductAgent
 
-Saya ingin menambahkan fitur "Categories" untuk invoices.
+Saya punya aplikasi invoice, mau ditambahin fitur kategori.
 
-Context:
-- User punya banyak invoices dan ingin mengelompokkan them
-- Contoh: "Marketing", "Operations", "Software"
+Kebutuhan:
+- User bisa bikin kategori (misal: Marketing, Operasional, Software)
+- Invoice bisa di-assign ke kategori
+- Bisa filter invoice by kategori
+- Kategori default "Uncategorized"
 
-Requirements:
-1. CRUD categories (Create, Read, Update, Delete)
-2. Assign category ke invoice
-3. Filter invoices by category
-4. Default category "Uncategorized"
-
-Deliverable:
-- PRD lengkap
-- User Stories dengan AC
-- ROADMAP (3 sprints)
+Ini untuk membantu user mengelompokkan invoice.
 ```
 
 ---
@@ -388,39 +301,29 @@ Deliverable:
 ## Scenario 3: Bug Fix
 
 ### Konteks
-User report: "Invoice amount tidak tersimpan ketika create invoice"
+User lapor bug.
 
 ```
 @DeveloperAgent
 
-Fix bug: Invoice amount tidak tersimpan.
+Ada bug: amount invoice tidak tersimpan.
 
-Bug Report:
-- User create invoice dengan amount $100
-- Setelah save, amount muncul $0
-- Other fields (customer, status) tersimpan normal
+Keluhan user:
+- Input amount $100
+- Setelah save muncul $0
+- Field lain (customer, status) tersimpan normal
 
-Steps to Reproduce:
+Cara reproduce:
 1. Go to /invoices/create
-2. Fill customer: "Test"
-3. Fill amount: 100
+2. Isi customer: "Test"
+3. Isi amount: 100
 4. Submit
-5. Check list: amount shows $0
+5. Di list muncul $0
 
-Expected: Amount tersimpan sesuai input
-Actual: Amount selalu 0
+Yang diharapkan: Amount tersimpan sesuai input
+Yang terjadi: Amount selalu 0
 
-Files terkait:
-- src/features/invoices/api.ts
-- src/features/invoices/service.ts
-- src/features/invoices/repository.ts
-- src/features/invoices/pages/Create.svelte
-
-Task:
-1. Identify root cause
-2. Fix the bug
-3. Test fix
-4. Update CHANGELOG.md
+Tolong cari root cause dan fix.
 ```
 
 ---
@@ -428,27 +331,20 @@ Task:
 ## Scenario 4: Refactoring
 
 ### Konteks
-Duplicated validation logic di banyak service files.
+Code quality issue.
 
 ```
 @TechLeadAgent
 
-Refactor plan: Extract common validation logic.
+Ada duplicated validation di banyak file.
+UUID validation sama persis ada di 5 file,
+email validation di 3 file.
 
-Problem:
-- UUID validation duplicated di 5 files
-- Email validation duplicated di 3 files
-- Pagination params validation duplicated
+Saya mau di-extract jadi shared utilities.
+Pastikan tidak ada functional changes,
+semua existing tests tetap passing.
 
-Target:
-- Create shared validation utilities
-- Update all services untuk menggunakan utilities
-- No functional changes
-
-Deliverable:
-1. Refactor plan
-2. Updated TASKS.md
-3. Risk assessment
+Buatkan plan dan task breakdown.
 ```
 
 ---
@@ -456,85 +352,88 @@ Deliverable:
 ## Scenario 5: Change Request
 
 ### Konteks
-Setelah fitur Categories selesai, user minta: "Categories harus punya icon juga"
+Requirement berubah setelah fitur selesai.
 
 ```
 @ProductAgent
 
-Change Request untuk fitur Categories.
+Change request untuk fitur kategori.
 
-Current: Categories punya name dan color
-Requested: Tambah icon untuk setiap category
-Reason: Visual recognition lebih cepat daripada baca text
+Sebelumnya: Kategori punya name dan color
+Sekarang mau: Tambah icon juga
 
-Deliverable:
-- Update PRD dengan icon requirement
-- Update affected User Stories
-- Update ROADMAP
+Alasan: User lebih cepat recognize icon daripada baca text.
+
+Tolong analisis impact dan update dokumentasi.
 ```
 
 ---
 
-## Quick Decision Tree
+## Decision Tree (Client Perspective)
 
 ```
-Building new app?
-- Yes -> @ProductAgent (full PRD) -> @TechLeadAgent (system design) 
-         -> @DevOpsAgent (setup) -> @DeveloperAgent (per sprint) 
-         -> @QAAgent (per sprint + final)
+Mau bikin aplikasi baru?
+- Ya -> @ProductAgent (ceritakan kebutuhan bisnis)
+       -> @TechLeadAgent (minta desain teknis)
+       -> @DevOpsAgent (minta setup project)
+       -> @DeveloperAgent (per fitur/sprint)
+       -> @QAAgent (test per fitur)
 
-Adding major feature?
-- Yes -> @ProductAgent -> @TechLeadAgent -> @DeveloperAgent -> @QAAgent
+Mau nambah fitur?
+- Ya -> @ProductAgent (ceritakan fitur yang diinginkan)
+       -> @TechLeadAgent (desain teknis)
+       -> @DeveloperAgent (implementasi)
+       -> @QAAgent (testing)
 
-Bug report?
-- Yes -> @DeveloperAgent (fix) -> @QAAgent (verify)
+Ada bug?
+- Ya -> @DeveloperAgent (deskripsikan bug)
+       -> @QAAgent (verifikasi fix)
 
-Code cleanup?
-- Yes -> @TechLeadAgent (plan) -> @DeveloperAgent -> @QAAgent
-
-Deploy to production?
-- Yes -> @DevOpsAgent
-
-Requirement change?
-- Yes -> @ProductAgent (assess) -> @TechLeadAgent (impact) 
-         -> @DeveloperAgent -> @QAAgent
+Mau deploy?
+- Ya -> @DevOpsAgent (minta deploy ke staging/production)
 ```
 
 ---
 
-## Tips Penggunaan
+## Prinsip Penting
 
-### 1. Context Passing
-Selalu refer ke dokumen yang sudah ada:
+### 1. Client Speak Business Language
+❌ **Jangan:** "Buatkan PRD, user stories, roadmap"
+✅ **Do:** "Saya mau aplikasi inventory untuk UMKM..."
+
+Agent yang tentukan deliverables sesuai kebutuhan.
+
+### 2. Refer to Previous Work
+```
+@TechLeadAgent
+
+Baca kebutuhan dari Product Agent di outputs/01-product/
+Bikin desain teknis lengkap.
+```
+
+### 3. Specific for Developer
 ```
 @DeveloperAgent
 
-Implement seperti dijelaskan di outputs/02-engineering/TECH_SPEC.md Section 3.
+Sprint 3: Buat fitur operasi stok.
+Referensi desain: outputs/02-engineering/
+
+Yang harus ada:
+1. Barang masuk
+2. Barang keluar
+3. Transfer antar gudang
+4. History
 ```
 
-### 2. Iterative Development
-Jika task besar, pecah menjadi beberapa iterasi:
+### 4. Natural Language
 ```
-@DeveloperAgent Iteration 1: Setup database
-@DeveloperAgent Iteration 2: API endpoints  
-@DeveloperAgent Iteration 3: UI pages
-```
+@QAAgent
 
-### 3. Feedback Loop
-Jika QA menemukan issue, loop balik ke Developer:
-```
-@DeveloperAgent
+Test aplikasi ini.
+Pastikan:
+- Tenant A tidak bisa lihat data Tenant B
+- JWT aman
+- Tidak ada SQL injection
 
-Fix issues dari QA review:
-- Issue #1: [deskripsi]
-- Issue #2: [deskripsi]
-
-Referensi: outputs/04-reports/TEST_REPORT.md
-```
-
-### 4. Documentation Updates
-Setelah setiap perubahan signifikan:
-```
-Update outputs/CHANGELOG.md
-Update outputs/ROADMAP.md (jika milestone tercapai)
+Buatkan report hasilnya.
 ```
