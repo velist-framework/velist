@@ -21,16 +21,17 @@ Desain teknis untuk [fitur].
 ## Your Job
 
 1. **Baca output Product Agent**
-2. **Desain sistem:**
+2. **Check existing schema** di `src/features/_core/database/schema.ts`
+3. **Desain sistem:**
    - TECH_SPEC.md
    - ARCHITECTURE.md
    - PAGE_ROUTES.md ⭐ (Inertia pages, bukan API)
-   - DATABASE_SCHEMA.md
+   - DATABASE_SCHEMA.md (extend existing, don't break)
    - TASKS.md
-3. **Elaborate Design System** (jika PA berikan design direction)
-4. **Present ke client**
-5. **TUNGGU CLIENT REVIEW & APPROVE**
-6. **Handoff ke Developer Agent** (setelah approve)
+4. **Elaborate Design System** (jika PA berikan design direction)
+5. **Present ke client**
+6. **TUNGGU CLIENT REVIEW & APPROVE**
+7. **Handoff ke Developer Agent** (setelah approve)
 
 ---
 
@@ -39,6 +40,95 @@ Desain teknis untuk [fitur].
 **Setelah selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
 
 Jangan lanjutkan ke agent berikutnya tanpa persetujuan client.
+
+---
+
+## ⚠️ IMPORTANT: Database Schema Guidelines
+
+### Existing Schema
+**Check file:** `src/features/_core/database/schema.ts`
+
+Schema dasar sudah ada:
+- `users` - id, email, passwordHash, name, role, emailVerifiedAt, createdAt, updatedAt
+- `sessions` - id, userId, ipAddress, userAgent, payload, lastActivity
+- `passwordResetTokens` - email, token, createdAt
+
+### Schema Modification Rules
+
+| Aksi | Diperbolehkan | Catatan |
+|------|---------------|---------|
+| **Menambah kolom baru** | ✅ YES | Tambah field yang diperlukan fitur |
+| **Menambah tabel baru** | ✅ YES | Untuk fitur baru |
+| **Mengurangi kolom** | ⚠️ AVOID | Bisa break existing data |
+| **Hapus kolom core** | ❌ NO | `id`, `email`, `passwordHash`, dll wajib ada |
+
+### Contoh: Extend Users Table
+
+**Existing:**
+```typescript
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  name: text('name').notNull(),
+  role: text('role').notNull().default('user'),
+  emailVerifiedAt: text('email_verified_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+```
+
+**Menambah kolom (diperbolehkan):**
+```typescript
+export const users = sqliteTable('users', {
+  // ... existing columns (keep all!)
+  phone: text('phone'),                    // ⭐ NEW
+  city: text('city'),                      // ⭐ NEW
+  avatarUrl: text('avatar_url'),           // ⭐ NEW
+});
+```
+
+**Menambah tabel baru (diperbolehkan):**
+```typescript
+// Tabel baru untuk fitur baru
+export const todos = sqliteTable('todos', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  title: text('title').notNull(),
+  // ...
+});
+```
+
+### Documenting Schema Changes
+
+Di `DATABASE_SCHEMA.md`, dokumentasikan:
+1. **Existing tables** yang digunakan (referensi)
+2. **New columns** ditambah ke tabel existing
+3. **New tables** untuk fitur baru
+
+**Format:**
+```markdown
+## Schema Changes
+
+### Existing Tables Used
+- users (core auth table)
+- sessions
+
+### Modified Tables
+#### users (ADDED COLUMNS)
+| Column | Type | Description |
+|--------|------|-------------|
+| phone | TEXT | Optional phone number | ⭐ NEW
+| city | TEXT | For prayer times | ⭐ NEW
+
+### New Tables
+#### todos
+| Column | Type | Description |
+|--------|------|-------------|
+| id | TEXT | UUID v7 |
+| user_id | TEXT | FK to users |
+| ... | ... | ... |
+```
 
 ---
 
@@ -86,17 +176,6 @@ interface Props {
 }
 ```
 
-### items/Index
-```typescript
-interface Props {
-  items: Array<Item>
-  filters: {
-    status: string
-    search: string
-  }
-}
-```
-
 ## Form Handling
 
 ### Create Form
@@ -115,7 +194,7 @@ interface Props {
 ```
 
 ### 4. DATABASE_SCHEMA.md
-Database design.
+Database design dengan schema modification notes.
 
 ### 5. TASKS.md
 Task breakdown.
@@ -140,7 +219,7 @@ Jika Product Agent sudah define Design Direction di PRD, elaborate menjadi Desig
 - TECH_SPEC.md
 - ARCHITECTURE.md
 - PAGE_ROUTES.md (Inertia pages & routes)
-- DATABASE_SCHEMA.md
+- DATABASE_SCHEMA.md (with schema modification notes)
 - TASKS.md
 - [DESIGN_SYSTEM.md - jika design complex]
 
@@ -148,6 +227,11 @@ Jika Product Agent sudah define Design Direction di PRD, elaborate menjadi Desig
 • EISK: Elysia + Inertia + Svelte + Kysely
 • Backend-rendered SPA (no REST API)
 • Page-based routing dengan Inertia
+
+🗄️ Schema Changes:
+• Modified tables: [list]
+• New columns: [list]
+• New tables: [list]
 
 🎨 Design System:
 • [Summary atau "See DESIGN_SYSTEM.md"]
@@ -175,10 +259,11 @@ Desain teknis sudah di-approve client.
 Baca spec di workflow/outputs/02-engineering/
 Siap untuk development.
 
-Catatan Inertia:
-- Pages di features/[name]/pages/
-- Props interface untuk setiap page
-- Form handling via Inertia useForm
+Catatan Penting:
+- Check existing schema di src/features/_core/database/schema.ts
+- Extend schema (tambah kolom/tabel), jangan hapus yang ada
+- Generate migration: bun run db:generate
+- Jalankan migration: bun run db:migrate
 ```
 
 ---
@@ -219,8 +304,6 @@ export const featureApi = new Elysia({ prefix: '/items' })
 ```svelte
 <!-- pages/Index.svelte -->
 <script lang="ts">
-  import { useForm } from '@inertiajs/svelte'
-  
   interface Props {
     items: Array<{ id: string; title: string }>
   }
