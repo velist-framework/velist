@@ -1,17 +1,367 @@
 # Example Usage Scenarios
 
-Dokumen ini berisi contoh nyata bagaimana menggunakan workflow multi-agent dalam berbagai situasi.
+Real-world examples menggunakan multi-agent workflow.
 
 ---
 
-## Scenario 1: New Feature Development
+## Scenario 1: Full Application Development (New Project)
 
 ### Konteks
-Kamu ingin menambahkan fitur "Categories" untuk mengelompokkan invoices.
+Membangun **SaaS Inventory Management System** dari nol dengan EISK stack.
 
-### Workflow
+### Fase 1: Discovery & Planning
 
-#### Step 1: Product Agent
+#### Step 1: Product Agent - Define Product
+```
+@ProductAgent
+
+Buat PRD lengkap untuk SaaS Inventory Management System.
+
+**Visi:**
+Aplikasi inventory untuk UMKM yang bisa multi-warehouse, 
+track stock real-time, dan generate laporan penjualan.
+
+**Core Modules:**
+1. Authentication & Authorization (multi-tenant)
+2. Warehouse Management (CRUD gudang)
+3. Product Management (SKU, kategori, variant)
+4. Stock Management (in, out, transfer antar gudang)
+5. Supplier Management
+6. Purchase Orders
+7. Sales Orders
+8. Reporting & Analytics (dashboard, export)
+9. User Management & RBAC (Admin, Manager, Staff)
+
+**Deliverable:**
+- PRD.md lengkap dengan user personas
+- USER_STORIES.md (semua modul)
+- ROADMAP.md (MVP 8 minggu, Full 16 minggu)
+- Prioritisasi MoSCoW per modul
+```
+
+**Output:** `outputs/01-product/PRD.md`, `USER_STORIES.md`, `ROADMAP.md`
+
+---
+
+#### Step 2: Tech Lead Agent - System Design
+```
+@TechLeadAgent
+
+Baca PRD di outputs/01-product/ dan desain sistem Inventory Management.
+
+**Scope:** Full system architecture untuk 16-week roadmap
+
+**Deliverable:**
+1. TECH_SPEC.md:
+   - Technology stack (EISK + tambahan jika perlu)
+   - Architecture patterns (multi-tenancy strategy)
+   - Security considerations
+   - Scalability plan
+
+2. ARCHITECTURE.md:
+   - High-level system diagram
+   - Service boundaries
+   - Data flow diagrams
+   - Deployment architecture
+
+3. DATABASE_SCHEMA.md:
+   - ERD lengkap (semua tabel)
+   - Indexes & constraints
+   - Multi-tenancy approach (tenant_id di setiap tabel)
+
+4. API_CONTRACT.md:
+   - REST API design untuk semua modules
+   - Authentication flow
+   - Rate limiting strategy
+
+5. PROJECT_STRUCTURE.md:
+   - Folder structure
+   - Naming conventions
+   - Feature-based organization
+
+6. TASKS.md breakdown:
+   - Sprint 1-4 (MVP): Auth, Warehouse, Product, Stock
+   - Sprint 5-8: Supplier, PO, SO, Reporting
+```
+
+**Output:** Semua spec di `outputs/02-engineering/`
+
+---
+
+#### Step 3: DevOps Agent - Project Setup
+```
+@DevOpsAgent
+
+Setup project foundation untuk Inventory SaaS.
+
+**Referensi:** outputs/02-engineering/PROJECT_STRUCTURE.md
+
+**Deliverable:**
+1. Project scaffolding:
+   - EISK stack initialization
+   - Folder structure sesuai spec
+   - Base configuration (TypeScript, Tailwind)
+
+2. Database setup:
+   - Migration system
+   - Seeding strategy
+   - Multi-tenancy middleware skeleton
+
+3. CI/CD pipeline:
+   - GitHub Actions workflow
+   - Automated testing
+   - Staging deployment
+
+4. Development environment:
+   - docker-compose.yml (dev)
+   - Environment templates
+   - README untuk onboarding dev
+
+5. DEPLOYMENT_GUIDE.md (staging setup)
+```
+
+**Output:** Base project structure + dev environment
+
+---
+
+### Fase 2: MVP Development (Sprint 1-4)
+
+#### Sprint 1: Authentication & Multi-tenancy
+```
+@DeveloperAgent
+
+Implement Sprint 1: Auth & Multi-tenancy System.
+
+**Referensi:**
+- outputs/03-tasks/TASKS.md Sprint 1
+- outputs/02-engineering/TECH_SPEC.md (auth section)
+
+**Modules:**
+1. User registration dengan tenant creation
+2. Login/logout dengan JWT
+3. Tenant context middleware
+4. Role-based access control (Admin, Manager, Staff)
+5. Invitation system (invite user ke tenant)
+
+**Acceptance Criteria:**
+- User bisa register dan otomatis create tenant
+- Setiap API request punya tenant context
+- Role restrictions working
+- User bisa invite member ke tenant
+```
+
+```
+@QAAgent
+
+Review Sprint 1: Auth & Multi-tenancy.
+
+**Scope:** All auth modules
+
+**Security Testing:**
+- JWT token security
+- Tenant isolation (user A tidak bisa lihat data tenant B)
+- Role access restrictions
+- SQL injection prevention
+
+**Deliverable:** outputs/04-reports/TEST_REPORT_SPRINT1.md
+```
+
+---
+
+#### Sprint 2: Warehouse & Product Management
+```
+@DeveloperAgent
+
+Implement Sprint 2: Warehouse & Product Management.
+
+**Features:**
+1. Warehouse CRUD (multi-warehouse per tenant)
+2. Product Master Data (SKU, nama, kategori, unit)
+3. Product Variant (size, color, etc)
+4. Barcode generation
+5. Product categorization
+
+**Database:**
+- warehouses table (with tenant_id)
+- products table
+- product_variants table
+- categories table
+
+**UI:**
+- Warehouse list, create, edit pages
+- Product catalog dengan variant management
+- Category tree view
+```
+
+---
+
+#### Sprint 3: Stock Management
+```
+@DeveloperAgent
+
+Implement Sprint 3: Stock Operations.
+
+**Features:**
+1. Stock In (receipt from supplier)
+2. Stock Out (fulfill sales order)
+3. Stock Transfer (antar warehouse)
+4. Stock Adjustment (correction, damage)
+5. Stock History & Audit Trail
+
+**Complex Logic:**
+- FIFO tracking
+- Stock reservation (saat SO dibuat)
+- Low stock alerts
+- Real-time stock calculation
+```
+
+---
+
+#### Sprint 4: Dashboard & Reporting Foundation
+```
+@DeveloperAgent
+
+Implement Sprint 4: Dashboard MVP.
+
+**Features:**
+1. Dashboard utama:
+   - Total SKUs
+   - Total stock value
+   - Low stock alerts
+   - Recent transactions
+
+2. Basic Reports:
+   - Stock levels per warehouse
+   - Product movement history
+   - Export to CSV
+```
+
+---
+
+### Fase 3: Full Feature Development (Sprint 5-8)
+
+#### Sprint 5-6: Supplier & Purchase Orders
+```
+@DeveloperAgent
+
+Implement Supplier Management & Purchase Order System.
+
+**Supplier Module:**
+- Supplier master data
+- Supplier performance tracking
+- Contact & address management
+
+**Purchase Order:**
+- Create PO dari supplier
+- PO approval workflow
+- Partial receipt handling
+- PO status tracking (draft, sent, partial, received)
+- Auto-update stock saat receipt
+```
+
+---
+
+#### Sprint 7: Sales Orders
+```
+@DeveloperAgent
+
+Implement Sales Order System.
+
+**Features:**
+- Create SO dengan customer info
+- Stock reservation saat SO created
+- Fulfillment workflow (pick, pack, ship)
+- Partial fulfillment support
+- SO status tracking
+- Invoice generation
+```
+
+---
+
+#### Sprint 8: Advanced Reporting
+```
+@DeveloperAgent
+
+Implement Advanced Reporting & Analytics.
+
+**Reports:**
+1. Inventory valuation (FIFO/LIFO)
+2. Stock aging report
+3. Fast/slow moving items
+4. Supplier performance report
+5. Sales trend analysis
+
+**Export Formats:**
+- PDF (with charts)
+- Excel
+- CSV
+```
+
+---
+
+### Fase 4: Integration & Hardening
+
+#### Integration Testing
+```
+@QAAgent
+
+End-to-end testing seluruh sistem.
+
+**Test Scope:**
+- Complete user workflows:
+  1. Register → Create warehouse → Add product → Receive stock
+  2. Create SO → Pick → Ship → Generate invoice
+  3. Create PO → Receive partial → Complete PO
+  4. Transfer stock → Check audit trail
+
+- Performance testing:
+  - 10,000 products load time
+  - 100 concurrent users
+  - Report generation speed
+
+- Security testing:
+  - Tenant isolation
+  - SQL injection
+  - XSS prevention
+  - CSRF protection
+
+**Deliverable:** outputs/04-reports/FINAL_TEST_REPORT.md
+```
+
+---
+
+#### Production Deployment
+```
+@DevOpsAgent
+
+Production deployment untuk Inventory SaaS.
+
+**Infrastructure:**
+- VPS setup (Ubuntu)
+- Docker deployment
+- PostgreSQL (production DB)
+- Redis (caching & sessions)
+- Nginx reverse proxy + SSL
+- Backup automation
+
+**Monitoring:**
+- Error tracking (Sentry)
+- Performance monitoring
+- Uptime alerts
+
+**Deliverable:**
+- outputs/DEPLOYMENT_GUIDE_PROD.md
+- outputs/INFRASTRUCTURE.md
+- outputs/RELEASE_NOTES_v1.0.md
+```
+
+---
+
+## Scenario 2: Existing Project Enhancement
+
+### Konteks
+Tambahkan fitur "Categories" ke aplikasi Invoice yang sudah ada.
+
 ```
 @ProductAgent
 
@@ -33,171 +383,12 @@ Deliverable:
 - ROADMAP (3 sprints)
 ```
 
-**Output:** `docs/01-product/PRD.md`, `USER_STORIES.md`, `ROADMAP.md`
-
 ---
 
-#### Step 2: Tech Lead Agent
-```
-@TechLeadAgent
-
-Baca PRD di docs/01-product/PRD.md (fitur Categories).
-
-Buat technical specification lengkap:
-
-1. Database schema (tabel categories, tambah category_id ke invoices)
-2. API endpoints untuk CRUD categories
-3. Update invoice API untuk support category
-4. UI pages: Category list, Create, Edit
-5. Update Invoice pages untuk dropdown category
-
-Perhatikan:
-- Soft delete untuk categories (jangan hapus data)
-- Validasi: category name unique per user
-- Default category auto-create untuk user baru
-```
-
-**Output:** `TECH_SPEC.md`, `ARCHITECTURE.md`, `API_CONTRACT.md`, `DATABASE_SCHEMA.md`, `TASKS.md`
-
----
-
-#### Step 3: Developer Agent - Task 1
-```
-@DeveloperAgent
-
-Implement Task-001: Setup database dan repository untuk Categories.
-
-Referensi:
-- Task: docs/03-implementation/TASKS.md Task-001
-- Tech Spec: Section 2.1 Database Schema
-
-Yang perlu dibuat:
-1. Migration SQL untuk tabel categories
-2. Update DatabaseSchema interface di connection.ts
-3. CategoryRepository dengan methods:
-   - findAllByUser(userId)
-   - findById(id)
-   - create(data)
-   - update(id, data)
-   - softDelete(id)
-
-Notes:
-- Gunakan uuidv7 untuk ID
-- Soft delete pakai deleted_at timestamp
-```
-
-**Output:** Kode repository + migration
-
----
-
-#### Step 4: Developer Agent - Task 2
-```
-@DeveloperAgent
-
-Implement Task-002: Category API endpoints.
-
-Dependencies: Task-001 (selesai)
-
-Yang perlu dibuat:
-1. CategoryService dengan validation schemas
-2. Category API routes (Elysia)
-3. Mount di bootstrap.ts
-
-Endpoints:
-- GET /categories (list)
-- POST /categories (create)
-- PUT /categories/:id (update)
-- DELETE /categories/:id (soft delete)
-
-Validation:
-- name: required, min 1, max 100 chars
-- color: optional hex color
-```
-
-**Output:** `src/features/categories/service.ts`, `api.ts`
-
----
-
-#### Step 5: Developer Agent - Task 3
-```
-@DeveloperAgent
-
-Implement Task-003: Category UI pages.
-
-Yang perlu dibuat:
-1. src/features/categories/pages/Index.svelte (list)
-2. src/features/categories/pages/Create.svelte
-3. src/features/categories/pages/Edit.svelte
-
-Design:
-- List: grid of category cards dengan color indicator
-- Create/Edit: form dengan name dan color picker
-- Delete: confirmation modal
-
-Integration:
-- Update invoices/Index.svelte untuk filter by category
-- Update invoices/Create.svelte untuk dropdown category
-```
-
-**Output:** Svelte pages
-
----
-
-#### Step 6: QA Agent
-```
-@QAAgent
-
-Review implementasi fitur Categories.
-
-Scope:
-- Task-001, Task-002, Task-003
-- All files di src/features/categories/
-- Updates di invoices pages
-
-Acceptance Criteria:
-1. User bisa create category baru
-2. User bisa edit category
-3. User bisa delete category (soft delete)
-4. Category muncul di invoice form
-5. Invoices bisa difilter by category
-
-Test:
-- Code review
-- Functional testing
-- Edge cases (duplicate name, empty name)
-```
-
-**Output:** `TEST_REPORT.md` dengan status APPROVED/CHANGES_REQUESTED
-
----
-
-#### Step 7: DevOps Agent (Jika deployment)
-```
-@DevOpsAgent
-
-Deploy fitur Categories ke production.
-
-Changes:
-- Database migration baru
-- API endpoints baru
-- UI pages baru
-
-Check:
-1. Jalankan migration
-2. Smoke test
-3. Monitor errors
-
-Rollback plan ready? Yes/No
-```
-
----
-
-## Scenario 2: Bug Fix
+## Scenario 3: Bug Fix
 
 ### Konteks
 User report: "Invoice amount tidak tersimpan ketika create invoice"
-
-### Workflow
 
 ```
 @DeveloperAgent
@@ -232,32 +423,13 @@ Task:
 4. Update CHANGELOG.md
 ```
 
-Setelah implementasi:
-
-```
-@QAAgent
-
-Verify fix untuk bug invoice amount.
-
-Fix: [deskripsi fix dari DevA]
-
-Test:
-1. Reproduce original bug
-2. Verify fix works
-3. Test edge cases (0, negative, very large numbers)
-4. Regression test (other fields masih work)
-```
-
 ---
 
-## Scenario 3: Refactoring
+## Scenario 4: Refactoring
 
 ### Konteks
 Duplicated validation logic di banyak service files.
 
-### Workflow
-
-#### Step 1: Tech Lead Agent
 ```
 @TechLeadAgent
 
@@ -279,57 +451,13 @@ Deliverable:
 3. Risk assessment
 ```
 
-#### Step 2: Developer Agent
-```
-@DeveloperAgent
-
-Refactor: Extract validation utilities.
-
-Plan:
-1. Create src/shared/lib/validation.ts
-2. Extract common validators:
-   - uuidValidator
-   - emailValidator
-   - paginationSchema
-3. Update services untuk menggunakan shared validators
-4. Run tests untuk ensure no regression
-
-Files to modify:
-- New: src/shared/lib/validation.ts
-- Update: src/features/*/service.ts
-
-Constraints:
-- No functional changes
-- All existing tests harus pass
-```
-
-#### Step 3: QA Agent
-```
-@QAAgent
-
-Review refactoring: Validation utilities.
-
-Focus:
-- Code quality improvement
-- No functional changes
-- All AC tetap working
-
-Test:
-- Regression testing untuk semua fitur
-- Code review
-- Verify no logic changes
-```
-
 ---
 
-## Scenario 4: Change Request (Requirement Change)
+## Scenario 5: Change Request
 
 ### Konteks
 Setelah fitur Categories selesai, user minta: "Categories harus punya icon juga"
 
-### Workflow
-
-#### Step 1: Product Agent (Change Assessment)
 ```
 @ProductAgent
 
@@ -345,111 +473,18 @@ Deliverable:
 - Update ROADMAP
 ```
 
-#### Step 2: Tech Lead Agent (Impact Analysis)
-```
-@TechLeadAgent
-
-Analisis impact dari change request: Add icon ke categories.
-
-Current State: Categories sudah di production
-Changes needed:
-1. Database: tambah icon column
-2. API: update schemas dan validation
-3. UI: icon picker di form, display icon di list
-4. Migration: existing data default icon
-
-Deliverable:
-- Updated TECH_SPEC.md
-- Updated TASKS.md (migration + UI update)
-- Migration plan untuk existing data
-```
-
-#### Step 3: Developer Agent
-```
-@DeveloperAgent
-
-Implement change: Add icon ke categories.
-
-Tasks:
-1. Migration: alter table categories add icon column
-2. Update CategoryRepository
-3. Update CategoryService schemas
-4. Update Category API
-5. Update UI: icon picker (gunakan lucide icons)
-6. Update existing pages untuk display icon
-
-Data migration:
-- Existing categories: default icon "Folder"
-- User bisa edit untuk ganti icon
-```
-
----
-
-## Scenario 5: New Project Setup
-
-### Konteks
-Starting fresh dengan EISK stack.
-
-### Workflow
-
-```
-@ProductAgent
-
-Define MVP untuk Invoice Management System.
-
-Core features:
-1. User authentication (register, login, logout)
-2. Invoice CRUD
-3. Dashboard dengan summary
-4. Export invoices to CSV
-
-Deliverable:
-- PRD untuk MVP
-- User Stories
-- ROADMAP (4 weeks)
-```
-
-```
-@TechLeadAgent
-
-Setup EISK project structure untuk Invoice Management System.
-
-Stack: Elysia + Inertia + Svelte + Kysely + SQLite
-
-Deliverable:
-1. Project folder structure
-2. Database schema (users, invoices)
-3. API design
-4. UI mockup/wireframe description
-5. TASKS.md untuk Week 1
-```
-
-```
-@DeveloperAgent
-
-Implement Week 1 tasks: Authentication system.
-
-Referensi: TASKS.md Week 1
-
-Features:
-1. User registration
-2. User login
-3. Protected routes
-4. Logout
-
-Deliverable:
-- Complete auth feature
-- Working login/register pages
-- JWT authentication
-```
-
 ---
 
 ## Quick Decision Tree
 
 ```
-Need new feature?
-- Yes -> @ProductAgent -> @TechLeadAgent -> @DeveloperAgent -> @QAAgent -> @DevOpsAgent (optional)
+Building new app?
+- Yes -> @ProductAgent (full PRD) -> @TechLeadAgent (system design) 
+         -> @DevOpsAgent (setup) -> @DeveloperAgent (per sprint) 
+         -> @QAAgent (per sprint + final)
+
+Adding major feature?
+- Yes -> @ProductAgent -> @TechLeadAgent -> @DeveloperAgent -> @QAAgent
 
 Bug report?
 - Yes -> @DeveloperAgent (fix) -> @QAAgent (verify)
@@ -461,7 +496,8 @@ Deploy to production?
 - Yes -> @DevOpsAgent
 
 Requirement change?
-- Yes -> @ProductAgent (assess) -> @TechLeadAgent (impact) -> @DeveloperAgent -> @QAAgent
+- Yes -> @ProductAgent (assess) -> @TechLeadAgent (impact) 
+         -> @DeveloperAgent -> @QAAgent
 ```
 
 ---
@@ -473,14 +509,14 @@ Selalu refer ke dokumen yang sudah ada:
 ```
 @DeveloperAgent
 
-Implement seperti dijelaskan di docs/02-engineering/TECH_SPEC.md Section 3.
+Implement seperti dijelaskan di outputs/02-engineering/TECH_SPEC.md Section 3.
 ```
 
 ### 2. Iterative Development
 Jika task besar, pecah menjadi beberapa iterasi:
 ```
 @DeveloperAgent Iteration 1: Setup database
-@DeveloperAgent Iteration 2: API endpoints
+@DeveloperAgent Iteration 2: API endpoints  
 @DeveloperAgent Iteration 3: UI pages
 ```
 
@@ -493,12 +529,12 @@ Fix issues dari QA review:
 - Issue #1: [deskripsi]
 - Issue #2: [deskripsi]
 
-Referensi: docs/04-testing/TEST_REPORT.md
+Referensi: outputs/04-reports/TEST_REPORT.md
 ```
 
 ### 4. Documentation Updates
 Setelah setiap perubahan signifikan:
 ```
-Update docs/03-implementation/CHANGELOG.md
-Update docs/01-product/ROADMAP.md (jika milestone tercapai)
+Update outputs/CHANGELOG.md
+Update outputs/ROADMAP.md (jika milestone tercapai)
 ```
