@@ -59,6 +59,24 @@ Multi-agent workflow dengan **mandatory review points**.
 
 ---
 
+## Inertia.js Architecture
+
+**Project ini menggunakan Inertia.js:**
+- **Backend:** Elysia render Svelte pages langsung
+- **No REST API:** Data lewat page props
+- **Routing:** URL-based (GET /items, POST /items)
+- **Forms:** Inertia useForm, bukan fetch/axios
+
+### Output Tech Lead Agent
+
+- ❌ `API_CONTRACT.md` (tidak perlu)
+- ✅ `PAGE_ROUTES.md` (routes & page props)
+- ✅ `ARCHITECTURE.md` (folder structure)
+- ✅ `DATABASE_SCHEMA.md`
+- ✅ `TECH_SPEC.md`
+
+---
+
 ## Contoh Penggunaan Lengkap
 
 ### 1. Mulai Project Baru
@@ -67,15 +85,7 @@ Multi-agent workflow dengan **mandatory review points**.
 @workflow/agents/product.md
 
 Saya mau bikin aplikasi todolist.
-
-Fitur:
-- Bisa bikin todo list
-- Set deadline
-- Mark as complete
-- Filter by status
-
-User: Personal use
-Timeline: 1 minggu
+[...deskripsikan kebutuhan...]
 ```
 
 **PA akan:**
@@ -89,7 +99,8 @@ Timeline: 1 minggu
 @workflow/agents/tech-lead.md
 
 Lanjutkan dari Product Agent.
-Kebutuhan sudah di-approve client.
+Kebutuhan produk sudah di-approve client.
+Baca di workflow/outputs/01-product/
 ```
 
 ### 2. Fix Bug
@@ -98,7 +109,6 @@ Kebutuhan sudah di-approve client.
 @workflow/agents/developer.md
 
 Fix bug: todo tidak bisa di-save.
-Error: "Failed to save" muncul setiap kali create todo.
 ```
 
 ---
@@ -121,19 +131,21 @@ File-file berikut adalah **referensi untuk manusia** (tidak perlu dibaca agent):
 ## Project Setup (Already Done)
 
 Starter project EISK includes:
-- ✅ Project structure ready
-- ✅ Database (SQLite)
-- ✅ Authentication
-- ✅ Dev environment
+- ✅ Project structure
+- ✅ Database setup (SQLite)
+- ✅ Authentication system
+- ✅ Inertia.js integration
+- ✅ Development environment
+- ✅ Build configuration
 
-Run:
-```bash
-bun install
-bun run db:migrate
-bun run dev
-```
+DevOps Agent hanya perlu untuk **deployment ke production**.
 
-Then call agent.
+### Development Workflow
+1. Clone project ini
+2. `bun install`
+3. `bun run db:migrate`
+4. `bun run dev`
+5. Mulai development dengan agent-agent
 
 ---
 
@@ -143,10 +155,16 @@ Hasil kerja agent tersimpan di:
 
 ```
 workflow/outputs/
-├── 01-product/       # Product Agent output
-├── 02-engineering/   # Tech Lead Agent output
-├── 03-tasks/         # Task breakdowns
-└── 04-reports/       # QA Agent output
+├── 01-product/           # @workflow/agents/product.md
+│   ├── PRD.md
+│   ├── USER_STORIES.md
+│   └── ROADMAP.md
+├── 02-engineering/       # @workflow/agents/tech-lead.md
+│   ├── TECH_SPEC.md
+│   ├── ARCHITECTURE.md
+│   ├── PAGE_ROUTES.md    # Inertia pages (bukan API)
+│   ├── DATABASE_SCHEMA.md
+│   └── DESIGN_SYSTEM.md
+├── 03-tasks/             # Task breakdowns
+└── 04-reports/           # @workflow/agents/qa.md
 ```
-
-Agent-agent bisa membaca output agent lain dari folder ini.

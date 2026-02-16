@@ -24,7 +24,7 @@ Desain teknis untuk [fitur].
 2. **Desain sistem:**
    - TECH_SPEC.md
    - ARCHITECTURE.md
-   - API_CONTRACT.md
+   - PAGE_ROUTES.md ⭐ (Inertia pages, bukan API)
    - DATABASE_SCHEMA.md
    - TASKS.md
 3. **Elaborate Design System** (jika PA berikan design direction)
@@ -42,66 +42,92 @@ Jangan lanjutkan ke agent berikutnya tanpa persetujuan client.
 
 ---
 
-## Design System (Optional)
+## Output Files
 
-Jika Product Agent sudah define Design Direction di PRD, **Tech Lead Agent** bisa elaborate menjadi Design System detail:
+### 1. TECH_SPEC.md
+Technical specification lengkap.
 
-**Buat DESIGN_SYSTEM.md jika diperlukan:**
+### 2. ARCHITECTURE.md
+Folder structure dan system design.
+
+### 3. PAGE_ROUTES.md ⭐ (Ganti API_CONTRACT.md)
+**Karena pakai Inertia.js, dokumentasikan pages & routes, bukan REST API.**
 
 ```markdown
-# Design System
+# Page Routes
 
-## Color Tokens
-```css
---color-primary: #4f46e5        /* indigo-600 */
---color-primary-hover: #4338ca /* indigo-700 */
---color-success: #22c55e       /* green-500 */
---color-warning: #eab308       /* yellow-500 */
---color-danger: #ef4444        /* red-500 */
---color-text-primary: #0f172a  /* slate-900 */
---color-text-secondary: #64748b /* slate-500 */
---color-background: #ffffff
---color-surface: #f8fafc       /* slate-50 */
---color-border: #e2e8f0        /* slate-200 */
+## Route Table
+
+| URL | Page Component | Props | Description |
+|-----|---------------|-------|-------------|
+| GET /dashboard | dashboard/Index | stats, recent_items | Dashboard utama |
+| GET /items | items/Index | items, filters | List items |
+| GET /items/create | items/Create | errors | Form create |
+| POST /items | items/Store | - | Handle create |
+| GET /items/:id/edit | items/Edit | item, errors | Form edit |
+| PUT /items/:id | items/Update | - | Handle update |
+| DELETE /items/:id | items/Destroy | - | Handle delete |
+
+## Page Props
+
+### dashboard/Index
+```typescript
+interface Props {
+  stats: {
+    total: number
+    completed: number
+    pending: number
+  }
+  recent_items: Array<{
+    id: string
+    title: string
+    status: string
+  }>
+}
 ```
 
-## Component Patterns
-
-### Button
-- Primary: `px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700`
-- Secondary: `px-4 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50`
-- Danger: `px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700`
-- Sizes: sm (px-3 py-1.5), md (default), lg (px-6 py-3)
-
-### Card
-- Base: `bg-white rounded-lg shadow-sm border border-slate-200 p-4`
-- Hover: `hover:shadow-md transition-shadow`
-
-### Input
-- Text: `w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500`
-- Select: Same + `appearance-none bg-white`
-- Checkbox: `w-4 h-4 text-indigo-600 rounded border-slate-300`
-
-### Typography Scale
-- H1: `text-2xl font-bold text-slate-900`
-- H2: `text-xl font-semibold text-slate-900`
-- Body: `text-sm text-slate-600 leading-relaxed`
-- Small: `text-xs text-slate-500`
-
-## Spacing System
-- xs: 4px (p-1, gap-1)
-- sm: 8px (p-2, gap-2)
-- md: 16px (p-4, gap-4)
-- lg: 24px (p-6, gap-6)
-- xl: 32px (p-8, gap-8)
-
-## Iconography
-- Library: Lucide Icons
-- Size default: 20px (w-5 h-5)
-- Stroke width: 1.5
+### items/Index
+```typescript
+interface Props {
+  items: Array<Item>
+  filters: {
+    status: string
+    search: string
+  }
+}
 ```
 
-**Note:** Untuk project simple/MVP, Design System bisa di-skip dan langsung dokumentasikan di TECH_SPEC.md saja.
+## Form Handling
+
+### Create Form
+- Method: POST
+- Action: /items
+- Validation: TypeBox schema
+- Error handling: Inertia errors bag
+- Success: Redirect to /items
+
+### Edit Form
+- Method: PUT
+- Action: /items/:id
+- Validation: TypeBox schema
+- Error handling: Inertia errors bag
+- Success: Redirect to /items
+```
+
+### 4. DATABASE_SCHEMA.md
+Database design.
+
+### 5. TASKS.md
+Task breakdown.
+
+### 6. DESIGN_SYSTEM.md (Optional)
+Jika design complex.
+
+---
+
+## Design System (Optional)
+
+Jika Product Agent sudah define Design Direction di PRD, elaborate menjadi Design System.
 
 ---
 
@@ -113,13 +139,15 @@ Jika Product Agent sudah define Design Direction di PRD, **Tech Lead Agent** bis
 📄 Deliverables:
 - TECH_SPEC.md
 - ARCHITECTURE.md
-- API_CONTRACT.md
+- PAGE_ROUTES.md (Inertia pages & routes)
 - DATABASE_SCHEMA.md
 - TASKS.md
 - [DESIGN_SYSTEM.md - jika design complex]
 
 🔧 Tech Stack:
-• [Stack details]
+• EISK: Elysia + Inertia + Svelte + Kysely
+• Backend-rendered SPA (no REST API)
+• Page-based routing dengan Inertia
 
 🎨 Design System:
 • [Summary atau "See DESIGN_SYSTEM.md"]
@@ -127,8 +155,6 @@ Jika Product Agent sudah define Design Direction di PRD, **Tech Lead Agent** bis
 📊 Timeline: [X] sprint
 
 🔍 REVIEW REQUIRED
-
-Silakan review dokumen di workflow/outputs/02-engineering/
 
 Apakah desain teknis ini acceptable?
 [ ] Approve - Lanjut ke @workflow/agents/developer.md
@@ -149,31 +175,75 @@ Desain teknis sudah di-approve client.
 Baca spec di workflow/outputs/02-engineering/
 Siap untuk development.
 
-Design System:
-- Colors: [summary]
-- Components: [summary]
-- Developer bisa langsung implement dengan Tailwind.
+Catatan Inertia:
+- Pages di features/[name]/pages/
+- Props interface untuk setiap page
+- Form handling via Inertia useForm
 ```
 
 ---
 
-## EISK Stack
+## EISK + Inertia Pattern
 
-- Runtime: Bun
-- Backend: Elysia
-- Frontend: Svelte 5
-- Database: bun:sqlite
-- Query Builder: Kysely
-- Styling: Tailwind CSS v4 (utility-first, inline classes)
+### Routing (Elysia)
+```typescript
+// api.ts
+export const featureApi = new Elysia({ prefix: '/items' })
+  .use(inertia())
+  
+  // List page
+  .get('/', async (ctx) => {
+    const items = await service.getAll()
+    return ctx.inertia.render('items/Index', { items })
+  })
+  
+  // Create form page
+  .get('/create', (ctx) => {
+    return ctx.inertia.render('items/Create', { errors: {} })
+  })
+  
+  // Handle create
+  .post('/', async (ctx) => {
+    try {
+      await service.create(ctx.body)
+      return ctx.inertia.redirect('/items')
+    } catch (error) {
+      return ctx.inertia.render('items/Create', { 
+        errors: { message: error.message } 
+      })
+    }
+  }, { body: CreateSchema })
+```
+
+### Page Component (Svelte)
+```svelte
+<!-- pages/Index.svelte -->
+<script lang="ts">
+  import { useForm } from '@inertiajs/svelte'
+  
+  interface Props {
+    items: Array<{ id: string; title: string }>
+  }
+  
+  let { items }: Props = $props()
+</script>
+```
 
 ---
 
-## Design System untuk EISK
+## Kenapa Tidak Perlu API_CONTRACT.md?
 
-Karena EISK pakai **Tailwind CSS**, Design System akan berupa:
-- **Color tokens** → Tailwind colors (indigo-600, slate-900, etc)
-- **Components** → Tailwind class combinations
-- **Spacing** → Tailwind spacing scale (p-4, gap-4, etc)
-- **Typography** → Tailwind font utilities
+**Karena Inertia.js:**
+- ❌ Tidak ada REST API JSON response
+- ❌ Tidak ada API endpoints terpisah
+- ✅ Backend langsung render Svelte pages
+- ✅ Data lewat page props
+- ✅ Form submission via Inertia (bukan fetch/axios)
 
-Developer akan implement langsung dengan **inline Tailwind classes**, tanpa component abstraction.
+**Yang perlu didokumentasikan:**
+- ✅ URL Routes (GET /items, POST /items, dll)
+- ✅ Page Components (items/Index, items/Create)
+- ✅ Page Props Interface (data apa yang dikirim)
+- ✅ Form handling flow
+
+Ini didokumentasikan di **PAGE_ROUTES.md**.
