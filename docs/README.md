@@ -1,60 +1,91 @@
-# EISK Stack Documentation
+# Project Documentation
 
-Welcome to the EISK Stack documentation!
+Dokumentasi lengkap untuk project EISK Invoice Management menggunakan Multi-Agent Workflow.
 
-## What is EISK Stack?
+---
 
-EISK is a full-stack TypeScript framework built on:
+## Workflow Overview
 
-- **E**lysia - Fast Bun web framework with TypeBox validation
-- **I**nertia.js - SPA experience without API complexity
-- **S**velte 5 - Reactive UI with runes
-- **K**ysely - Type-safe SQL query builder
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   @ProductAgent │ --> │ @TechLeadAgent  │ --> │ @DeveloperAgent │
+│   (DISCOVER)    │     │    (DESIGN)     │     │   (DEVELOP)     │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                        │
+                                                        v
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ @DevOpsAgent    | <-- |   @QAAgent      | <-- │  Code Complete  |
+│   (DEPLOY)      |     │   (REVIEW)      |     │                 |
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
 
-## Quick Links
+---
 
-### Getting Started
-- [Installation Guide](./guides/installation.md)
-- [Project Structure](./guides/structure.md)
-- [Creating Your First Feature](./guides/creating-features.md)
+## Folder Structure
 
-### Core Concepts
-- [Vertical Feature Slicing](./guides/vertical-slicing.md)
-- [Authentication & Authorization](./guides/authentication.md)
-- [Database & Migrations](./guides/database.md)
-- [Inertia.js Patterns](./guides/inertia-patterns.md)
+| Folder | Agent | Purpose |
+|--------|-------|---------|
+| `00-meta/` | All | Project charter, decision log |
+| `01-product/` | PA | PRD, user stories, roadmap |
+| `02-engineering/` | TLA | Tech specs, architecture, API |
+| `03-implementation/` | DevA | Tasks, progress log, changelog |
+| `04-testing/` | QAA | Test plans, test reports |
+| `05-deployment/` | DOA | Deployment guides, infrastructure |
+| `06-agents/` | All | Agent instructions and templates |
 
-### Advanced Topics
-- [Custom Inertia Plugin](./guides/custom-inertia-plugin.md)
-- [Testing Strategy](./guides/testing.md)
-- [Deployment](./deployment/README.md)
+---
 
-### Examples
-- [Basic CRUD](./examples/basic-crud/)
-- [Real-time Updates](./examples/realtime/)
-- [File Upload](./examples/file-upload/)
+## How to Start
 
-## Documentation Index
+### New Feature
 
-| Topic | File |
-|-------|------|
-| Installation | [guides/installation.md](./guides/installation.md) |
-| Project Structure | [guides/structure.md](./guides/structure.md) |
-| Creating Features | [guides/creating-features.md](./guides/creating-features.md) |
-| Authentication | [guides/authentication.md](./guides/authentication.md) |
-| Database | [guides/database.md](./guides/database.md) |
-| Testing | [guides/testing.md](./guides/testing.md) |
-| Docker Deployment | [deployment/docker.md](./deployment/docker.md) |
-| VPS Deployment | [deployment/vps.md](./deployment/vps.md) |
-| Railway Deployment | [deployment/railway.md](./deployment/railway.md) |
+1. **@ProductAgent** - Define requirements
+   ```
+   @ProductAgent Saya ingin membuat fitur [X]...
+   ```
 
-## Contributing to Documentation
+2. **@TechLeadAgent** - Design architecture
+   ```
+   @TechLeadAgent Baca PRD di docs/01-product/ dan buat spec...
+   ```
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on contributing to documentation.
+3. **@DeveloperAgent** - Implement
+   ```
+   @DeveloperAgent Implement Task-XXX dari TASKS.md...
+   ```
 
-## Need Help?
+4. **@QAAgent** - Review
+   ```
+   @QAAgent Review implementasi Task-XXX...
+   ```
 
-- Check [AGENTS.md](../AGENTS.md) for AI development guidelines
-- Read [.cursorrules](../.cursorrules) for coding patterns
-- Join our [Discord community]()
-- Open a [GitHub Discussion]()
+5. **@DevOpsAgent** - Deploy (optional)
+   ```
+   @DevOpsAgent Deploy ke production...
+   ```
+
+---
+
+## Agent Documentation
+
+See `06-agents/` folder for detailed agent instructions:
+
+- **AGENT_PRODUCT.md** - Product Agent guide
+- **AGENT_TECH_LEAD.md** - Tech Lead Agent guide
+- **AGENT_DEVELOPER.md** - Developer Agent guide
+- **AGENT_QA.md** - QA Agent guide
+- **AGENT_DEVOPS.md** - DevOps Agent guide
+- **EXAMPLE_SCENARIOS.md** - Real-world examples
+- **QUICK_REFERENCE.md** - Cheat sheet
+
+---
+
+## EISK Stack Context
+
+This project uses:
+- **E**lysia - Backend framework
+- **I**nertia.js - SPA bridge
+- **S**velte 5 - Frontend framework
+- **K**ysely - SQL query builder
+
+See `AGENTS.md` in project root for coding conventions.
