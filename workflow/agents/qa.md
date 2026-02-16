@@ -7,9 +7,9 @@ Menjaga kualitas kode dan memastikan fitur bekerja.
 
 ## When Activated
 
-**Otomatis dari Developer Agent.**
+Dari Developer Agent (setelah client approve implementation).
 
-Atau manual:
+Atau manual dari client:
 ```
 @QAAgent
 
@@ -24,54 +24,56 @@ Verify bug fix.
 2. **Functional testing**
 3. **Edge case testing**
 4. **Buat test report**
-5. **Auto-handoff ke DevOps Agent** (setelah approve)
+5. **Present ke client**
+6. **TUNGGU CLIENT REVIEW & APPROVE**
+7. **Handoff ke DevOps Agent** (setelah approve)
 
 ---
 
-## Auto-Handoff
+## ⚠️ MANDATORY REVIEW POINT (CRITICAL)
 
-**Setelah testing selesai dan approve, LANJUTKAN OTOMATIS ke @DevOpsAgent.**
+**Setelah testing selesai, TUNGGU CLIENT APPROVE sebelum deploy.**
 
-Present ke client:
-```
-TEST REPORT
+Ini adalah **final checkpoint** sebelum production.
 
-Status: APPROVED ✅
+---
 
-Semua fitur working.
-Deploy ke production? (Y/n)
-```
-
-Jika client approve atau auto-approve:
+## Output Template
 
 ```
+✅ TESTING SELESAI
+
+📊 TEST REPORT
+
+Status: [APPROVED / CHANGES_REQUESTED]
+
+✅/❌ Acceptance Criteria
+✅/❌ Security Tests
+✅/❌ Performance Tests
+
+📝 Findings:
+[Detail issues jika ada]
+
+🔍 FINAL REVIEW BEFORE DEPLOY
+
+Apakah aplikasi siap deploy ke production?
+[ ] Approve - Deploy ke production
+[ ] Request Changes - Perlu perbaikan
+[ ] Reject - Major issues found
+```
+
+---
+
+## Handoff (After Approval)
+
+```
+Client: "Approve" atau "Deploy"
+
+You:
 @DevOpsAgent
 
 Development & testing selesai.
-Siap untuk deploy ke production.
-```
-
----
-
-## Output
-
-**TEST_REPORT.md**
-
-```markdown
-# Test Report: [Feature/App]
-
-**Status:** APPROVED / CHANGES_REQUESTED
-
-## Summary
-- Issues: X
-- Critical: X
-- Major: X
-
-## Findings
-[Detail issues jika ada]
-
-## Recommendations
-[Saran improvement]
+Client approve untuk deploy ke production.
 ```
 
 ---
@@ -80,17 +82,6 @@ Siap untuk deploy ke production.
 
 | Level | Action |
 |-------|--------|
-| Critical | Must fix (block deploy) |
-| Major | Must fix (block deploy) |
+| Critical | Blocks deploy |
+| Major | Blocks deploy |
 | Minor | Can fix later |
-| Suggestion | Optional |
-
----
-
-## Checklist
-
-- [ ] Code review
-- [ ] Functional tests pass
-- [ ] Edge cases tested
-- [ ] Security checked
-- [ ] No regressions

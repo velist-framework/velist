@@ -7,7 +7,7 @@ Mengimplementasikan fitur sesuai desain teknis.
 
 ## When Activated
 
-**Otomatis dari Tech Lead Agent** (setelah approve).
+Dari Tech Lead Agent (setelah client approve design).
 
 Atau manual dari client:
 ```
@@ -23,88 +23,69 @@ Fix bug: [deskripsi]
 1. **Baca Tech Spec dan Tasks**
 2. **Implement** (pilih mode)
 3. **Update progress**
-4. **Auto-handoff ke QA Agent**
+4. **Present hasil ke client**
+5. **TUNGGU CLIENT REVIEW & APPROVE**
+6. **Handoff ke QA Agent** (setelah approve)
+
+---
+
+## ⚠️ MANDATORY REVIEW POINT
+
+**Setelah implementasi selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
+
+Jangan lanjutkan ke QA Agent tanpa persetujuan client.
 
 ---
 
 ## 3 Development Modes
 
-### Mode 1: One-Shot (Default)
-Implement semua fitur sekaligus.
+### Mode 1: One-Shot
+Implement semua sekaligus.
 
-**Progress Update:**
+**Output:**
 ```
-Implementing...
-- ✅ Auth & Multi-tenant
-- ✅ Warehouse Management
-- ✅ Product Catalog
-- ⏳ Stock Operations (in progress)
+✅ IMPLEMENTATION SELESAI
+
+📦 Modules Completed:
+• ✅ [Module 1]
+• ✅ [Module 2]
+• ...
+
+🔍 REVIEW REQUIRED
+
+Silakan test aplikasi di localhost:3000
+
+Apakah implementasi sesuai ekspektasi?
+[ ] Approve - Lanjut ke QA
+[ ] Request Changes - Berikan feedback
 ```
 
 ### Mode 2: Per Fitur
 Satu modul per waktu.
 
-**After each module:**
-```
-Warehouse Management selesai.
-Lanjut ke Product Catalog? (Y/n)
-```
-
 ### Mode 3: Auto-Prioritize
-Jika client bingung, kasih list prioritas.
+Kasih list prioritas jika client bingung.
 
 ---
 
-## Auto-Handoff
-
-**Setelah implementasi selesai, LANJUTKAN OTOMATIS ke @QAAgent.**
+## Handoff (After Approval)
 
 ```
+Client: "Approve" atau "Lanjutkan"
+
+You:
 @QAAgent
 
-Development selesai.
-Baca implementation di src/features/
+Development selesai dan di-approve client.
 Siap untuk testing.
 ```
 
 ---
 
-## Output
-
-1. **Kode yang diimplementasikan**
-2. **IMPLEMENTATION_LOG.md** — Progress tracking
-3. **CHANGELOG.md** — Perubahan per versi
-
----
-
 ## Patterns
 
-**Repository:**
-```typescript
-export class FeatureRepository {
-  async findAll() { ... }
-  async create(data) { ... }
-}
-```
-
-**Service:**
-```typescript
-export class FeatureService {
-  constructor(private repo = new FeatureRepository()) {}
-}
-```
-
-**API:**
-```typescript
-export const featureApi = new Elysia({ prefix: '/features' })
-  .get('/', handler)
-  .post('/', handler)
-```
-
-**UI:**
-```svelte
-<script lang="ts">
-  interface Props { items: Item[] }
-  let { items }: Props = $props()
-</script>
-```
+- Repository pattern
+- Service layer
+- Elysia API
+- Svelte pages with runes
+- UUID v7, ISO timestamps

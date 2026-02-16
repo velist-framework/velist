@@ -1,93 +1,79 @@
 # Development Workflow
 
-Multi-agent workflow system dengan **automatic handoff**.
+Multi-agent workflow dengan **mandatory review points**.
+
+---
+
+## Workflow Flow
+
+```
+@ProductAgent
+    ↓
+[🔍 CLIENT REVIEW: Approve PRD?]
+    ↓ YES
+@TechLeadAgent
+    ↓
+[🔍 CLIENT REVIEW: Approve Tech Design?]
+    ↓ YES
+@DeveloperAgent
+    ↓
+[🔍 CLIENT REVIEW: Approve Implementation?]
+    ↓ YES
+@QAAgent
+    ↓
+[🔍 CLIENT REVIEW: Approve for Deploy?]
+    ↓ YES
+@DevOpsAgent
+    ↓
+🎉 DEPLOYED
+```
+
+**Setiap tahap ada review point. Tidak ada auto-skip.**
 
 ---
 
 ## How It Works
 
-```
-Client: @ProductAgent Saya mau aplikasi X...
-    ↓ (auto)
-PA: Selesai define product
-    ↓ (auto)
-TLA: Selesai desain teknis
-    ↓ (auto setelah approve)
-DevA: Selesai implement
-    ↓ (auto)
-QAA: Selesai test
-    ↓ (auto setelah approve)
-DOA: Deployed! 🎉
-```
-
-**Client cukup:**
-1. Deskripsikan kebutuhan ke @ProductAgent
-2. Approve di titik-titik tertentu (opsional)
-3. Terima hasil akhir
+1. **Client panggil @ProductAgent** dengan kebutuhan
+2. **PA selesai → TUNGGU CLIENT REVIEW**
+3. **Client approve → TLA mulai**
+4. **TLA selesai → TUNGGU CLIENT REVIEW**
+5. **Client approve → DevA mulai**
+6. **DevA selesai → TUNGGU CLIENT REVIEW**
+7. **Client approve → QA mulai**
+8. **QA selesai → TUNGGU CLIENT REVIEW**
+9. **Client approve → DOA deploy**
 
 ---
 
 ## Agents
 
-| Agent | Triggers | Auto Next |
-|-------|----------|-----------|
-| @ProductAgent | Client request | @TechLeadAgent |
-| @TechLeadAgent | PA complete | @DeveloperAgent* |
-| @DeveloperAgent | TLA complete | @QAAgent |
-| @QAAgent | Dev complete | @DevOpsAgent** |
-| @DevOpsAgent | QA complete | Done 🎉 |
-
-\* Setelah client approve (atau auto-approve)
-\*\* Setelah client approve deploy (atau auto-deploy)
-
----
-
-## Agent Documentation
-
-- [**agents/product.md**](agents/product.md) - Define requirements
-- [**agents/tech-lead.md**](agents/tech-lead.md) - Design system
-- [**agents/developer.md**](agents/developer.md) - Implement (3 modes)
-- [**agents/qa.md**](agents/qa.md) - Test & review
-- [**agents/devops.md**](agents/devops.md) - Deploy
+| Agent | Output | Review Point |
+|-------|--------|--------------|
+| @ProductAgent | PRD, User Stories, Roadmap | Approve requirements? |
+| @TechLeadAgent | Tech Spec, Architecture, Tasks | Approve design? |
+| @DeveloperAgent | Working code | Approve implementation? |
+| @QAAgent | Test Report | Approve for production? |
+| @DevOpsAgent | Live application | - |
 
 ---
 
 ## Resources
 
-- [**examples.md**](examples.md) - Real scenarios with auto handoff
+- [**examples.md**](examples.md) - Real scenarios dengan review points
 - [**quick-reference.md**](quick-reference.md) - Cheat sheet
-
----
-
-## Quick Start
-
-### Build New App (Auto Mode)
-```
-@ProductAgent Saya mau aplikasi inventory...
-[...deskripsikan kebutuhan...]
-```
-
-Tunggu sampai selesai. Agent-agent akan otomatis lanjut.
-
-### Build New App (Manual Mode)
-```
-@ProductAgent Saya mau aplikasi X. 
-Tapi saya mau review setiap tahap.
-```
-
-PA akan selesai dan **wait**, tidak auto-lanjut. Client approve untuk next step.
 
 ---
 
 ## Project Setup (Already Done)
 
-This starter includes:
-- ✅ EISK stack ready
+Starter project EISK includes:
+- ✅ Project structure ready
 - ✅ Database (SQLite)
 - ✅ Authentication
 - ✅ Dev environment
 
-Just run:
+Run:
 ```bash
 bun install
 bun run db:migrate
@@ -95,17 +81,3 @@ bun run dev
 ```
 
 Then call @ProductAgent.
-
----
-
-## Workflow Outputs
-
-Agent outputs stored in `outputs/`:
-
-```
-outputs/
-├── 01-product/           # @ProductAgent
-├── 02-engineering/       # @TechLeadAgent
-├── 03-tasks/             # Task breakdowns
-└── 04-reports/           # @QAAgent
-```

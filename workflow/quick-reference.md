@@ -4,19 +4,19 @@ Cheat sheet untuk multi-agent workflow.
 
 ---
 
-## Automatic Handoff Flow
+## Workflow dengan Mandatory Review
 
 ```
 Client: @ProductAgent Saya mau aplikasi X...
-    ↓ (auto)
-PA: Selesai → TLA
-    ↓ (auto setelah approve)
-TLA: Selesai → DevA
-    ↓ (auto)
-DevA: Selesai → QAA
-    ↓ (auto setelah approve)
-QAA: Selesai → DOA
     ↓
+PA: Selesai - REVIEW REQUIRED
+    ↓ Client: "Approve"
+TLA: Selesai - REVIEW REQUIRED
+    ↓ Client: "Approve"
+DevA: Selesai - REVIEW REQUIRED
+    ↓ Client: "Approve"
+QAA: Selesai - REVIEW REQUIRED
+    ↓ Client: "Approve"
 DOA: Deployed! 🎉
 ```
 
@@ -30,16 +30,16 @@ DOA: Deployed! 🎉
 
 Saya mau [aplikasi].
 Kebutuhan: [1], [2], [3].
-User: [siapa]
-Timeline: [kapan]
 ```
 
-### Manual Override
+### Approve & Continue
 ```
-@ProductAgent
+Client: "Approve" atau "Lanjutkan"
+```
 
-Saya mau aplikasi X.
-TAPI: Jangan auto-lanjut, saya mau review tiap tahap.
+### Request Changes
+```
+Client: "Revisi: [detail perubahan]"
 ```
 
 ### Fix Bug
@@ -51,24 +51,24 @@ Fix: [deskripsi bug]
 
 ---
 
-## Approval Points
+## Review Checklist per Tahap
 
-| Tahap | Auto-Approve? | Client Action |
-|-------|---------------|---------------|
-| PA → TLA | ✅ Yes | None |
-| TLA → DevA | ⚙️ Optional | Approve desain (atau auto) |
-| DevA → QAA | ✅ Yes | None |
-| QAA → DOA | ⚙️ Optional | Approve deploy (atau auto) |
+| Tahap | Client Check |
+|-------|--------------|
+| **PRD** | Fitur lengkap? Timeline ok? |
+| **Tech Design** | Stack sesuai? Architecture scalable? |
+| **Implementation** | Fitur berfungsi? UI acceptable? |
+| **QA** | All tests pass? Ready for production? |
 
 ---
 
 ## Developer Modes
 
-| Mode | Trigger | When to Use |
-|------|---------|-------------|
-| **One-Shot** | Default | Small project, quick result |
-| **Per Feature** | Request | Large project, gradual |
-| **Auto-Prioritize** | "Bingung mulai dari mana" | Non-technical client |
+| Mode | When to Use |
+|------|-------------|
+| **One-Shot** | Small project, quick result |
+| **Per Feature** | Large project, gradual review |
+| **Auto-Prioritize** | Non-technical client |
 
 ---
 
@@ -84,20 +84,9 @@ workflow/outputs/
 
 ---
 
-## Commit Types
+## ⚠️ Important Rules
 
-| Type | Use |
-|------|-----|
-| feat | New feature |
-| fix | Bug fix |
-| refactor | Code improvement |
-
----
-
-## Severity (QA)
-
-| Level | Blocks Deploy? |
-|-------|----------------|
-| Critical | ✅ Yes |
-| Major | ✅ Yes |
-| Minor | ❌ No |
+1. **Every stage has mandatory review**
+2. **No auto-skip without client approval**
+3. **Client can approve or request changes**
+4. **Fast track available if explicitly requested**

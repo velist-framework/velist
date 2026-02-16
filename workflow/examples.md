@@ -4,18 +4,31 @@ Real-world examples menggunakan multi-agent workflow.
 
 ---
 
-## Automatic Handoff Rule
+## Mandatory Review Points
 
-Setelah satu agent selesai, **agent berikutnya otomatis dilanjutkan** tanpa perlu client panggil lagi.
+Setiap agent **WAJIB** menunggu client review dan approve sebelum handoff.
 
-| Agent | Selesai → Lanjut ke |
-|-------|---------------------|
-| @ProductAgent | @TechLeadAgent (otomatis) |
-| @TechLeadAgent | @DeveloperAgent (otomatis) |
-| @DeveloperAgent | @QAAgent (otomatis) |
-| @QAAgent | @DevOpsAgent (jika deploy) atau Client (jika revisi) |
-
-Client hanya perlu **approve** atau **request changes** di setiap tahap.
+```
+@ProductAgent
+    ↓
+[Client Review: Approve PRD?]
+    ↓ YES
+@TechLeadAgent
+    ↓
+[Client Review: Approve Tech Design?]
+    ↓ YES
+@DeveloperAgent
+    ↓
+[Client Review: Approve Implementation?]
+    ↓ YES
+@QAAgent
+    ↓
+[Client Review: Approve for Deploy?]
+    ↓ YES
+@DevOpsAgent
+    ↓
+🎉 DEPLOYED
+```
 
 ---
 
@@ -40,15 +53,34 @@ Timeline: MVP 2 bulan, full 4 bulan
 ```
 
 **PA Output:**
-- ✅ PRD.md
-- ✅ USER_STORIES.md
-- ✅ ROADMAP.md
+```
+✅ PRODUCT DOCUMENTATION SELESAI
 
-**Otomatis lanjut ke Tech Lead Agent →**
+📄 Deliverables:
+- PRD.md (Product Requirements)
+- USER_STORIES.md (24 user stories)
+- ROADMAP.md (8 sprint / 16 minggu)
+
+📋 Summary:
+• 7 fitur utama
+• 3 user types
+• MVP: Sprint 1-4
+• Full: Sprint 5-8
+
+🔍 REVIEW REQUIRED
+
+Silakan review dokumen di workflow/outputs/01-product/
+
+Apakah PRD ini sudah sesuai kebutuhan?
+[ ] Approve - Lanjut ke Tech Lead
+[ ] Request Changes - Berikan feedback
+```
+
+**Client:** "Approve" → Lanjut ke TLA
 
 ---
 
-### Step 2: Tech Lead Agent (Auto)
+### Step 2: Tech Lead Agent
 
 **TLA akan baca output PA, lalu buat:**
 - ✅ TECH_SPEC.md
@@ -57,131 +89,146 @@ Timeline: MVP 2 bulan, full 4 bulan
 - ✅ DATABASE_SCHEMA.md
 - ✅ TASKS.md
 
-**TLA present ke client:**
+**TLA Output:**
 ```
-Desain teknis selesai.
+✅ TECHNICAL DESIGN SELESAI
 
-Stack: EISK + SQLite
-Database: 8 tabel utama
-API: 25 endpoints
-Timeline: 8 sprint (16 minggu)
+📄 Deliverables:
+- TECH_SPEC.md (Stack, patterns, security)
+- ARCHITECTURE.md (System design)
+- API_CONTRACT.md (25 endpoints)
+- DATABASE_SCHEMA.md (8 tabel)
+- TASKS.md (40 tasks, 8 sprint)
 
-Approve untuk mulai development? (Y/n)
+🔧 Tech Stack:
+• Backend: Elysia + Bun
+• Frontend: Svelte 5 + Inertia
+• Database: SQLite
+• Auth: JWT
+
+📊 Timeline: 16 minggu (8 sprint)
+
+🔍 REVIEW REQUIRED
+
+Silakan review dokumen di workflow/outputs/02-engineering/
+
+Apakah desain teknis ini acceptable?
+[ ] Approve - Lanjut ke Development
+[ ] Request Changes - Berikan feedback
 ```
 
-**Client approve → Otomatis lanjut ke Developer Agent →**
+**Client:** "Approve" → Lanjut ke DevA
 
 ---
 
-### Step 3: Developer Agent (3 Modes)
+### Step 3: Developer Agent
+
+**DevA akan implement sesuai mode:**
 
 **Mode A: One-Shot (Default)**
 ```
-DevA akan implement semua fitur sekaligus.
+DevA: Implement semua fitur...
+[Progress update setiap modul]
 
-Progress:
-- ✅ Auth & Multi-tenant
-- ✅ Warehouse Management
-- ✅ Product Catalog
-- ✅ Stock Operations
-- ✅ Purchase Order
-- ✅ Sales Order
-- ✅ Reporting
+✅ IMPLEMENTATION SELESAI
 
-Semua fitur selesai. Lanjut ke QA?
+📦 Modules Completed:
+• ✅ Authentication & Multi-tenant
+• ✅ Warehouse Management
+• ✅ Product Catalog
+• ✅ Stock Operations
+• ✅ Purchase Order
+• ✅ Sales Order
+• ✅ Reporting & Dashboard
+
+🔍 REVIEW REQUIRED
+
+Silakan test aplikasi di localhost:3000
+
+Apakah implementasi ini sesuai ekspektasi?
+[ ] Approve - Lanjut ke QA Testing
+[ ] Request Changes - Berikan feedback
 ```
 
-**Mode B: Per Fitur (Request)**
+**Mode B: Per Fitur**
 ```
-DevA: Mau per fitur atau sekaligus?
+DevA: Implement modul Warehouse...
 
-Client: Per fitur
+✅ WAREHOUSE MODULE SELESAI
 
-DevA: OK, mulai dari Warehouse.
-[Implement Warehouse]
-Selesai. Lanjut ke Product Catalog? (Y/n)
-```
+🔍 REVIEW REQUIRED
 
-**Mode C: Auto-Prioritize (Jika client bingung)**
-```
-DevA: Ini prioritas fitur:
-
-Phase 1: Foundation
-1. Authentication
-2. Multi-tenant
-
-Phase 2: Core
-3. Warehouse
-4. Product
-
-Mulai dari mana? Atau semua?
-
-Client: Semua
-
-DevA: OK, implement semua.
+Silakan test modul Warehouse.
+Lanjut ke Product Catalog?
+[ ] Approve & Continue
+[ ] Request Changes
 ```
 
-**Dev selesai → Otomatis lanjut ke QA Agent →**
+**Client:** "Approve" → Lanjut ke QAA
 
 ---
 
-### Step 4: QA Agent (Auto)
+### Step 4: QA Agent
 
 **QAA akan test dan buat report:**
+
 ```
-TEST REPORT
+✅ TESTING SELESAI
 
-Status: APPROVED dengan catatan minor
+📊 TEST REPORT
 
-Issues:
-- Minor: Typo di error message (bisa fix later)
+Status: APPROVED with minor notes
 
-Semua fitur working. Deploy ke production?
+✅ All Acceptance Criteria: PASS
+✅ Security Tests: PASS
+✅ Performance Tests: PASS
+
+📝 Minor Notes (non-blocking):
+• Typo di error message (bisa fix later)
+
+🔍 FINAL REVIEW BEFORE DEPLOY
+
+Apakah aplikasi siap deploy ke production?
+[ ] Approve - Deploy ke production
+[ ] Request Changes - Perlu perbaikan
+[ ] Reject - Major issues found
 ```
 
-**Client approve → Otomatis lanjut ke DevOps Agent →**
+**Client:** "Approve" → Lanjut ke DOA
 
 ---
 
-### Step 5: DevOps Agent (Auto)
+### Step 5: DevOps Agent
 
 **DOA akan deploy:**
+
 ```
-Deployed ke production!
+✅ DEPLOYMENT SELESAI
 
-URL: https://app.example.com
-Health: OK
-Monitoring: Active
+🌐 Production URL: https://app.example.com
+✅ Health Check: PASS
+✅ SSL: Active
+✅ Monitoring: Active
 
-Project selesai! 🎉
+📋 Production Checklist:
+[✓] Database migrated
+[✓] Environment configured
+[✓] Backups scheduled
+[✓] Health monitoring active
+
+🎉 APLIKASI SUDAH LIVE!
+
+📖 Dokumentasi:
+- DEPLOYMENT_GUIDE.md
+- INFRASTRUCTURE.md
+- RELEASE_NOTES.md
+
+Selamat menggunakan! 🚀
 ```
 
 ---
 
-## Workflow Singkat
-
-```
-@ProductAgent Saya mau aplikasi X...
-    ↓ (auto)
-@TechLeadAgent Desain teknis...
-    ↓ (auto setelah approve)
-@DeveloperAgent Implement...
-    ↓ (auto)
-@QAAgent Test...
-    ↓ (auto setelah approve)
-@DevOpsAgent Deploy!
-    ↓
-🎉 Selesai!
-```
-
-**Client cukup:**
-1. Deskripsikan kebutuhan
-2. Approve desain teknis (opsional, bisa auto-approve)
-3. Approve untuk deploy (opsional, bisa auto-deploy)
-
----
-
-## Scenario 2: Feature Enhancement (Auto Flow)
+## Scenario 2: Feature Enhancement
 
 ```
 @ProductAgent
@@ -189,91 +236,124 @@ Project selesai! 🎉
 Saya punya aplikasi invoice, mau tambah fitur kategori.
 
 Invoice bisa dikategorikan dan filter by kategori.
-    ↓ (auto)
-@TechLeadAgent
-
-Desain fitur kategori selesai.
-- Tambah tabel categories
-- Update invoice API
-- UI dropdown kategori
-
-Approve? (Y/n)
-    ↓ (auto setelah approve)
-@DeveloperAgent
-
-Implement fitur kategori selesai.
-    ↓ (auto)
-@QAAgent
-
-Fitur kategori tested ✅
-Deploy ke production? (Y/n)
-    ↓ (auto setelah approve)
-@DevOpsAgent
-
-Deployed! 🎉
 ```
+
+**PA Output:**
+```
+✅ FITUR KATEGORI - DEFINED
+
+User Stories:
+• US-001: Create category
+• US-002: Edit category
+• US-003: Delete category
+• US-004: Assign invoice to category
+• US-005: Filter by category
+
+🔍 REVIEW REQUIRED
+
+Approve untuk desain teknis?
+```
+
+**Client:** "Approve"
+
+→ **TLA** → Design → **Review** → Approve
+
+→ **DevA** → Implement → **Review** → Approve
+
+→ **QAA** → Test → **Review** → Approve
+
+→ **DOA** → Deploy
 
 ---
 
-## Scenario 3: Bug Fix (Quick Flow)
+## Scenario 3: Bug Fix
 
 ```
 @DeveloperAgent
 
-Ada bug: amount invoice tidak tersimpan.
-    ↓ (auto setelah fix)
-@QAAgent
+Fix bug: amount invoice tidak tersimpan.
 
-Bug fix verified ✅
+Input $100, tersimpan $0.
 ```
+
+**DevA Output:**
+```
+✅ BUG FIX SELESAI
+
+Root Cause: Type coercion error di amount field
+Fix: Explicit number conversion
+
+🔍 REVIEW REQUIRED
+
+Silakan verify fix di localhost:5173/invoices/create
+
+Bug sudah teratasi?
+[ ] Approve - Lanjut ke QA verify
+[ ] Reject - Bug masih ada
+```
+
+**Client:** "Approve"
+
+→ **QAA** → Verify → **Review** → Approve → Done
 
 ---
 
-## Scenario 4: Manual Mode (Jika Perlu)
+## Scenario 4: Fast Track Mode
 
-Jika client mau kontrol manual, bisa dengan **menahan auto-lanjut**:
+Jika client sudah percaya proses, bisa set **Fast Track**:
 
 ```
 @ProductAgent
 
-Saya mau aplikasi X. 
-TAPI: Saya mau review desain teknis dulu sebelum development.
+Saya mau aplikasi X.
+
+FAST TRACK: Auto-approve semua review points,
+saya akan review final result saja.
 ```
 
-PA akan selesai, **tidak auto-lanjut**, tunggu client panggil TLA manual:
-
+**Flow:**
 ```
-@TechLeadAgent
-
-OK, lanjutkan desain teknis.
+PA → (auto approve) → TLA → (auto approve) → 
+DevA → (auto approve) → QAA → (auto approve) → 
+DOA → Deploy → Client review final
 ```
 
 ---
 
-## Keuntungan Auto Handoff
+## Review Checklist per Tahap
 
-| Sebelum | Sesudah |
-|---------|---------|
-| Client panggil 5 agent manual | Client panggil 1 agent, sisanya auto |
-| Banyak context switching | Seamless flow |
-| Client harus ingat urutan | Agent yang manage workflow |
-| Lama | Cepat |
+### 1. Product Review
+- [ ] Fitur lengkap sesuai kebutuhan
+- [ ] User personas sesuai target
+- [ ] Timeline acceptable
+- [ ] Prioritas fitur sesuai
+
+### 2. Tech Design Review
+- [ ] Tech stack sesuai
+- [ ] Architecture scalable
+- [ ] Security adequate
+- [ ] Timeline realistic
+
+### 3. Implementation Review
+- [ ] Fitur berfungsi
+- [ ] UI/UX acceptable
+- [ ] Performance ok
+- [ ] Bug-free (major)
+
+### 4. QA Review
+- [ ] All tests pass
+- [ ] No critical/major issues
+- [ ] Ready for production
 
 ---
 
-## Catatan
+## Catatan Penting
 
-### Project Sudah Ready
-Starter project EISK ini sudah include:
-- ✅ Project structure
-- ✅ Database setup (SQLite)
-- ✅ Authentication system
-- ✅ Development environment
-- ✅ Build configuration
+⚠️ **Setiap tahap WAJIB ada review point.**
 
-### Approval Points
-Client bisa set auto-approve di:
-- ✅ Desain teknis (langsung dev tanpa review)
-- ✅ Deploy (langsung deploy setelah QA pass)
+Tidak ada auto-skip review kecuali client explicitly set **Fast Track**.
 
-Atau manual approve untuk kontrol penuh.
+Ini untuk memastikan:
+- ✅ Kualitas terjaga
+- ✅ Client puas dengan hasil
+- ✅ Tidak ada surprise di akhir

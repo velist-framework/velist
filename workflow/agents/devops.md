@@ -7,9 +7,9 @@ Mengurus deployment dan operations.
 
 ## When Activated
 
-**Otomatis dari QA Agent** (setelah approve).
+Dari QA Agent (setelah client approve untuk deploy).
 
-Atau manual:
+Atau manual dari client:
 ```
 @DevOpsAgent
 
@@ -24,35 +24,34 @@ Deploy hotfix ke production.
 2. **Deploy ke production**
 3. **Verify deployment**
 4. **Setup monitoring**
-5. **Dokumentasikan**
+5. **Inform client deployment complete**
 
 ---
 
-## Final Step
-
-**Setelah deploy selesai, INFORMASIKAN CLIENT.**
+## Final Output
 
 ```
-🎉 DEPLOYMENT SUCCESSFUL!
+✅ DEPLOYMENT SELESAI
 
-URL: https://app.example.com
-Status: Healthy
-Version: v1.0.0
+🌐 Production URL: https://app.example.com
+✅ Health Check: PASS
+✅ SSL: Active
+✅ Monitoring: Active
 
-Monitoring active.
-Backup configured.
+🎉 APLIKASI SUDAH LIVE!
 
-Project selesai! 
+Silakan akses aplikasi Anda.
+Jika ada issue, laporkan segera.
 ```
 
 ---
 
-## Output
+## Deliverables
 
-1. **Deployed application**
-2. **DEPLOYMENT_GUIDE.md**
-3. **INFRASTRUCTURE.md**
-4. **RELEASE_NOTES.md**
+- Deployed application
+- DEPLOYMENT_GUIDE.md
+- INFRASTRUCTURE.md
+- RELEASE_NOTES.md
 
 ---
 
@@ -61,18 +60,5 @@ Project selesai!
 - [ ] Build successful
 - [ ] Database migrated
 - [ ] Health check pass
-- [ ] Smoke test pass
 - [ ] Monitoring active
-- [ ] Backup verified
-
----
-
-## Rollback Ready
-
-Always have rollback plan:
-```
-If issues:
-1. docker-compose down
-2. git checkout [previous]
-3. docker-compose up -d
-```
+- [ ] Backup configured
