@@ -16,44 +16,29 @@ Multi-agent workflow system untuk development yang terstruktur dan scalable.
 
 ---
 
-## Workflow Outputs
-
-Hasil kerja agents disimpan di `outputs/`:
-
-```
-outputs/
-├── 01-product/           # @ProductAgent output
-│   ├── PRD.md
-│   ├── USER_STORIES.md
-│   └── ROADMAP.md
-├── 02-engineering/       # @TechLeadAgent output
-│   ├── TECH_SPEC.md
-│   ├── ARCHITECTURE.md
-│   ├── API_CONTRACT.md
-│   └── DATABASE_SCHEMA.md
-├── 03-tasks/             # Task management
-│   └── TASKS.md
-└── 04-reports/           # @QAAgent output
-    └── TEST_REPORT.md
-```
-
----
-
 ## Quick Start
 
-### 1. New Feature
+### New Application
 ```
-@ProductAgent -> @TechLeadAgent -> @DeveloperAgent -> @QAAgent -> @DevOpsAgent
+1. @ProductAgent     -> Define product
+2. @TechLeadAgent    -> Design system
+3. @DeveloperAgent   -> Implement per sprint
+4. @QAAgent          -> Test per sprint
+5. @DevOpsAgent      -> Deploy production
 ```
 
-### 2. Bug Fix
+### New Feature
 ```
-@DeveloperAgent -> @QAAgent
+1. @ProductAgent     -> Define feature
+2. @TechLeadAgent    -> Design feature
+3. @DeveloperAgent   -> Implement
+4. @QAAgent          -> Test
 ```
 
-### 3. Refactoring
+### Bug Fix
 ```
-@TechLeadAgent -> @DeveloperAgent -> @QAAgent
+1. @DeveloperAgent   -> Fix
+2. @QAAgent          -> Verify
 ```
 
 ---
@@ -65,8 +50,34 @@ outputs/
 
 ---
 
-## EISK Stack Context
+## Project Setup (Already Done)
 
-This project uses: **E**lysia + **I**nertia + **S**velte + **K**ysely
+This starter project includes:
+- ✅ EISK stack (Elysia, Inertia, Svelte, Kysely)
+- ✅ Database (SQLite) with migrations
+- ✅ Authentication system
+- ✅ Development environment
+- ✅ Build configuration
 
-See `AGENTS.md` in project root for coding conventions.
+Just run:
+```bash
+bun install
+bun run db:migrate
+bun run dev
+```
+
+Then start with agents.
+
+---
+
+## Workflow Outputs
+
+Agent outputs are stored in `outputs/`:
+
+```
+outputs/
+├── 01-product/           # @ProductAgent
+├── 02-engineering/       # @TechLeadAgent
+├── 03-tasks/             # Task breakdowns
+└── 04-reports/           # @QAAgent
+```

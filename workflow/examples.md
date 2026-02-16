@@ -41,20 +41,7 @@ Saya butuh desain teknis sebelum development dimulai.
 
 ---
 
-### Step 3: DevOps Agent
-```
-@DevOpsAgent
-
-Setup project dan development environment.
-
-Stack: EISK (Elysia + Inertia + Svelte + Kysely)
-```
-
-**DOA akan scaffold project, setup CI/CD, dan siapkan dev environment.**
-
----
-
-### Step 4: Developer Agent (Per Sprint)
+### Step 3: Developer Agent (Per Sprint)
 ```
 @DeveloperAgent
 
@@ -73,7 +60,7 @@ Sprint 2: Warehouse dan Product management.
 
 ---
 
-### Step 5: QA Agent
+### Step 4: QA Agent
 ```
 @QAAgent
 
@@ -90,7 +77,7 @@ End-to-end test seluruh aplikasi sebelum production.
 
 ---
 
-### Step 6: DevOps Agent
+### Step 5: DevOps Agent (Deployment)
 ```
 @DevOpsAgent
 
@@ -192,6 +179,27 @@ Lanjutkan dari Product Agent.
 
 Update fitur kategori tambah icon.
 ```
+
+---
+
+## Catatan
+
+### Project Sudah Ready
+Starter project EISK ini sudah include:
+- ✅ Project structure
+- ✅ Database setup (SQLite)
+- ✅ Authentication system
+- ✅ Development environment
+- ✅ Build configuration
+
+DevOps Agent hanya perlu untuk **deployment ke production**.
+
+### Development Workflow
+1. Clone project ini
+2. `bun install`
+3. `bun run db:migrate`
+4. `bun run dev`
+5. Mulai development dengan agent-agent
 
 ---
 
