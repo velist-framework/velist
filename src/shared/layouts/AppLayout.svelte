@@ -88,10 +88,10 @@
             <a href="/dashboard" use:inertia class="border-indigo-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Dashboard
             </a>
-            <a href="#" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+            <a href="/users" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Users
             </a>
-            <a href="#" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+            <a href="/settings" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Settings
             </a>
           </div>
@@ -210,10 +210,10 @@
           <a href="/dashboard" use:inertia class="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Dashboard
           </a>
-          <a href="#" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+          <a href="/users" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Users
           </a>
-          <a href="#" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+          <a href="/settings" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Settings
           </a>
         </div>

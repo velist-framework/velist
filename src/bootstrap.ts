@@ -5,6 +5,8 @@ import { cors } from '@elysiajs/cors'
 import { inertia, type Inertia } from './inertia/plugin'
 import { authApi } from './features/_core/auth/api'
 import { dashboardApi } from './features/dashboard/api'
+import { usersApi } from './features/users/api'
+import { settingsApi } from './features/settings/api'
 import { runMigrations } from './features/_core/database/migrations/runner'
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
@@ -93,6 +95,8 @@ const app = new Elysia()
   // Mount features
   .use(authApi)
   .use(dashboardApi)
+  .use(usersApi)
+  .use(settingsApi)
   
   // Root redirect
   .get('/', (ctx) => {
