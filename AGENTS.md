@@ -1,8 +1,10 @@
-# EISK Stack - Agent Guide
+# Velist - Agent Guide
 
-**E**lysia + **I**nertia.js + **S**velte + **K**ysely
+**Ve**rtical + L**ist** — Features-first fullstack framework
 
-A full-stack TypeScript framework with vertical feature slicing architecture, running on Bun runtime.
+Stack: Elysia + Inertia.js + Svelte + Kysely
+
+A full-stack TypeScript framework built on Bun with vertical feature slicing architecture, running on Bun runtime.
 
 > **🤖 For AI Assistants**: This file contains critical context for code generation. Always follow the patterns below.
 

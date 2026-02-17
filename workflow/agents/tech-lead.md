@@ -224,7 +224,7 @@ Jika Product Agent sudah define Design Direction di PRD, elaborate menjadi Desig
 - [DESIGN_SYSTEM.md - jika design complex]
 
 🔧 Tech Stack:
-• EISK: Elysia + Inertia + Svelte + Kysely
+• Velist: Elysia + Inertia + Svelte + Kysely
 • Backend-rendered SPA (no REST API)
 • Page-based routing dengan Inertia
 
@@ -268,7 +268,7 @@ Catatan Penting:
 
 ---
 
-## EISK + Inertia Pattern
+## Velist + Inertia Pattern
 
 ### Routing (Elysia)
 ```typescript

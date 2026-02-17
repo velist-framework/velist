@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-  <title>{title} | EISK App</title>
+  <title>{title} | Velist</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
@@ -21,7 +21,7 @@
             <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span class="ml-2 text-xl font-bold text-gray-900">EISK</span>
+            <span class="ml-2 text-xl font-bold text-gray-900">Velist</span>
           </a>
         </div>
         <div class="flex items-center space-x-4">
@@ -45,7 +45,7 @@
   <footer class="bg-white border-t border-gray-200 mt-auto">
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <p class="text-center text-sm text-gray-500">
-        © 2024 EISK Stack. Built with Elysia + Inertia + Svelte + Kysely.
+        © 2024 Velist. Built with Elysia + Inertia + Svelte + Kysely.
       </p>
     </div>
   </footer>

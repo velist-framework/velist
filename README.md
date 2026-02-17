@@ -1,7 +1,11 @@
-# EISK Stack
+# Velist
 
 <p align="center">
-  <strong>E</strong>lysia + <strong>I</strong>nertia.js + <strong>S</strong>velte + <strong>K</strong>ysely
+  <strong>Ve</strong>rtical + L<strong>ist</strong> — Features-first fullstack framework
+</p>
+
+<p align="center">
+  Elysia + Inertia.js + Svelte + Kysely
 </p>
 
 <p align="center">
@@ -33,7 +37,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/eisk-stack.git my-app
+git clone https://github.com/velist-framework/velist.git my-app
 cd my-app
 
 # Install dependencies
@@ -67,8 +71,8 @@ Default credentials: `admin@example.com` / `password123`
 ### Docker
 
 ```bash
-docker build -t eisk-app .
-docker run -p 3000:3000 -v $(pwd)/db:/app/db eisk-app
+docker build -t velist-app .
+docker run -p 3000:3000 -v $(pwd)/db:/app/db velist-app
 ```
 
 ---
@@ -91,7 +95,7 @@ docker run -p 3000:3000 -v $(pwd)/db:/app/db eisk-app
 
 Tested on MacBook Pro M2, 16GB RAM:
 
-| Metric | EISK Stack | Laravel + Inertia | Express + React |
+| Metric | Velist | Laravel + Inertia | Express + React |
 |--------|------------|-------------------|-----------------|
 | Cold Start | ~50ms | ~200ms | ~100ms |
 | Hello World RPS | 45,000 | 8,000 | 25,000 |
@@ -140,9 +144,9 @@ src/
 
 ---
 
-## 📝 Laravel → EISK Cheat Sheet
+## 📝 Laravel → Velist Cheat Sheet
 
-| Laravel | EISK Equivalent |
+| Laravel | Velist Equivalent |
 |---------|-----------------|
 | `php artisan migrate` | `bun run db:migrate` |
 | `php artisan db:seed` | `bun run db:seed` |
@@ -161,7 +165,7 @@ src/
 
 ## 🤖 AI Development
 
-EISK Stack includes comprehensive AI context for better code generation:
+Velist includes comprehensive AI context for better code generation:
 
 ### Cursor IDE
 The `.cursorrules` file provides coding patterns and conventions.
@@ -319,7 +323,7 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ## 🛡️ Security
 
-For security issues, please email **security@eisk-stack.dev** instead of using the issue tracker.
+For security issues, please email **security@velist.dev** instead of using the issue tracker.
 
 See [SECURITY.md](./SECURITY.md) for:
 - Reporting vulnerabilities
@@ -344,11 +348,11 @@ This project is licensed under the MIT License - see [LICENSE](./LICENSE) file f
 ---
 
 <p align="center">
-  Built with ❤️ by the EISK Stack team
+  Built with ❤️ by the Velist team
 </p>
 
 <p align="center">
-  <a href="https://twitter.com/eiskstack">Twitter</a> •
-  <a href="https://discord.gg/eiskstack">Discord</a> •
-  <a href="https://eisk-stack.dev">Website</a>
+  <a href="https://twitter.com/veliststack">Twitter</a> •
+  <a href="https://discord.gg/velist">Discord</a> •
+  <a href="https://velist.dev">Website</a>
 </p>

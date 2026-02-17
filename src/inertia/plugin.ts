@@ -43,8 +43,8 @@ function generateDevTemplate(page: InertiaPage): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(page.component)} | EISK App</title>
-  <meta name="description" content="EISK Stack - Elysia + Inertia + Svelte + Kysely">
+  <title>${escapeHtml(page.component)} | Velist</title>
+  <meta name="description" content="Velist - Features-first fullstack framework">
   <script type="module" src="${viteUrl}/@vite/client"></script>
   <link rel="stylesheet" href="${viteUrl}/src/styles/app.css">
 </head>
@@ -127,8 +127,8 @@ function generateProdTemplate(page: InertiaPage): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(page.component)} | EISK App</title>
-  <meta name="description" content="EISK Stack - Elysia + Inertia + Svelte + Kysely">
+  <title>${escapeHtml(page.component)} | Velist</title>
+  <meta name="description" content="Velist - Features-first fullstack framework">
   ${cssLinks}
 </head>
 <body>

@@ -1,5 +1,5 @@
 /**
- * Type-safe Inertia.js types for EISK Stack
+ * Type-safe Inertia.js types for Velist
  * Provides end-to-end type safety from backend to frontend
  */
 

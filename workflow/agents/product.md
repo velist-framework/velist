@@ -147,7 +147,7 @@ Contoh:
 | Medium | Feel + colors + typography |
 | Complex/Enterprise | Full design system spec |
 
-### Default untuk EISK Stack
+### Default untuk Velist
 
 Jika client tidak specify, gunakan default:
 

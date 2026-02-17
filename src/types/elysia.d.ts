@@ -1,5 +1,5 @@
 /**
- * EISK Stack - Elysia Type Declarations
+ * Velist - Elysia Type Declarations
  */
 
 import type { Elysia } from 'elysia'

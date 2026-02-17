@@ -1,5 +1,5 @@
 /**
- * EISK Stack - Type Exports
+ * Velist - Type Exports
  * 
  * Import types from here for cleaner imports:
  * ```typescript

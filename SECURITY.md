@@ -44,7 +44,7 @@ Include the following information:
 
 ## Security Best Practices
 
-When using EISK Stack in production:
+When using Velist in production:
 
 ### 1. Environment Variables
 

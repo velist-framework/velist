@@ -130,7 +130,7 @@ File-file berikut adalah **referensi untuk manusia** (tidak perlu dibaca agent):
 
 ## Project Setup (Already Done)
 
-Starter project EISK includes:
+Starter project Velist includes:
 - ✅ Project structure
 - ✅ Database setup (SQLite)
 - ✅ Authentication system

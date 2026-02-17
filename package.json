@@ -1,5 +1,5 @@
 {
-  "name": "eisk-app",
+  "name": "velist",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
@@ -32,6 +32,10 @@
     "kysely-bun-sqlite": "^0.4.0",
     "lucide-svelte": "^0.564.0",
     "tailwindcss": "^4.1.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/velist-framework/velist.git"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
