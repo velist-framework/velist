@@ -112,7 +112,7 @@
           <!-- Dark Mode Toggle -->
           <button 
             onclick={toggleDarkMode}
-            class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
             title={darkMode ? 'Light mode' : 'Dark mode'}
           >
             {#if darkMode}
@@ -123,7 +123,7 @@
           </button>
           
           <!-- Notifications -->
-          <button class="relative p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+          <button class="relative p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer">
             <Bell class="w-5 h-5" />
             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
@@ -133,7 +133,7 @@
             <div>
               <button
                 type="button"
-                class="rounded-full flex text-sm focus:outline-none transition-colors hover:opacity-80"
+                class="rounded-full flex text-sm focus:outline-none transition-colors hover:opacity-80 cursor-pointer"
                 onclick={() => userMenuOpen = !userMenuOpen}
               >
                 <span class="sr-only">Open user menu</span>
@@ -160,7 +160,7 @@
                 </a>
                 <button
                   onclick={logout}
-                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Sign out
                 </button>
@@ -174,7 +174,7 @@
           <!-- Mobile Dark Mode Toggle -->
           <button 
             onclick={toggleDarkMode}
-            class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            class="p-2 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
           >
             {#if darkMode}
               <Sun class="w-5 h-5" />
@@ -185,7 +185,7 @@
           
           <button
             type="button"
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-slate-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors"
+            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-slate-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors cursor-pointer"
             onclick={() => mobileMenuOpen = !mobileMenuOpen}
           >
             <span class="sr-only">Open main menu</span>
@@ -238,7 +238,7 @@
             </a>
             <button
               onclick={logout}
-              class="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              class="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             >
               Sign out
             </button>
