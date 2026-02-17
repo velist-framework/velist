@@ -266,7 +266,7 @@ Concept 3: Minimal Wordmark
 
 | Platform | Handle | Status |
 |----------|--------|--------|
-| Website | `velist.dev` | Target utama |
+| Website | `velist.dev` | ✅ Active |
 | GitHub | `github.com/velist-framework/velist` | Repo utama |
 | NPM Scope | `@velist/*` | Packages |
 | Twitter/X | `@veliststack` | Announcements |

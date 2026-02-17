@@ -353,6 +353,6 @@ This project is licensed under the MIT License - see [LICENSE](./LICENSE) file f
 
 <p align="center">
   <a href="https://twitter.com/veliststack">Twitter</a> •
-  <a href="https://discord.gg/velist">Discord</a> •
+  <a href="https://discord.gg/velistdev">Discord</a> •
   <a href="https://velist.dev">Website</a>
 </p>
