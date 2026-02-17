@@ -6,18 +6,24 @@
 
 ## 1. Etimologi Nama
 
-**Velist** berasal dari gabungan tiga konsep utama:
+**Velist** = **Velocity** + **List**
 
-| Bagian | Arti | Signifikansi |
-|--------|------|--------------|
-| **Ve** | **Vertical** | Arsitektur feature slicing yang menjadi inti framework |
-| **li** | **Li**st / **Li**near | Organisasi kode yang terstruktur & predictable |
-| **st** | **S**velte + **T**ypeScript | Teknologi utama yang membentuk fondasi |
+> Kumpulan tools berkecepatan tinggi untuk membangun aplikasi modern.
 
 ### Cara Pengucapan
 - **Phonetic**: /ˈveɪ.lɪst/
 - **Suku kata**: Ve-list
-- **Alternatif reading**: **Velocity** + **List** = Kumpulan tools berkecepatan tinggi
+
+### Detail Etimologi
+
+| Bagian | Arti | Signifikansi |
+|--------|------|--------------|
+| **Ve** | **Velocity** | Kecepatan — powered by Bun runtime |
+| **li** | **Li**st / **Li**near | Organisasi kode yang terstruktur & predictable |
+| **st** | **S**velte + **T**ypeScript | Teknologi utama yang membentuk fondasi |
+
+### Secondary Meaning
+**Ve** juga merepresentasikan **Vertical** slicing architecture — core philosophy framework ini.
 
 ---
 

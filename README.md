@@ -1,7 +1,7 @@
 # Velist
 
 <p align="center">
-  <strong>Ve</strong>rtical + <strong>li</strong>st — Features-first fullstack framework
+  <strong>Velocity</strong> + <strong>List</strong> — Features-first fullstack framework
 </p>
 
 <p align="center">
