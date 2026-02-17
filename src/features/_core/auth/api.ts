@@ -17,6 +17,10 @@ declare module 'elysia' {
   }
 }
 
+/**
+ * Auth API - Public routes for authentication
+ * Use createProtectedApi() from './protected' for protected routes
+ */
 export const authApi = new Elysia({ prefix: '/auth' })
   .use(inertia())
   .use(cookie())
@@ -25,7 +29,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
     exp: '7d'
   }))
   
-  // Dependency injection ke context
+  // Dependency injection
   .derive(() => ({
     authService: new AuthService(),
     authRepo: new AuthRepository()
@@ -132,32 +136,3 @@ export const authApi = new Elysia({ prefix: '/auth' })
     ;(cookie.auth as { remove: () => void }).remove()
     return inertia.redirect('/auth/login')
   })
-
-  // Middleware: Attach user to context
-  .derive(async (ctx) => {
-    const { cookie, jwt } = ctx
-    const token = (cookie.auth as { value?: string }).value
-    if (!token) return { user: null }
-    
-    try {
-      const payload = await jwt.verify(token)
-      return { 
-        user: payload as unknown as { id: string; email: string; name: string } 
-      }
-    } catch {
-      return { user: null }
-    }
-  })
-
-  // Macro untuk protected routes
-  .macro(({ onBeforeHandle }) => ({
-    auth(required: boolean) {
-      if (!required) return
-      onBeforeHandle((ctx: any) => {
-        const { user, inertia } = ctx
-        if (!user) {
-          return inertia.redirect('/auth/login')
-        }
-      })
-    }
-  }))
