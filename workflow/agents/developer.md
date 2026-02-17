@@ -323,8 +323,21 @@ export const featureApi = createProtectedApi('/feature')
 
 ```typescript
 .get('/', (ctx) => {
-  const user = (ctx as any).user  // { sub, email, name }
+  const user = (ctx as any).user  // { sub, email, name, role }
   return ctx.inertia.render('page/Index', { user })
+})
+```
+
+### Role-Based Access (Admin Only)
+
+```typescript
+// Admin only route
+.get('/admin', (ctx) => {
+  const user = (ctx as any).user
+  if (user.role !== 'admin') {
+    return ctx.inertia.render('errors/403')
+  }
+  return ctx.inertia.render('admin/Index')
 })
 ```
 

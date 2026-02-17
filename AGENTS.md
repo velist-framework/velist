@@ -617,7 +617,28 @@ export const myApi = createProtectedApi('/my-feature')
 ```typescript
 // In route handler
 .get('/', (ctx) => {
-  const user = (ctx as any).user  // { id, email, name }
+  const user = (ctx as any).user  // { id, email, name, role }
+})
+```
+
+### Role-Based Access Control
+
+```typescript
+// Check role in route
+.get('/admin', (ctx) => {
+  const user = (ctx as any).user
+  if (user.role !== 'admin') {
+    return ctx.inertia.render('errors/403', { message: 'Access denied' })
+  }
+  return ctx.inertia.render('admin/Index')
+})
+
+// Or use middleware pattern
+.onBeforeHandle((ctx) => {
+  const user = (ctx as any).user
+  if (user.role !== 'admin') {
+    return ctx.inertia.redirect('/dashboard')
+  }
 })
 ```
 
