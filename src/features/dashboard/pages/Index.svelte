@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Users, ShoppingCart, DollarSign, TrendingUp, Activity } from 'lucide-svelte'
+  import { Users, ShoppingCart, DollarSign, TrendingUp, Activity, Bell } from 'lucide-svelte'
   import AppLayout from '../../../shared/layouts/AppLayout.svelte'
+  import { toast } from '$shared/lib/toast'
   
   interface Props {
     user: {
@@ -33,6 +34,23 @@
     { label: 'Add User', icon: Users, href: '#users' },
     { label: 'Reports', icon: Activity, href: '#reports' },
   ]
+  
+  // Toast demo
+  function showSuccessToast() {
+    toast.success('Operation completed successfully!')
+  }
+  
+  function showErrorToast() {
+    toast.error('Something went wrong. Please try again.')
+  }
+  
+  function showWarningToast() {
+    toast.warning('Please review your settings before continuing.')
+  }
+  
+  function showInfoToast() {
+    toast.info('New updates are available.')
+  }
 </script>
 
 <AppLayout title="Dashboard" {user}>
@@ -105,7 +123,7 @@
     </div>
     
     <!-- Quick Actions -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors mb-8">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 transition-colors">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Quick Actions</h2>
       </div>
@@ -121,6 +139,40 @@
             <span class="font-medium text-gray-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">{action.label}</span>
           </a>
         {/each}
+      </div>
+    </div>
+    
+    <!-- Toast Demo -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 transition-colors flex items-center gap-2">
+        <Bell class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Toast Notifications Demo</h2>
+      </div>
+      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button
+          onclick={showSuccessToast}
+          class="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors"
+        >
+          Success
+        </button>
+        <button
+          onclick={showErrorToast}
+          class="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
+        >
+          Error
+        </button>
+        <button
+          onclick={showWarningToast}
+          class="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors"
+        >
+          Warning
+        </button>
+        <button
+          onclick={showInfoToast}
+          class="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+        >
+          Info
+        </button>
       </div>
     </div>
   </div>
