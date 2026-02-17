@@ -6,7 +6,7 @@
   interface Props {
     title: string
     user: {
-      id: number
+      id: string
       email: string
       name: string
     }
