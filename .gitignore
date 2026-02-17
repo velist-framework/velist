@@ -7,6 +7,10 @@ dist/
 # Database
 db/*.sqlite
 db/*.sqlite-journal
+
+# Storage uploads
+storage/*
+!storage/.gitkeep
 db/*.sqlite-wal
 db/*.sqlite-shm
 

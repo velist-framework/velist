@@ -27,3 +27,17 @@ export const passwordResetTokens = sqliteTable('password_reset_tokens', {
   token: text('token').notNull(),
   createdAt: text('created_at'),
 });
+
+// Assets table for file uploads
+export const assets = sqliteTable('assets', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  filename: text('filename').notNull(),
+  originalName: text('original_name').notNull(),
+  mimeType: text('mime_type').notNull(),
+  size: integer('size').notNull(),
+  path: text('path').notNull(),
+  url: text('url').notNull(),
+  metadata: text('metadata'), // JSON: { width, height, format }
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});

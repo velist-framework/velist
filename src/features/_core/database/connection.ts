@@ -30,6 +30,19 @@ export interface DatabaseSchema {
     token: string
     created_at: string | null
   }
+  
+  assets: {
+    id: string
+    user_id: string
+    filename: string
+    original_name: string
+    mime_type: string
+    size: number
+    path: string
+    url: string
+    metadata: string | null
+    created_at: string
+  }
 }
 
 export type User = Selectable<DatabaseSchema['users']>

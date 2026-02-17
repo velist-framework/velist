@@ -21,6 +21,7 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | Toast notification | `toast.success('message')` from `$shared/lib/toast` |
 | Debounce search input | `debounce(fn, 300)` from `$shared/lib/debounce` |
 | Export to CSV | `downloadCSV(filename, data)` from `$shared/lib/csv` |
+| Image processing | `processImage(file)` from `$shared/lib/image` |
 | Form validation | TypeBox schema in service.ts |
 | Authentication | Use `createProtectedApi()` helper |
 
@@ -37,6 +38,8 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | Database | bun:sqlite | SQLite embedded in Bun |
 | Query Builder | Kysely | Type-safe SQL queries at runtime |
 | Migrations | Drizzle ORM | Schema management and migrations |
+| File Storage | AWS SDK S3 | Local/S3-compatible storage |
+| Image Processing | Sharp | Resize, convert, compress images |
 | Styling | Tailwind CSS v4 | Utility-first CSS |
 | Icons | lucide-svelte | Tree-shakeable icon library |
 | Unit Testing | bun:test | Built-in Bun test runner |
@@ -59,13 +62,17 @@ src/
 │   │   │   └── pages/           # Svelte pages
 │   │   │       ├── Login.svelte
 │   │   │       └── Register.svelte
-│   │   └── database/
-│   │       ├── connection.ts    # Kysely instance
-│   │       ├── schema.ts        # Drizzle schema
-│   │       ├── seeder.ts        # Database seeder
-│   │       └── migrations/
-│   │           ├── runner.ts
-│   │           └── *.sql
+│   │   ├── database/
+│   │   │   ├── connection.ts    # Kysely instance
+│   │   │   ├── schema.ts        # Drizzle schema
+│   │   │   ├── seeder.ts        # Database seeder
+│   │   │   └── migrations/
+│   │   │       ├── runner.ts
+│   │   │       └── *.sql
+│   │   └── storage/             # File storage abstraction
+│   │       ├── index.ts         # Storage interface & factory
+│   │       ├── local.ts         # Local filesystem storage
+│   │       └── s3.ts            # S3-compatible storage
 │   ├── dashboard/           # Example feature
 │   │   ├── api.ts
 │   │   └── pages/
@@ -546,6 +553,7 @@ Example:
 | `debounce.ts` | `import { debounce } from '$shared/lib/debounce'` | `debounce(fn, 300)` |
 | `csv.ts` | `import { downloadCSV } from '$shared/lib/csv'` | `downloadCSV('file', data)` |
 | `toast.ts` | `import { toast } from '$shared/lib/toast'` | `toast.success('Saved!')` |
+| `image.ts` | `import { processImage } from '$shared/lib/image'` | Image resize, convert, compress |
 
 #### Toast Usage
 ```typescript
@@ -562,6 +570,66 @@ toast.success('Saved!', 5000) // 5 seconds
 ```
 
 **Note:** ToastContainer sudah otomatis di-render di AppLayout, jadi tinggal panggil `toast.xxx()` saja.
+
+### Storage Infrastructure
+
+**Location:** `src/features/_core/storage/`
+
+Abstraction layer for file storage. Supports Local filesystem and S3-compatible storage.
+
+**Required packages:**
+```bash
+bun add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner sharp
+```
+
+| File | Purpose |
+|------|---------|
+| `index.ts` | Storage interface & factory function |
+| `local.ts` | Local filesystem storage provider |
+| `s3.ts` | S3/Wasabi/MinIO storage provider + presigned URLs |
+
+#### Usage
+
+```typescript
+import { createStorage } from '$features/_core/storage'
+
+const storage = createStorage()
+
+// Upload file
+await storage.upload('path/to/file.png', fileBuffer, 'image/png')
+
+// Get public URL
+const url = storage.getPublicUrl('path/to/file.png')
+
+// Delete file
+await storage.delete('path/to/file.png')
+
+// S3 only: Presigned URL for direct client upload
+const presignedUrl = await storage.getPresignedUploadUrl?(
+  'path/to/file.png', 
+  'image/png', 
+  3600  // expires in 1 hour
+)
+```
+
+#### Environment Variables
+
+```bash
+# Storage Driver: 'local' or 's3'
+STORAGE_DRIVER=local
+
+# Local Storage
+LOCAL_STORAGE_PATH=./storage
+LOCAL_STORAGE_URL=/storage
+
+# S3 Storage (if STORAGE_DRIVER=s3)
+S3_BUCKET=my-bucket
+S3_REGION=us-east-1
+S3_ENDPOINT=https://s3.wasabisys.com
+S3_ACCESS_KEY=your-key
+S3_SECRET_KEY=your-secret
+CDN_URL=https://cdn.example.com  # Optional
+```
 
 ### Dark Mode
 
