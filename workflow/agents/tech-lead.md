@@ -271,6 +271,22 @@ Catatan Penting:
 
 ---
 
+## Shared Components & Layouts
+
+### Layouts: `src/shared/layouts/`
+- `AppLayout.svelte` - Main layout untuk protected pages (WAJIB digunakan)
+- `PublicLayout.svelte` - Layout untuk public pages
+
+### Reusable Components: `src/shared/components/`
+**Hanya untuk complex reusable UI:**
+- `Modal.svelte` - Dialog/Modal component
+- `DataTable.svelte` - Table dengan sorting, pagination  
+- `ConfirmDialog.svelte` - Confirmation dialog
+
+**Jangan buat atomic components** (Button, Input, Card) - gunakan inline Tailwind.
+
+---
+
 ## Velist + Inertia Pattern
 
 ### Routing (Elysia)

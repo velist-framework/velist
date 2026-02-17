@@ -497,6 +497,8 @@ After seeding: `admin@example.com` / `password123`
 **DO** write Tailwind utilities directly in pages.
 **ONLY** create components for complex reusable UI (Modal, DataTable, etc).
 
+**Location:** `src/shared/components/[ComponentName].svelte`
+
 Example:
 ```svelte
 <!-- Good: Inline Tailwind -->

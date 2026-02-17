@@ -232,6 +232,22 @@ Siap untuk testing.
 
 ---
 
+## Component Location
+
+### Layouts (src/shared/layouts/)
+- `AppLayout.svelte` - Main layout untuk protected pages
+- `PublicLayout.svelte` - Layout untuk public pages (jika ada)
+
+### Reusable Components (src/shared/components/)
+**Hanya untuk complex reusable UI:**
+- `Modal.svelte` - Dialog/Modal component
+- `DataTable.svelte` - Table dengan sorting, pagination
+- `ConfirmDialog.svelte` - Confirmation dialog
+
+**DON'T create:** Button, Input, Card (use inline Tailwind instead)
+
+---
+
 ## Layout Pattern (WAJIB)
 
 **SEMUA protected pages WAJIB menggunakan `AppLayout`** untuk konsistensi UI.
