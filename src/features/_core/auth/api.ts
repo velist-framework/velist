@@ -13,6 +13,7 @@ declare module 'elysia' {
       id: string  // UUID v7
       email: string
       name: string
+      role: string
     } | null
   }
 }
@@ -49,11 +50,12 @@ export const authApi = new Elysia({ prefix: '/auth' })
     try {
       const user = await authService.attempt(body.email, body.password)
       
-      // Create token with UUID sub
+      // Create token with UUID sub and role
       const token = await jwt.sign({ 
         sub: user.id,  // UUID v7
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role || 'user'
       })
 
       // Set cookie
@@ -94,7 +96,8 @@ export const authApi = new Elysia({ prefix: '/auth' })
       const token = await jwt.sign({ 
         sub: user.id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        role: user.role || 'user'
       })
 
       // Set cookie
