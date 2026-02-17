@@ -378,3 +378,69 @@ export const wrongApi = new Elysia({ prefix: '/wrong' })
 - Elysia API dengan Inertia
 - Svelte pages dengan runes
 - UUID v7, ISO timestamps
+
+---
+
+## Testing Requirements (WAJIB)
+
+Setiap fitur baru WAJIB include unit tests.
+
+### Unit Test dengan bun:test
+
+**Lokasi:** `tests/unit/[feature]/api.test.ts`
+
+**Pattern test untuk Elysia:**
+```typescript
+import { describe, it, expect } from 'bun:test'
+import { Elysia } from 'elysia'
+import { featureApi } from '../../../src/features/feature/api'
+
+describe('Feature API', () => {
+  const app = new Elysia().use(featureApi)
+
+  it('should return list', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/feature')
+    )
+    expect(response.status).toBe(200)
+  })
+})
+```
+
+**Commands:**
+```bash
+bun run test         # Run all unit tests
+bun run test:watch   # Watch mode
+bun test tests/unit/auth  # Run specific folder
+```
+
+### Test Priority
+1. **WAJIB:** Unit test untuk `service.ts` (business logic)
+2. **WAJIB:** Unit test untuk `api.ts` routes (happy path + error cases)
+3. **OPTIONAL:** E2E test untuk critical flows
+
+### Contoh Test Cases
+
+**Service test:**
+```typescript
+it('should throw error when email exists', async () => {
+  const payload = { email: 'test@example.com', password: '123' }
+  await service.create(payload)
+  
+  // Should throw duplicate error
+  expect(service.create(payload)).rejects.toThrow('Email already exists')
+})
+```
+
+**API test:**
+```typescript
+it('should redirect when not authenticated', async () => {
+  const response = await app.handle(
+    new Request('http://localhost/protected')
+  )
+  expect(response.status).toBe(303)
+  expect(response.headers.get('location')).toContain('/auth/login')
+})
+```
+
+Referensi: https://elysiajs.com/patterns/unit-test

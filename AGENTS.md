@@ -39,7 +39,8 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | Migrations | Drizzle ORM | Schema management and migrations |
 | Styling | Tailwind CSS v4 | Utility-first CSS |
 | Icons | lucide-svelte | Tree-shakeable icon library |
-| Testing | Playwright | E2E testing (requires Node.js) |
+| Unit Testing | bun:test | Built-in Bun test runner |
+| E2E Testing | Playwright | Critical flows only (requires Node.js) |
 
 ---
 
@@ -441,10 +442,12 @@ bun run db:generate     # Generate migration files (Drizzle)
 bun run db:seed         # Seed database
 bun run db:refresh      # Delete DB + migrate + seed
 
-# Testing (requires Node.js for Playwright)
-npx playwright test           # Run E2E tests
-npx playwright test --ui      # Interactive mode
-npx playwright test --headed  # See browser
+# Testing
+bun run test                # Run unit tests (bun:test)
+bun run test:watch          # Watch mode for unit tests
+bun run test:e2e            # Run E2E tests (Playwright + Node.js)
+npx playwright test --ui    # Interactive E2E mode
+npx playwright test --headed # See browser for E2E
 
 # Type checking
 bun run typecheck       # tsc + svelte-check
@@ -733,7 +736,61 @@ inertia.render('auth/Login')       → features/auth/pages/Login.svelte
 
 ## Testing Strategy
 
-### E2E Tests (Playwright)
+### Two-Level Testing Approach
+
+| Type | Tool | Use For | Speed |
+|------|------|---------|-------|
+| **Unit Tests** | bun:test | Business logic, API routes, validation | ⚡ Fast (ms) |
+| **E2E Tests** | Playwright | Critical user flows, integration | 🐢 Slower (seconds) |
+
+### Unit Tests (bun:test) - PRIMARY
+
+**Default choice** untuk semua fitur. Test business logic dan API secara isolated.
+
+```typescript
+// tests/unit/feature/api.test.ts
+import { describe, it, expect } from 'bun:test'
+import { Elysia } from 'elysia'
+import { featureApi } from '../../../src/features/feature/api'
+
+describe('Feature API', () => {
+  const app = new Elysia().use(featureApi)
+
+  it('should return list', async () => {
+    const response = await app.handle(
+      new Request('http://localhost/feature')
+    )
+    expect(response.status).toBe(200)
+  })
+})
+```
+
+**Commands:**
+```bash
+bun run test              # Run all unit tests (tests/unit only)
+bun run test:watch        # Watch mode
+bun test tests/unit/auth  # Specific folder
+```
+
+**Note:** E2E tests excluded dari `bun test` karena Playwright pakai sintaks berbeda (`test.describe`). E2E di-run via `bun run test:e2e`.
+
+**Test Priority:**
+1. Service layer (business logic, edge cases)
+2. API routes (happy path, auth checks, validation errors)
+3. Repository (if complex queries)
+
+### E2E Tests (Playwright) - SELECTIVE
+
+**Hanya untuk critical flows** yang melibatkan:
+- Multi-step user journeys (register → login → dashboard)
+- Browser-specific behavior (cookies, redirects)
+- UI interactions (drag-drop, file upload, modals)
+- Cross-page integration
+
+**Jangan buat E2E test untuk:**
+- Simple CRUD (sudah covered by unit tests)
+- Form validation (unit test lebih cepat)
+- API response structure (unit test lebih reliable)
 
 **Important**: Playwright requires Node.js, not Bun.
 
@@ -742,25 +799,37 @@ inertia.render('auth/Login')       → features/auth/pages/Login.svelte
 npx playwright test
 ```
 
-Test database: `db/test.sqlite` (auto-created, auto-cleaned)
-
-### Test Structure
-
+**Example E2E (critical flow only):**
 ```typescript
-// tests/e2e/feature.spec.ts
+// tests/e2e/auth.spec.ts
 import { test, expect } from '@playwright/test'
 
-test('should do something', async ({ page }) => {
-  await page.goto('/route')
+test('complete registration flow', async ({ page }) => {
+  await page.goto('/auth/register')
   await page.fill('input[name="email"]', 'test@example.com')
+  await page.fill('input[name="password"]', 'password123')
   await page.click('button[type="submit"]')
+  
+  // Should redirect to dashboard after registration
   await expect(page).toHaveURL(/.*dashboard.*/)
 })
 ```
 
+Test database: `db/test.sqlite` (auto-created, auto-cleaned)
+
 ### Running Tests
 
-Tests automatically:
+Unit tests:
+```bash
+bun run test
+```
+
+E2E tests:
+```bash
+npx playwright test
+```
+
+E2E tests automatically:
 1. Start dev server (`bun run dev:server`)
 2. Use separate test database
 3. Clean up after completion

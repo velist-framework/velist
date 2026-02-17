@@ -30,6 +30,26 @@ Verify bug fix.
 
 ---
 
+## Testing Standards
+
+### Unit Tests (bun:test)
+- Lokasi: `tests/unit/**/*.test.ts`
+- Framework: Bun built-in test runner (`bun:test`)
+- Pattern: Gunakan `app.handle()` untuk test Elysia routes
+- Run: `bun run test` atau `bun run test:watch`
+
+### E2E Tests (Playwright)
+- Lokasi: `tests/e2e/**/*.spec.ts`
+- Framework: Playwright
+- Run: `bun run test:e2e`
+
+### Test Priority
+1. Unit test untuk business logic (service.ts)
+2. Unit test untuk API routes (api.ts)
+3. E2E test untuk critical user flows
+
+---
+
 ## ⚠️ MANDATORY REVIEW POINT (CRITICAL)
 
 **Setelah testing selesai, TUNGGU CLIENT APPROVE sebelum deploy.**

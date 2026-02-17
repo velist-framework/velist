@@ -12,6 +12,8 @@
     "db:seed": "bun src/features/_core/database/seeder.ts",
     "db:refresh": "bun scripts/refresh-db.ts",
     "refresh": "bun scripts/refresh-db.ts",
+    "test": "bun test tests/unit",
+    "test:watch": "bun test tests/unit --watch",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:headed": "npx playwright test --headed",
