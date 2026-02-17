@@ -17,6 +17,10 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | New feature/module | Create vertical slice: `features/[name]/api.ts, service.ts, repository.ts, pages/*.svelte` |
 | Database changes | Update `DatabaseSchema` → `bun run db:generate` → `bun run db:migrate` |
 | UI components | Inline Tailwind classes, NO component abstraction |
+| Complex reusable UI (Modal, DataTable) | `src/shared/components/[Name].svelte` |
+| Toast notification | `toast.success('message')` from `$shared/lib/toast` |
+| Debounce search input | `debounce(fn, 300)` from `$shared/lib/debounce` |
+| Export to CSV | `downloadCSV(filename, data)` from `$shared/lib/csv` |
 | Form validation | TypeBox schema in service.ts |
 | Authentication | Use `authApi` and `.auth(true)` macro |
 
@@ -507,6 +511,33 @@ Example:
   Save
 </button>
 ```
+
+### Shared Utilities
+
+**Location:** `src/shared/lib/`
+
+| File | Import | Usage |
+|------|--------|-------|
+| `debounce.ts` | `import { debounce } from '$shared/lib/debounce'` | `debounce(fn, 300)` |
+| `csv.ts` | `import { downloadCSV } from '$shared/lib/csv'` | `downloadCSV('file', data)` |
+| `toast.ts` | `import { toast } from '$shared/lib/toast'` | `toast.success('Saved!')` |
+| `svelte/clickOutside.ts` | `import { clickOutside } from '$shared/lib/svelte/clickOutside'` | `<div use:clickOutside>` |
+
+#### Toast Usage
+```typescript
+import { toast } from '$shared/lib/toast'
+
+// Simple one-liner (just like vanilla JS!)
+toast.success('Item saved successfully')
+toast.error('Failed to save item')
+toast.warning('Please check your input')
+toast.info('New update available')
+
+// With custom duration (ms)
+toast.success('Saved!', 5000) // 5 seconds
+```
+
+**Note:** ToastContainer sudah otomatis di-render di AppLayout, jadi tinggal panggil `toast.xxx()` saja.
 
 ### Dark Mode
 

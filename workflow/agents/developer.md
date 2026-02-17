@@ -232,19 +232,42 @@ Siap untuk testing.
 
 ---
 
-## Component Location
+## Shared Resources
 
-### Layouts (src/shared/layouts/)
-- `AppLayout.svelte` - Main layout untuk protected pages
-- `PublicLayout.svelte` - Layout untuk public pages (jika ada)
+### Layouts: `src/shared/layouts/`
+- `AppLayout.svelte` - Main layout untuk protected pages (WAJIB)
+- `PublicLayout.svelte` - Layout untuk public pages
 
-### Reusable Components (src/shared/components/)
+### Components: `src/shared/components/`
 **Hanya untuk complex reusable UI:**
-- `Modal.svelte` - Dialog/Modal component
-- `DataTable.svelte` - Table dengan sorting, pagination
-- `ConfirmDialog.svelte` - Confirmation dialog
+- `Modal.svelte`, `DataTable.svelte`, `ConfirmDialog.svelte`
+- `ToastContainer.svelte` (sudah ada di AppLayout)
 
-**DON'T create:** Button, Input, Card (use inline Tailwind instead)
+**DON'T create:** Button, Input, Card (use inline Tailwind)
+
+### Utilities: `src/shared/lib/`
+| Utility | Import | Usage |
+|---------|--------|-------|
+| Debounce | `$shared/lib/debounce` | `debounce(fn, 300)` |
+| CSV Export | `$shared/lib/csv` | `downloadCSV('file', data)` |
+| Toast | `$shared/lib/toast` | `toast.success('msg')` |
+| Click Outside | `$shared/lib/svelte/clickOutside` | `<div use:clickOutside>` |
+
+#### Toast Example (Sangat Mudah!)
+```typescript
+import { toast } from '$shared/lib/toast'
+
+// Dari mana saja, setelah fetch, di event handler, dll
+function handleSave() {
+  try {
+    await saveData()
+    toast.success('Data saved!')
+  } catch (err) {
+    toast.error(err.message)
+  }
+}
+```
+ToastContainer sudah otomatis di AppLayout, tinggal panggil saja.
 
 ---
 

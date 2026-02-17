@@ -1,6 +1,7 @@
 <script lang="ts">
   import { inertia, router } from '@inertiajs/svelte'
   import { Sun, Moon, Bell, Search } from 'lucide-svelte'
+  import ToastContainer from '$shared/components/ToastContainer.svelte'
   
   interface Props {
     title: string
@@ -226,4 +227,7 @@
   <main>
     {@render children()}
   </main>
+  
+  <!-- Toast Notifications -->
+  <ToastContainer />
 </div>
