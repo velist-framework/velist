@@ -678,7 +678,7 @@ NODE_ENV=development
 PORT=3000
 APP_VERSION=1.0.0
 JWT_SECRET=change-this-in-production
-FRONTEND_URL=http://localhost:5173
+VITE_URL=http://localhost:5173
 ```
 
 ---
