@@ -22,7 +22,7 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | Debounce search input | `debounce(fn, 300)` from `$shared/lib/debounce` |
 | Export to CSV | `downloadCSV(filename, data)` from `$shared/lib/csv` |
 | Form validation | TypeBox schema in service.ts |
-| Authentication | Use `authApi` and `.auth(true)` macro |
+| Authentication | Use `cookie()` + `jwt()` + `.onBeforeHandle()` pattern |
 
 ---
 
@@ -597,17 +597,49 @@ Common patterns:
 - JWT stored in HTTP-only cookie
 - 7-day expiration (30 days with "remember me")
 - User attached to context via middleware
-- `auth()` macro for protected routes
 
-### Protecting Routes
+### Protecting Routes (CORRECT PATTERN)
+
+**⚠️ IMPORTANT:** Do NOT use `.auth(true)` macro after `.use(authApi)`. The macro only exists on `authApi` instance itself, not on derived instances.
+
+**Correct way to protect routes:**
 
 ```typescript
-// Inherit from authApi to get user context
-import { authApi } from '../_core/auth/api'
+import { Elysia } from 'elysia'
+import { cookie } from '@elysiajs/cookie'
+import { jwt } from '@elysiajs/jwt'
+import { inertia, type Inertia } from '../../inertia/plugin'
 
 export const protectedApi = new Elysia({ prefix: '/admin' })
-  .use(authApi)  // Brings JWT, cookie, user context
-  .auth(true)    // Macro to require authentication
+  .use(cookie())
+  .use(jwt({
+    secret: process.env.JWT_SECRET || 'your-secret-key',
+    exp: '7d'
+  }))
+  .use(inertia())
+  
+  // Auth middleware - require authentication
+  .onBeforeHandle(async (ctx) => {
+    const { cookie, jwt, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const token = (cookie.auth as { value?: string }).value
+    if (!token) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    try {
+      const payload = await jwt.verify(token)
+      // Attach user to context
+      ;(ctx as any).user = payload as { sub: string; email: string; name: string }
+    } catch {
+      return inertia.redirect('/auth/login')
+    }
+  })
+  
+  // Your protected routes here
+  .get('/', (ctx) => {
+    const user = (ctx as any).user
+    return ctx.inertia.render('admin/Index', { user })
+  })
 ```
 
 ### Accessing Current User
@@ -617,6 +649,16 @@ export const protectedApi = new Elysia({ prefix: '/admin' })
 .get('/', (ctx) => {
   const user = (ctx as any).user  // { id, email, name }
 })
+```
+
+### Common Mistake (DON'T DO THIS)
+
+```typescript
+// ❌ WRONG - This will throw error:
+// TypeError: .auth is not a function
+export const wrongApi = new Elysia({ prefix: '/wrong' })
+  .use(authApi)
+  .auth(true)  // ❌ Error! auth() macro doesn't exist here
 ```
 
 ---
