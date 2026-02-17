@@ -35,6 +35,25 @@
 
 ## ⚡ Quick Start
 
+### Using `bun create` (Recommended)
+
+```bash
+bun create velist my-app
+cd my-app
+
+# Setup environment
+cp .env.example .env
+
+# Setup database
+bun run db:migrate
+bun run db:seed
+
+# Start development
+bun run dev
+```
+
+### Clone Repository
+
 ```bash
 # Clone the repository
 git clone https://github.com/velist-framework/velist.git my-app
