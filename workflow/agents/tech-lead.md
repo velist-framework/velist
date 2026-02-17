@@ -150,13 +150,15 @@ Folder structure dan system design.
 
 | URL | Page Component | Props | Description |
 |-----|---------------|-------|-------------|
-| GET /dashboard | dashboard/Index | stats, recent_items | Dashboard utama |
-| GET /items | items/Index | items, filters | List items |
-| GET /items/create | items/Create | errors | Form create |
+| GET /dashboard | dashboard/Index | user, stats, recent_items | Dashboard utama |
+| GET /items | items/Index | user, items, filters | List items |
+| GET /items/create | items/Create | user, errors | Form create |
 | POST /items | items/Store | - | Handle create |
-| GET /items/:id/edit | items/Edit | item, errors | Form edit |
+| GET /items/:id/edit | items/Edit | user, item, errors | Form edit |
 | PUT /items/:id | items/Update | - | Handle update |
 | DELETE /items/:id | items/Destroy | - | Handle delete |
+
+**Catatan:** Semua protected pages include `user` prop untuk AppLayout.
 
 ## Page Props
 
@@ -264,6 +266,7 @@ Catatan Penting:
 - Extend schema (tambah kolom/tabel), jangan hapus yang ada
 - Generate migration: bun run db:generate
 - Jalankan migration: bun run db:migrate
+- **WAJIB pakai AppLayout untuk semua protected pages** (see Layout Pattern in developer.md)
 ```
 
 ---
@@ -301,16 +304,28 @@ export const featureApi = new Elysia({ prefix: '/items' })
 ```
 
 ### Page Component (Svelte)
+
+**WAJIB menggunakan AppLayout untuk konsistensi UI:**
+
 ```svelte
 <!-- pages/Index.svelte -->
 <script lang="ts">
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
+  
   interface Props {
     items: Array<{ id: string; title: string }>
+    user: { id: string; email: string; name: string }
   }
   
-  let { items }: Props = $props()
+  let { items, user }: Props = $props()
 </script>
+
+<AppLayout title="Items" {user}>
+  <!-- Page content -->
+</AppLayout>
 ```
+
+**Catatan:** Auth pages (login/register) exception - tidak pakai AppLayout.
 
 ---
 

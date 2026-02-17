@@ -302,8 +302,10 @@ export const invoiceApi = new Elysia({ prefix: '/invoices' })
 <script lang="ts">
   import { useForm } from '@inertiajs/svelte'
   import { Plus, Pencil, Trash } from 'lucide-svelte'
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
   
   interface Props {
+    user: { id: string; email: string; name: string }
     invoices: Array<{
       id: string
       customer: string
@@ -312,7 +314,7 @@ export const invoiceApi = new Elysia({ prefix: '/invoices' })
     }>
   }
   
-  let { invoices }: Props = $props()
+  let { user, invoices }: Props = $props()
   
   const deleteForm = useForm({})
   
@@ -330,6 +332,7 @@ export const invoiceApi = new Elysia({ prefix: '/invoices' })
   }
 </script>
 
+<AppLayout title="Invoices" {user}>
 <div class="p-6 max-w-5xl mx-auto">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Invoices</h1>
@@ -381,6 +384,7 @@ export const invoiceApi = new Elysia({ prefix: '/invoices' })
     {/if}
   </div>
 </div>
+</AppLayout>
 
 <style>
   .status-pending {
@@ -463,18 +467,29 @@ After seeding: `admin@example.com` / `password123`
 - Inline Tailwind classes - no component abstractions for simple UI
 - Use `lucide-svelte` for icons
 - Props interface naming: `Props`
+- **WAJIB pakai AppLayout untuk protected pages**
 
 ```svelte
 <script lang="ts">
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
+  
   interface Props {
-    user: { id: string; name: string }
+    user: { id: string; name: string; email: string }
     items: string[]
   }
   
   let { user, items }: Props = $props()
   let count = $state(0)
 </script>
+
+<AppLayout title="Items" {user}>
+  <div class="p-6 max-w-5xl mx-auto">
+    <!-- Page content -->
+  </div>
+</AppLayout>
 ```
+
+**Exception:** Auth pages (login, register) TIDAK pakai AppLayout.
 
 ### Component Strategy
 

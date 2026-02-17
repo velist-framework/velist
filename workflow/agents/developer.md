@@ -129,12 +129,14 @@ export const featureApi = new Elysia({ prefix: '/items' })
 <script lang="ts">
   import { useForm, router } from '@inertiajs/svelte'
   import { Pencil, Trash } from 'lucide-svelte'
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
   
   interface Props {
     items: Array<{ id: string; title: string; completed: boolean }>
+    user: { id: string; email: string; name: string }
   }
   
-  let { items }: Props = $props()
+  let { items, user }: Props = $props()
   
   function deleteItem(id: string) {
     if (confirm('Delete this item?')) {
@@ -143,38 +145,42 @@ export const featureApi = new Elysia({ prefix: '/items' })
   }
 </script>
 
-<div class="p-6 max-w-5xl mx-auto">
-  <h1 class="text-2xl font-bold">Items</h1>
-  
-  {#each items as item}
-    <div class="flex items-center gap-4 p-4 border rounded-lg">
-      <span class:flex-1={true} class:line-through={item.completed}>
-        {item.title}
-      </span>
-      
-      <a href="/items/{item.id}/edit" class="text-blue-600">
-        <Pencil class="w-4 h-4" />
-      </a>
-      
-      <button onclick={() => deleteItem(item.id)} class="text-red-600">
-        <Trash class="w-4 h-4" />
-      </button>
-    </div>
-  {/each}
-</div>
+<AppLayout title="Items" {user}>
+  <div class="p-6 max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold">Items</h1>
+    
+    {#each items as item}
+      <div class="flex items-center gap-4 p-4 border rounded-lg">
+        <span class:flex-1={true} class:line-through={item.completed}>
+          {item.title}
+        </span>
+        
+        <a href="/items/{item.id}/edit" class="text-blue-600">
+          <Pencil class="w-4 h-4" />
+        </a>
+        
+        <button onclick={() => deleteItem(item.id)} class="text-red-600">
+          <Trash class="w-4 h-4" />
+        </button>
+      </div>
+    {/each}
+  </div>
+</AppLayout>
 ```
 
 ```svelte
 <!-- pages/Edit.svelte -->
 <script lang="ts">
   import { useForm } from '@inertiajs/svelte'
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
   
   interface Props {
     item: { id: string; title: string }
     errors: { message?: string }
+    user: { id: string; email: string; name: string }
   }
   
-  let { item, errors }: Props = $props()
+  let { item, errors, user }: Props = $props()
   
   const form = useForm({
     title: item.title
@@ -186,26 +192,28 @@ export const featureApi = new Elysia({ prefix: '/items' })
   }
 </script>
 
-<form onsubmit={submit} class="p-6 max-w-md mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Edit Item</h1>
-  
-  {#if errors.message}
-    <div class="text-red-600 mb-4">{errors.message}</div>
-  {/if}
-  
-  <input 
-    bind:value={$form.title}
-    class="w-full border rounded-lg px-3 py-2 mb-4"
-  />
-  
-  <button 
-    type="submit" 
-    disabled={$form.processing}
-    class="bg-blue-600 text-white px-4 py-2 rounded-lg"
-  >
-    {$form.processing ? 'Saving...' : 'Save'}
-  </button>
-</form>
+<AppLayout title="Edit Item" {user}>
+  <form onsubmit={submit} class="p-6 max-w-md mx-auto">
+    <h1 class="text-2xl font-bold mb-4">Edit Item</h1>
+    
+    {#if errors.message}
+      <div class="text-red-600 mb-4">{errors.message}</div>
+    {/if}
+    
+    <input 
+      bind:value={$form.title}
+      class="w-full border rounded-lg px-3 py-2 mb-4"
+    />
+    
+    <button 
+      type="submit" 
+      disabled={$form.processing}
+      class="bg-blue-600 text-white px-4 py-2 rounded-lg"
+    >
+      {$form.processing ? 'Saving...' : 'Save'}
+    </button>
+  </form>
+</AppLayout>
 ```
 
 ---
@@ -221,6 +229,37 @@ You:
 Development selesai dan di-approve client.
 Siap untuk testing.
 ```
+
+---
+
+## Layout Pattern (WAJIB)
+
+**SEMUA protected pages WAJIB menggunakan `AppLayout`** untuk konsistensi UI.
+
+```svelte
+<script lang="ts">
+  import AppLayout from '$shared/layouts/AppLayout.svelte'
+  
+  interface Props {
+    user: { id: string; email: string; name: string }
+    // ... other props
+  }
+  
+  let { user, ...props }: Props = $props()
+</script>
+
+<AppLayout title="Page Title" {user}>
+  <!-- Page content here -->
+</AppLayout>
+```
+
+**AppLayout menyediakan:**
+- Navigation bar dengan user menu
+- Dark mode toggle
+- Consistent padding & max-width
+- Page title di browser tab
+
+**Exception:** Auth pages (login, register) TIDAK pakai AppLayout karena tidak ada navigation.
 
 ---
 
