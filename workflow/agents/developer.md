@@ -251,7 +251,6 @@ Siap untuk testing.
 | Debounce | `$shared/lib/debounce` | `debounce(fn, 300)` |
 | CSV Export | `$shared/lib/csv` | `downloadCSV('file', data)` |
 | Toast | `$shared/lib/toast` | `toast.success('msg')` |
-| Click Outside | `$shared/lib/svelte/clickOutside` | `<div use:clickOutside>` |
 
 #### Toast Example (Sangat Mudah!)
 ```typescript

@@ -521,7 +521,6 @@ Example:
 | `debounce.ts` | `import { debounce } from '$shared/lib/debounce'` | `debounce(fn, 300)` |
 | `csv.ts` | `import { downloadCSV } from '$shared/lib/csv'` | `downloadCSV('file', data)` |
 | `toast.ts` | `import { toast } from '$shared/lib/toast'` | `toast.success('Saved!')` |
-| `svelte/clickOutside.ts` | `import { clickOutside } from '$shared/lib/svelte/clickOutside'` | `<div use:clickOutside>` |
 
 #### Toast Usage
 ```typescript
