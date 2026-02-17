@@ -82,13 +82,28 @@ export const authApi = new Elysia({ prefix: '/auth' })
 
   // POST /auth/register
   .post('/register', async (ctx) => {
-    const { body, authService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const { body, authService, jwt, cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
     try {
-      await authService.register(body)
-      
-      return inertia.render('auth/Login', {
-        status: 'Registration successful. Please login.'
+      const user = await authService.register(body)
+
+      // Create token (auto-login)
+      const token = await jwt.sign({ 
+        sub: user.id,
+        email: user.email,
+        name: user.name
       })
+
+      // Set cookie
+      cookie.auth.set({
+        value: token,
+        httpOnly: true,
+        maxAge: 86400, // 1 day
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+      })
+      
+      return inertia.redirect('/dashboard')
       
     } catch (error) {
       return inertia.render('auth/Register', {
