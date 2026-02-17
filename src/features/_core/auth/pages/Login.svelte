@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useForm } from '@inertiajs/svelte'
-  import { Eye, EyeOff, KeyRound, Mail, ArrowRight, Sparkles, Loader2 } from 'lucide-svelte'
+  import { Eye, EyeOff, Mail, ArrowRight, Sparkles, Loader2 } from 'lucide-svelte'
   import { Sun, Moon } from 'lucide-svelte'
   
   interface Props {
@@ -44,15 +44,6 @@
     $form.post('/auth/login')
   }
   
-  function generatePassword() {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
-    let pwd = ''
-    for (let i = 0; i < 16; i++) {
-      pwd += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    $form.password = pwd
-    showPassword = true
-  }
 </script>
 
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
@@ -128,19 +119,9 @@
         
         <!-- Password -->
         <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Password
-            </label>
-            <button
-              type="button"
-              onclick={generatePassword}
-              class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium flex items-center gap-1"
-            >
-              <KeyRound class="w-3 h-3" />
-              Generate
-            </button>
-          </div>
+          <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Password
+          </label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
