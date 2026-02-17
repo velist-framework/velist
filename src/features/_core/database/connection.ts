@@ -10,6 +10,7 @@ export interface DatabaseSchema {
     password_hash: string
     name: string
     role: string
+    google_id: string | null
     email_verified_at: string | null
     created_at: string
     updated_at: string

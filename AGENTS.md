@@ -107,7 +107,24 @@ touch src/features/invoices/pages/{Index.svelte,Create.svelte,Edit.svelte}
 
 ### Step 2: Update Database Schema (if needed)
 
-Edit `src/features/_core/database/connection.ts`:
+**⚠️ IMPORTANT: Edit `src/features/_core/database/schema.ts` only** - This is the Drizzle ORM schema that auto-generates migrations.
+
+```typescript
+// src/features/_core/database/schema.ts
+import { sqliteTable, text, real } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+
+export const invoices = sqliteTable('invoices', {
+  id: text('id').primaryKey(), // UUID v7
+  customer: text('customer').notNull(),
+  amount: real('amount').notNull(),
+  status: text('status').notNull().default('pending'),
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+```
+
+Then update `src/features/_core/database/connection.ts` to add TypeScript types for Kysely:
 
 ```typescript
 export interface DatabaseSchema {
@@ -125,8 +142,13 @@ export interface DatabaseSchema {
 
 ### Step 3: Create Migration
 
+Migrations are auto-generated from `schema.ts`. **Never manually edit files in `src/features/_core/database/migrations/`**.
+
 ```bash
+# Generate migration files from schema.ts (Drizzle will create a new .sql file)
 bun run db:generate
+
+# Apply migrations to database
 bun run db:migrate
 ```
 

@@ -1,5 +1,6 @@
 import { AuthRepository } from './repository'
 import type { NewUser } from '../database/connection'
+import type { GoogleUserInfo } from './google'
 
 import { t, type Static } from 'elysia'
 
@@ -78,5 +79,37 @@ export class AuthService {
 
   async logout(token: string): Promise<void> {
     await this.repo.deleteSession(token)
+  }
+
+  // Google OAuth handlers
+  async findOrCreateGoogleUser(googleUser: GoogleUserInfo): Promise<SafeUser> {
+    // Try to find user by Google ID first
+    let user = await this.repo.findByGoogleId(googleUser.id)
+    
+    if (user) {
+      const { password_hash, ...safeUser } = user
+      return safeUser as SafeUser
+    }
+
+    // Try to find by email for linking
+    user = await this.repo.findByEmail(googleUser.email)
+    
+    if (user) {
+      // Link Google account to existing user
+      await this.repo.linkGoogleAccount(user.id, googleUser.id)
+      const { password_hash, ...safeUser } = user
+      return safeUser as SafeUser
+    }
+
+    // Create new user from Google data
+    const newUser = await this.repo.create({
+      email: googleUser.email,
+      name: googleUser.name,
+      google_id: googleUser.id,
+      email_verified_at: googleUser.email_verified ? new Date().toISOString() : null
+    })
+
+    const { password_hash, ...safeUser } = newUser
+    return safeUser as SafeUser
   }
 }

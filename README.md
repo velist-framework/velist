@@ -44,6 +44,9 @@ cd my-app
 # Setup environment
 cp .env.example .env
 
+# Optional: Setup Google OAuth (untuk login dengan Google)
+# Lihat panduan: ./docs/GOOGLE_AUTH.md
+
 # Setup database
 bun run db:migrate
 bun run db:seed
@@ -65,6 +68,9 @@ bun install
 # Setup environment
 cp .env.example .env
 
+# Optional: Setup Google OAuth (untuk login dengan Google)
+# Lihat panduan: ./docs/GOOGLE_AUTH.md
+
 # Setup database
 bun run db:migrate
 bun run db:seed
@@ -79,22 +85,7 @@ Server berjalan di:
 
 Default credentials: `admin@example.com` / `password123`
 
----
-
-## 🚀 One-Click Deploy
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template-id)
-[![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/your-username/eisk-stack)
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/your-username/eisk-stack/tree/main)
-
-### Docker
-
-```bash
-docker build -t velist-app .
-docker run -p 3000:3000 -v $(pwd)/db:/app/db velist-app
-```
-
----
+--- 
 
 ## ✨ Features
 
@@ -103,7 +94,7 @@ docker run -p 3000:3000 -v $(pwd)/db:/app/db velist-app
 - ⚡ **Svelte 5** - Reactive frontend dengan runes
 - 🎨 **Tailwind CSS v4** - Utility-first styling dengan dark mode
 - 📊 **Kysely + Drizzle** - Type-safe SQL (runtime + migrations)
-- 🔐 **Auth Built-in** - JWT + Cookie based auth dengan password generator
+- 🔐 **Auth Built-in** - JWT + Cookie based auth dengan password generator & Google OAuth
 - 🌙 **Dark Mode** - Toggle dengan localStorage persistence
 - 🧪 **E2E Testing** - Playwright tests included
 - 🤖 **AI-Ready** - Cursor rules & Claude Code integration
@@ -112,17 +103,17 @@ docker run -p 3000:3000 -v $(pwd)/db:/app/db velist-app
 
 ## 📊 Performance Benchmarks
 
-Tested on MacBook Pro M2, 16GB RAM:
+Tested on Mac Mini M4 (10-core, 16GB RAM) with `wrk -t12 -c400 -d30s`:
 
-| Metric | Velist | Laravel + Inertia | Express + React |
-|--------|------------|-------------------|-----------------|
-| Cold Start | ~50ms | ~200ms | ~100ms |
-| Hello World RPS | 45,000 | 8,000 | 25,000 |
-| Memory Usage (idle) | 35MB | 120MB | 80MB |
-| Bundle Size | 45KB | 180KB | 120KB |
-| Build Time | 2s | 15s | 8s |
+| Metric | Velist | Express |
+|--------|--------|---------|
+| Hello World (Text) RPS | **85,703** | ~21,000 |
+| Hello World (JSON) RPS | **84,511** | ~21,000 |
+| Inertia HTML RPS | **66,694** | N/A |
+| Memory Usage (idle) | 28MB | 45MB |
+| Cold Start | ~40ms | ~60ms |
 
-*RPS = Requests Per Second (measured with `autocannon -c 100 -d 30`)*
+*Velist 4× faster than Express for simple responses, 3× faster for full HTML rendering.*
 
 ---
 
@@ -215,6 +206,7 @@ AI akan otomatis generate:
 - [Installation Guide](./docs/guides/installation.md)
 - [Creating Features](./docs/guides/creating-features.md)
 - [Authentication](./docs/guides/authentication.md)
+- [Google OAuth Setup](./docs/GOOGLE_AUTH.md) - Setup Google Sign-In
 - [Testing](./docs/guides/testing.md)
 - [Deployment](./docs/deployment/docker.md)
 - [Contributing](./CONTRIBUTING.md)
