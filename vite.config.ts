@@ -2,12 +2,39 @@ import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
+import { writeFileSync, rmSync } from 'fs'
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    svelte()
+    svelte(),
+    {
+      name: 'write-port',
+      configureServer(server) {
+        server.httpServer?.on('listening', () => {
+          const address = server.httpServer?.address()
+          if (typeof address === 'object' && address) {
+            const port = address.port
+            const url = `http://localhost:${port}`
+            writeFileSync('.vite-port', url)
+            console.log(`[vite-plugin] Port written to .vite-port: ${url}`)
+          }
+        })
+        // Cleanup on exit
+        const cleanup = () => {
+          try { rmSync('.vite-port') } catch {}
+          process.exit()
+        }
+        process.on('SIGINT', cleanup)
+        process.on('SIGTERM', cleanup)
+      }
+    }
   ],
+  
+  server: {
+    strictPort: false, // Auto-find available port if 5173 is taken
+    port: 5173
+  },
   
   resolve: {
     alias: {
@@ -16,16 +43,7 @@ export default defineConfig({
       $inertia: path.resolve(__dirname, './src/inertia')
     }
   },
-  
-  server: {
-    port: 5173,
-    strictPort: true,
-    proxy: {
-      '/auth': 'http://localhost:3000',
-      '/api': 'http://localhost:3000',
-      '/dashboard': 'http://localhost:3000'
-    }
-  },
+   
   
   build: {
     manifest: true,

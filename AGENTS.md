@@ -678,7 +678,11 @@ NODE_ENV=development
 PORT=3000
 APP_VERSION=1.0.0
 JWT_SECRET=change-this-in-production
-VITE_URL=http://localhost:5173
+
+# VITE_URL is optional - auto-detected from Vite dev server
+# Vite automatically finds available port (5173, 5174, etc.) if 5173 is taken
+# Only set this manually if auto-detection fails
+# VITE_URL=http://localhost:5173
 ```
 
 ---
@@ -720,6 +724,15 @@ Check:
 - Ensure `db/` directory exists
 - Check foreign key constraints order in SQL
 
+### Port 5173 already in use
+**Not a problem!** The framework now auto-detects Vite's actual port:
+1. Vite automatically finds the next available port (5174, 5175, etc.)
+2. The Vite plugin writes the actual port to `.vite-port`
+3. Elysia server reads this file for CORS and Inertia HTML generation
+4. No manual `VITE_URL` configuration needed
+
+Only set `VITE_URL` manually if auto-detection fails.
+
 ---
 
 ## Key Technical Decisions
@@ -733,6 +746,7 @@ Check:
 | No component abstraction | Faster iteration, Tailwind is expressive enough |
 | Dual entry Vite build | CSS and JS loaded separately, cleaner architecture |
 | Dark mode | Tailwind `@variant dark` with CSS variables (toggle via `.dark` class) |
+| Auto port detection | Vite plugin writes port to `.vite-port`, server reads it dynamically |
 
 ---
 

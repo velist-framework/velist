@@ -6,6 +6,43 @@ import { inertia, type Inertia } from './inertia/plugin'
 import { authApi } from './features/_core/auth/api'
 import { dashboardApi } from './features/dashboard/api'
 import { runMigrations } from './features/_core/database/migrations/runner'
+import { readFileSync, existsSync } from 'fs'
+import { resolve } from 'path'
+
+// Cache for vite URL
+let cachedViteUrl: string | null = null
+let lastCheck = 0
+const CACHE_TTL = 1000 // 1 second
+
+// Get Vite URL for CORS - check env first, then temp file, then default
+function getViteUrl(): string {
+  if (process.env.VITE_URL) {
+    return process.env.VITE_URL
+  }
+  
+  // Use cache if recent
+  const now = Date.now()
+  if (cachedViteUrl && (now - lastCheck) < CACHE_TTL) {
+    return cachedViteUrl
+  }
+  
+  // Try to read from temp file (set by Vite plugin)
+  const tempFile = resolve(process.cwd(), '.vite-port')
+  if (existsSync(tempFile)) {
+    try {
+      const url = readFileSync(tempFile, 'utf-8').trim()
+      if (url) {
+        cachedViteUrl = url
+        lastCheck = now
+        return url
+      }
+    } catch {
+      // ignore
+    }
+  }
+  
+  return 'http://localhost:5173'
+}
 
 // Run migrations on startup (dev only)
 if (process.env.NODE_ENV !== 'production') {
@@ -15,7 +52,28 @@ if (process.env.NODE_ENV !== 'production') {
 const app = new Elysia()
   // .use(helmet()) // DISABLED - CSP blocking scripts
   .use(cors({
-    origin: process.env.VITE_URL || 'http://localhost:5173',
+    origin: (request: Request): boolean => {
+      const origin = request.headers.get('origin')
+      if (!origin) return true
+      
+      // In production, only allow same origin
+      if (process.env.NODE_ENV === 'production') {
+        return true
+      }
+      
+      // In development, allow localhost with any port
+      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        return true
+      }
+      
+      // Also check against VITE_URL if set
+      const viteUrl = process.env.VITE_URL
+      if (viteUrl && origin === viteUrl) {
+        return true
+      }
+      
+      return false
+    },
     credentials: true
   }))
   .use(staticPlugin({

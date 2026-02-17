@@ -12,6 +12,7 @@ db/*.sqlite-shm
 
 # Environment variables
 .env
+.vite-port
 .env.local
 .env.*.local
 

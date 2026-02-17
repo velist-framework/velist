@@ -2,6 +2,41 @@ import { Elysia } from 'elysia'
 import { readFileSync, existsSync } from 'fs'
 import { resolve } from 'path'
 
+// Cache for vite URL
+let cachedViteUrl: string | null = null
+let lastCheck = 0
+const CACHE_TTL = 1000 // 1 second
+
+// Get Vite URL - check env first, then temp file, then default
+function getViteUrl(): string {
+  if (process.env.VITE_URL) {
+    return process.env.VITE_URL
+  }
+  
+  // Use cache if recent
+  const now = Date.now()
+  if (cachedViteUrl && (now - lastCheck) < CACHE_TTL) {
+    return cachedViteUrl
+  }
+  
+  // Try to read from temp file (set by Vite plugin)
+  const tempFile = resolve(process.cwd(), '.vite-port')
+  if (existsSync(tempFile)) {
+    try {
+      const url = readFileSync(tempFile, 'utf-8').trim()
+      if (url) {
+        cachedViteUrl = url
+        lastCheck = now
+        return url
+      }
+    } catch {
+      // ignore
+    }
+  }
+  
+  return 'http://localhost:5173'
+}
+
 interface InertiaPage {
   component: string
   props: Record<string, unknown>
@@ -36,7 +71,7 @@ function escapeHtml(str: string): string {
 
 // Generate development HTML (Vite dev server)
 function generateDevTemplate(page: InertiaPage): string {
-  const viteUrl = process.env.VITE_URL || 'http://localhost:5173'
+  const viteUrl = getViteUrl()
   
   return `<!DOCTYPE html>
 <html lang="en">
