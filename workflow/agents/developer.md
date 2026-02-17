@@ -303,51 +303,50 @@ ToastContainer sudah otomatis di AppLayout, tinggal panggil saja.
 
 ## Authentication Pattern (WAJIB)
 
-### Protected Routes - CORRECT WAY
+### Protected Routes - Gunakan Helper
 
-**⚠️ PENTING:** Jangan gunakan `.auth(true)` setelah `.use(authApi)`. Macro tersebut hanya ada di instance `authApi` itu sendiri.
-
-**Pattern yang benar untuk protected routes:**
+**WAJIB gunakan `createProtectedApi()`** - Jangan copy-paste auth boilerplate:
 
 ```typescript
 // api.ts
-import { Elysia } from 'elysia'
-import { cookie } from '@elysiajs/cookie'
-import { jwt } from '@elysiajs/jwt'
-import { inertia, type Inertia } from '../../inertia/plugin'
+import { createProtectedApi } from '../_core/auth/protected'
 
-export const featureApi = new Elysia({ prefix: '/feature' })
-  .use(cookie())
-  .use(jwt({
-    secret: process.env.JWT_SECRET || 'your-secret-key',
-    exp: '7d'
-  }))
-  .use(inertia())
-  
-  // Auth middleware - WAJIB untuk protected routes
-  .onBeforeHandle(async (ctx) => {
-    const { cookie, jwt, inertia } = ctx as typeof ctx & { inertia: Inertia }
-    const token = (cookie.auth as { value?: string }).value
-    if (!token) {
-      return inertia.redirect('/auth/login')
-    }
-    
-    try {
-      const payload = await jwt.verify(token)
-      ;(ctx as any).user = payload as { sub: string; email: string; name: string }
-    } catch {
-      return inertia.redirect('/auth/login')
-    }
-  })
-  
-  // Routes...
+export const featureApi = createProtectedApi('/feature')
+  .derive(() => ({ service: new FeatureService() }))
   .get('/', (ctx) => {
-    const user = (ctx as any).user
+    const user = (ctx as any).user  // Sudah ter-attach otomatis
     return ctx.inertia.render('feature/Index', { user })
   })
 ```
 
-### Common Mistake (JANGAN LAKUKAN)
+### Mengakses User di Route
+
+```typescript
+.get('/', (ctx) => {
+  const user = (ctx as any).user  // { sub, email, name }
+  return ctx.inertia.render('page/Index', { user })
+})
+```
+
+### Manual Pattern (Hanya Jika Perlu Custom)
+
+```typescript
+// Gunakan ini hanya jika butuh logic auth khusus
+import { Elysia } from 'elysia'
+import { cookie } from '@elysiajs/cookie'
+import { jwt } from '@elysiajs/jwt'
+import { inertia } from '../../inertia/plugin'
+
+export const customApi = new Elysia({ prefix: '/custom' })
+  .use(cookie())
+  .use(jwt({...}))
+  .use(inertia())
+  .onBeforeHandle(async (ctx) => {
+    // Custom auth logic
+  })
+```
+
+### Kesalahan Umum (JANGAN LAKUKAN)
 
 ```typescript
 // ❌ SALAH - Akan error:

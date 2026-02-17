@@ -22,7 +22,7 @@ A full-stack TypeScript framework built on Bun with vertical feature slicing arc
 | Debounce search input | `debounce(fn, 300)` from `$shared/lib/debounce` |
 | Export to CSV | `downloadCSV(filename, data)` from `$shared/lib/csv` |
 | Form validation | TypeBox schema in service.ts |
-| Authentication | Use `cookie()` + `jwt()` + `.onBeforeHandle()` pattern |
+| Authentication | Use `createProtectedApi()` helper |
 
 ---
 
@@ -598,47 +598,17 @@ Common patterns:
 - 7-day expiration (30 days with "remember me")
 - User attached to context via middleware
 
-### Protecting Routes (CORRECT PATTERN)
+### Protecting Routes (DRY Pattern)
 
-**⚠️ IMPORTANT:** Do NOT use `.auth(true)` macro after `.use(authApi)`. The macro only exists on `authApi` instance itself, not on derived instances.
-
-**Correct way to protect routes:**
+**Use `createProtectedApi()` helper** - Don't repeat auth boilerplate:
 
 ```typescript
-import { Elysia } from 'elysia'
-import { cookie } from '@elysiajs/cookie'
-import { jwt } from '@elysiajs/jwt'
-import { inertia, type Inertia } from '../../inertia/plugin'
+import { createProtectedApi } from '../_core/auth/protected'
 
-export const protectedApi = new Elysia({ prefix: '/admin' })
-  .use(cookie())
-  .use(jwt({
-    secret: process.env.JWT_SECRET || 'your-secret-key',
-    exp: '7d'
-  }))
-  .use(inertia())
-  
-  // Auth middleware - require authentication
-  .onBeforeHandle(async (ctx) => {
-    const { cookie, jwt, inertia } = ctx as typeof ctx & { inertia: Inertia }
-    const token = (cookie.auth as { value?: string }).value
-    if (!token) {
-      return inertia.redirect('/auth/login')
-    }
-    
-    try {
-      const payload = await jwt.verify(token)
-      // Attach user to context
-      ;(ctx as any).user = payload as { sub: string; email: string; name: string }
-    } catch {
-      return inertia.redirect('/auth/login')
-    }
-  })
-  
-  // Your protected routes here
+export const myApi = createProtectedApi('/my-feature')
   .get('/', (ctx) => {
-    const user = (ctx as any).user
-    return ctx.inertia.render('admin/Index', { user })
+    const user = (ctx as any).user  // Already attached by middleware
+    return ctx.inertia.render('my-feature/Index', { user })
   })
 ```
 
@@ -649,6 +619,24 @@ export const protectedApi = new Elysia({ prefix: '/admin' })
 .get('/', (ctx) => {
   const user = (ctx as any).user  // { id, email, name }
 })
+```
+
+### Manual Pattern (If Needed)
+
+```typescript
+// Only use this if you need custom auth logic
+import { Elysia } from 'elysia'
+import { cookie } from '@elysiajs/cookie'
+import { jwt } from '@elysiajs/jwt'
+import { inertia } from '../../inertia/plugin'
+
+export const customApi = new Elysia({ prefix: '/custom' })
+  .use(cookie())
+  .use(jwt({ secret: process.env.JWT_SECRET || 'your-secret-key', exp: '7d' }))
+  .use(inertia())
+  .onBeforeHandle(async (ctx) => {
+    // Custom auth logic here
+  })
 ```
 
 ### Common Mistake (DON'T DO THIS)
