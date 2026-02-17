@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { toasts, type ToastType } from '$shared/lib/toast';
+  import { toasts, type ToastType, type ToastItem } from '$shared/lib/toast';
   import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-svelte';
   import { fly } from 'svelte/transition';
 
@@ -18,7 +18,7 @@
   };
 
   // Subscribe to store using $state
-  let toastList = $state([] as { id: string; message: string; type: ToastType }[]);
+  let toastList = $state<ToastItem[]>([]);
   
   $effect(() => {
     const unsubscribe = toasts.subscribe((value) => {

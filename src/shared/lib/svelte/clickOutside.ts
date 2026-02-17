@@ -1,17 +1,31 @@
 import type { Action } from 'svelte/action';
 
+export interface ClickOutsideAttributes {
+  'on:click_outside'?: (event: CustomEvent) => void;
+}
+
 /**
  * Svelte action to detect clicks outside an element
  * Dispatches 'clickOutside' custom event when clicked outside
  * 
- * Usage:
+ * Svelte 4 Usage:
  * ```svelte
  * <div use:clickOutside on:click_outside={() => closeModal()}>
  *   Modal content
  * </div>
  * ```
+ * 
+ * Svelte 5 Usage (runes mode):
+ * ```svelte
+ * <script>
+ *   let open = $state(false);
+ * </script>
+ * <div use:clickOutside onclick_outside={() => open = false}>
+ *   Modal content
+ * </div>
+ * ```
  */
-export const clickOutside: Action<HTMLElement> = (node) => {
+export const clickOutside: Action<HTMLElement, undefined, ClickOutsideAttributes> = (node) => {
   const handleClick = (event: MouseEvent) => {
     if (node && !node.contains(event.target as Node) && !event.defaultPrevented) {
       node.dispatchEvent(
@@ -33,7 +47,7 @@ export const clickOutside: Action<HTMLElement> = (node) => {
  * Alternative: clickOutside with escape key support
  * Dispatches 'clickOutside' on outside click or Escape key
  */
-export const clickOutsideWithEscape: Action<HTMLElement> = (node) => {
+export const clickOutsideWithEscape: Action<HTMLElement, undefined, ClickOutsideAttributes> = (node) => {
   const handleClick = (event: MouseEvent) => {
     if (node && !node.contains(event.target as Node) && !event.defaultPrevented) {
       node.dispatchEvent(new CustomEvent('click_outside'));

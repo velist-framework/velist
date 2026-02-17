@@ -18,6 +18,7 @@
   let mobileMenuOpen = $state(false)
   let userMenuOpen = $state(false)
   let darkMode = $state(false)
+  let userMenuElement = $state<HTMLElement | null>(null)
   
   // Initialize dark mode from localStorage or system preference
   $effect(() => {
@@ -28,6 +29,27 @@
       darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
     }
     document.documentElement.classList.toggle('dark', darkMode)
+  })
+  
+  // Close user menu when clicking outside
+  $effect(() => {
+    if (!userMenuOpen || !userMenuElement) return;
+    
+    const handleClick = (event: MouseEvent) => {
+      if (userMenuElement && !userMenuElement.contains(event.target as Node)) {
+        userMenuOpen = false;
+      }
+    };
+    
+    // Use setTimeout to avoid immediate close when opening
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('click', handleClick, true);
+    }, 0);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('click', handleClick, true);
+    };
   })
   
   function toggleDarkMode() {
@@ -122,7 +144,10 @@
             </div>
             
             {#if userMenuOpen}
-              <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-200 dark:border-slate-700 transition-colors">
+              <div 
+                bind:this={userMenuElement}
+                class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-200 dark:border-slate-700 transition-colors"
+              >
                 <div class="px-4 py-2 text-sm text-gray-700 dark:text-slate-200 border-b border-gray-200 dark:border-slate-700">
                   <p class="font-medium">{user.name}</p>
                   <p class="text-gray-500 dark:text-slate-400">{user.email}</p>
