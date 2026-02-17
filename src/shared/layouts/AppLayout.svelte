@@ -133,7 +133,7 @@
             <div>
               <button
                 type="button"
-                class="bg-white dark:bg-slate-800 rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                class="rounded-full flex text-sm focus:outline-none transition-colors hover:opacity-80"
                 onclick={() => userMenuOpen = !userMenuOpen}
               >
                 <span class="sr-only">Open user menu</span>
