@@ -299,6 +299,8 @@ bun test
 
 ### Docker Compose
 
+**⚠️ Warning: Docker deployment has 30-70s downtime per deploy** (build time). For faster deploys (3-5s), use PM2 native deployment.
+
 ```yaml
 version: '3.8'
 services:
@@ -310,11 +312,20 @@ services:
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET}
     volumes:
-      - ./db:/app/db
+      - ./db:/app/db          # Database (WAL mode: 3 files)
+      - ./storage:/app/storage # Uploads & backups
     restart: unless-stopped
 ```
 
-See [Docker Deployment Guide](./docs/deployment/docker.md) for details.
+**Deployment Comparison:**
+
+| Method | Downtime | Best For |
+|--------|----------|----------|
+| PM2 (Native) | 3-5s | Production, frequent deploys |
+| Docker | 30-70s | Testing, CI/CD, isolation |
+
+**SQLite WAL Mode Note:**
+Database uses 3 files (`.sqlite`, `.sqlite-wal`, `.sqlite-shm`). All are persisted via volume mount. Backup service creates single-file backups via WAL checkpoint.
 
 ---
 

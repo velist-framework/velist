@@ -1,3 +1,7 @@
+# IMPORTANT: Docker deployment has 30-70s downtime per deploy (build time)
+# For faster deploys (3-5s), use PM2 native deployment instead
+# See DEPLOYMENT.md for comparison
+
 # Stage 1: Build
 FROM oven/bun:latest AS builder
 
