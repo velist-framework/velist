@@ -148,14 +148,17 @@ export class BackupService {
 
   /**
    * Convert backup to single-file mode (DELETE journal mode)
+   * Note: We skip VACUUM to avoid long-running operations
+   * The backup is already consistent after checkpoint
    */
   private async convertToSingleFile(backupPath: string): Promise<void> {
     const db = new Database(backupPath)
     try {
       // Switch to DELETE mode (single file, no WAL)
+      // This is fast and doesn't lock the original database
       db.exec("PRAGMA journal_mode=DELETE")
-      // Vacuum to optimize
-      db.exec("VACUUM")
+      // Note: We intentionally skip VACUUM to keep backup fast
+      // The database is already consistent after checkpoint
     } finally {
       db.close()
     }
