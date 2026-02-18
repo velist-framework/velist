@@ -25,10 +25,10 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/src ./src
-COPY --from=builder /app/db ./db
+# Note: db/ folder is mounted as volume, don't copy from builder!
 
-# Create directories
-RUN mkdir -p db storage/backups
+# Create directories (will be overwritten by volume mount, but safe for build)
+RUN mkdir -p /app/db /app/storage/backups
 
 # Set environment
 ENV NODE_ENV=production
