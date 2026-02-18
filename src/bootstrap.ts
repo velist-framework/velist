@@ -7,6 +7,7 @@ import { usersApi } from './features/users/api'
 import { settingsApi } from './features/settings/api'
 import { notificationsApi } from './features/notifications/api'
 import { notificationWs } from './features/notifications/ws'
+import { backupApi } from './features/backup/api'
 import { runMigrations } from './features/_core/database/migrations/runner'
 
 // Run migrations on startup (dev only)
@@ -41,6 +42,7 @@ const app = new Elysia()
   .use(usersApi)
   .use(settingsApi)
   .use(notificationsApi)
+  .use(backupApi)
   
   // Mount WebSocket
   .use(notificationWs)
