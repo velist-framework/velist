@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=./db/prod.sqlite
+      # Backup configuration
+      - BACKUP_ENABLED=${BACKUP_ENABLED:-true}
+      - BACKUP_INTERVAL_MINUTES=${BACKUP_INTERVAL_MINUTES:-60}
+      - BACKUP_RETENTION_COUNT=${BACKUP_RETENTION_COUNT:-24}
+      - BACKUP_LOCAL_PATH=./storage/backups
+      - BACKUP_S3_ENABLED=${BACKUP_S3_ENABLED:-false}
+      - BACKUP_S3_PATH=${BACKUP_S3_PATH:-backups/database}
+      # Storage configuration
+      - STORAGE_DRIVER=${STORAGE_DRIVER:-local}
+      - LOCAL_STORAGE_PATH=./storage
+      - LOCAL_STORAGE_URL=/storage
+      # Optional: S3 credentials (if STORAGE_DRIVER=s3)
+      # - S3_BUCKET=${S3_BUCKET}
+      # - S3_REGION=${S3_REGION}
+      # - S3_ENDPOINT=${S3_ENDPOINT}
+      # - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      # - S3_SECRET_KEY=${S3_SECRET_KEY}
+    volumes:
+      # Database (WAL mode: includes .sqlite, .sqlite-wal, .sqlite-shm)
+      - ./db:/app/db
+      # Storage (uploads and backups)
+      - ./storage:/app/storage
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
