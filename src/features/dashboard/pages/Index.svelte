@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Users, ShoppingCart, DollarSign, TrendingUp, Activity, Bell } from 'lucide-svelte'
+  import { Users, ShoppingCart, DollarSign, TrendingUp, Activity, Bell, Send, MessageSquare } from 'lucide-svelte'
   import AppLayout from '../../../shared/layouts/AppLayout.svelte'
   import { toast } from '$shared/lib/toast'
   
@@ -50,6 +50,43 @@
   
   function showInfoToast() {
     toast.info('New updates are available.')
+  }
+  
+  // Notification demo - send real notification to yourself
+  async function sendTestNotification(type: 'info' | 'success' | 'warning' | 'error') {
+    const titles = {
+      info: 'New Feature Available',
+      success: 'Payment Received',
+      warning: 'Storage Almost Full',
+      error: 'Failed to Sync Data'
+    }
+    
+    const messages = {
+      info: 'Check out the new real-time notification system!',
+      success: 'Customer John paid $299 for Premium Plan.',
+      warning: 'You have used 90% of your storage quota.',
+      error: 'Could not connect to server. Retrying...'
+    }
+    
+    try {
+      const response = await fetch('/api/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type,
+          title: titles[type],
+          message: messages[type]
+        })
+      })
+      
+      if (response.ok) {
+        toast.success('Notification sent! Check the bell icon ↑')
+      } else {
+        toast.error('Failed to send notification')
+      }
+    } catch {
+      toast.error('Network error')
+    }
   }
 </script>
 
@@ -143,7 +180,7 @@
     </div>
     
     <!-- Toast Demo -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors mb-8">
       <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 transition-colors flex items-center gap-2">
         <Bell class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Toast Notifications Demo</h2>
@@ -173,6 +210,50 @@
         >
           Info
         </button>
+      </div>
+    </div>
+    
+    <!-- Real-time Notification Demo -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 transition-colors flex items-center gap-2">
+        <MessageSquare class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Real-time Notification Demo</h2>
+      </div>
+      <div class="p-6">
+        <p class="text-sm text-gray-600 dark:text-slate-300 mb-4">
+          Send a test notification to yourself. Watch the bell icon in the navbar update in real-time! 
+          This uses WebSocket to push notifications instantly.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onclick={() => sendTestNotification('info')}
+            class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 transition-all"
+          >
+            <Send class="w-4 h-4" />
+            Send Info
+          </button>
+          <button
+            onclick={() => sendTestNotification('success')}
+            class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all"
+          >
+            <Send class="w-4 h-4" />
+            Send Success
+          </button>
+          <button
+            onclick={() => sendTestNotification('warning')}
+            class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all"
+          >
+            <Send class="w-4 h-4" />
+            Send Warning
+          </button>
+          <button
+            onclick={() => sendTestNotification('error')}
+            class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-medium shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 transition-all"
+          >
+            <Send class="w-4 h-4" />
+            Send Error
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -1,4 +1,6 @@
+import { t } from 'elysia'
 import { createProtectedApi } from '../_core/auth/protected'
+import { sendNotification } from '../notifications/api'
 
 export const dashboardApi = createProtectedApi('/dashboard')
 
@@ -27,4 +29,25 @@ export const dashboardApi = createProtectedApi('/dashboard')
         lastUpdated: new Date().toISOString()
       }
     }
+  })
+
+  // API endpoint untuk kirim notifikasi demo
+  .post('/api/notifications/send', async (ctx) => {
+    const { body } = ctx
+    const userId = (ctx as any).user.sub
+    
+    const notification = await sendNotification({
+      userId,
+      type: body.type,
+      title: body.title,
+      message: body.message
+    })
+    
+    return { success: true, notification }
+  }, {
+    body: t.Object({
+      type: t.Union([t.Literal('info'), t.Literal('success'), t.Literal('warning'), t.Literal('error')]),
+      title: t.String(),
+      message: t.String()
+    })
   })
