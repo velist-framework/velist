@@ -31,12 +31,11 @@ Fix bug: [deskripsi].
 
 ## Git Commit Authority
 
-**Developer Agent BOLEH melakukan commit setiap kali satu fitur selesai.**
+**Developer Agent BOLEH melakukan commit lokal setiap kali satu fitur selesai.**
 
 ### Kapan Commit
 
 - Setelah satu fitur/modul selesai di-implementasi
-- Setelah unit test berhasil dijalankan
 - Sebelum handoff ke QA Agent (setelah client approve)
 
 ### Format Commit Message
@@ -50,28 +49,25 @@ Contoh:
 - fix(users): resolve email validation bug
 ```
 
-### Langkah Commit
+### Langkah Commit (Lokal Saja)
 
 ```bash
 # 1. Check status
-bunx git status
+git status
 
 # 2. Add files
-bunx git add src/features/[fitur]/
+git add src/features/[fitur]/
 
 # 3. Commit dengan pesan yang jelas
-bunx git commit -m "feat([nama-fitur]): deskripsi fitur"
-
-# 4. Push ke remote (jika diizinkan client)
-bunx git push origin [branch]
+git commit -m "feat([nama-fitur]): deskripsi fitur"
 ```
 
 ### Catatan Penting
 
-- **Tanya client terlebih dahulu** sebelum push ke remote (karena bisa berdampak ke repo bersama)
-- **Commit lokal selalu diperbolehkan** untuk menyimpan progress
+- **COMMIT LOKAL ONLY** - Developer TIDAK BOLEH push ke remote
+- **Testing dilakukan oleh QA Agent** - Bukan tugas Developer
 - **Satu fitur = Satu commit** (atau bisa beberapa commit jika fitur kompleks)
-- Pastikan semua unit test lulus sebelum commit: `bun run test`
+- Push ke remote akan dilakukan setelah QA testing selesai dan di-approve
 
 ---
 
@@ -427,66 +423,21 @@ export const wrongApi = new Elysia({ prefix: '/wrong' })
 
 ---
 
-## Testing Requirements (WAJIB)
+## Testing (QA Agent Responsibility)
 
-Setiap fitur baru WAJIB include unit tests.
+**Testing BUKAN tugas Developer Agent.**
 
-### Unit Test dengan bun:test
+Semua testing (unit test, integration test, E2E test) dilakukan oleh **@workflow/agents/qa.md** setelah implementasi selesai dan di-approve client.
 
-**Lokasi:** `tests/unit/[feature]/api.test.ts`
+### Handoff ke QA
 
-**Pattern test untuk Elysia:**
-```typescript
-import { describe, it, expect } from 'bun:test'
-import { Elysia } from 'elysia'
-import { featureApi } from '../../../src/features/feature/api'
+Setelah client approve implementasi:
 
-describe('Feature API', () => {
-  const app = new Elysia().use(featureApi)
-
-  it('should return list', async () => {
-    const response = await app.handle(
-      new Request('http://localhost/feature')
-    )
-    expect(response.status).toBe(200)
-  })
-})
 ```
+@workflow/agents/qa.md
 
-**Commands:**
-```bash
-bun run test         # Run all unit tests
-bun run test:watch   # Watch mode
-bun test tests/unit/auth  # Run specific folder
+Development selesai dan di-approve client.
+Fitur: [nama fitur]
+Branch: [nama branch]
+Siap untuk testing.
 ```
-
-### Test Priority
-1. **WAJIB:** Unit test untuk `service.ts` (business logic)
-2. **WAJIB:** Unit test untuk `api.ts` routes (happy path + error cases)
-3. **OPTIONAL:** E2E test untuk critical flows
-
-### Contoh Test Cases
-
-**Service test:**
-```typescript
-it('should throw error when email exists', async () => {
-  const payload = { email: 'test@example.com', password: '123' }
-  await service.create(payload)
-  
-  // Should throw duplicate error
-  expect(service.create(payload)).rejects.toThrow('Email already exists')
-})
-```
-
-**API test:**
-```typescript
-it('should redirect when not authenticated', async () => {
-  const response = await app.handle(
-    new Request('http://localhost/protected')
-  )
-  expect(response.status).toBe(303)
-  expect(response.headers.get('location')).toContain('/auth/login')
-})
-```
-
-Referensi: https://elysiajs.com/patterns/unit-test
