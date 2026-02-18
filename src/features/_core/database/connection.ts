@@ -42,6 +42,16 @@ export interface DatabaseSchema {
     created_at: string
   }
   
+  notifications: {
+    id: string
+    user_id: string
+    type: 'info' | 'success' | 'warning' | 'error'
+    title: string
+    message: string
+    read_at: string | null
+    created_at: string
+  }
+  
   assets: {
     id: string
     user_id: string

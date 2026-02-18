@@ -40,6 +40,17 @@ export const twoFactorBackupCodes = sqliteTable('two_factor_backup_codes', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+// Notifications table
+export const notifications = sqliteTable('notifications', {
+  id: text('id').primaryKey(), // UUID v7
+  userId: text('user_id').notNull().references(() => users.id),
+  type: text('type').notNull().default('info'), // info, success, warning, error
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  readAt: text('read_at'), // Null if unread
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
 // Assets table for file uploads
 export const assets = sqliteTable('assets', {
   id: text('id').primaryKey(),

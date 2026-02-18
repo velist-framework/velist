@@ -679,6 +679,45 @@ Use **simple border color change** on focus - NO ring/glow effects.
 - Always include `transition-colors` for smooth transition
 - Dark mode colors: `-400` for focus (brighter), `-500` for borders
 
+### Notifications (Real-time)
+
+WebSocket-based notification system with real-time updates.
+
+**Features:**
+- Real-time push notifications via WebSocket
+- Persistent storage in database
+- Unread count badge
+- Mark as read / delete
+- 4 notification types: `info`, `success`, `warning`, `error`
+
+**Send notification from any feature:**
+
+```typescript
+import { sendNotification } from '../notifications/api'
+
+// In your API route
+await sendNotification({
+  userId: 'user-uuid',
+  type: 'success', // 'info' | 'success' | 'warning' | 'error'
+  title: 'Invoice Paid',
+  message: 'Customer John paid $500 for Invoice #123'
+})
+```
+
+**WebSocket Events (client-side):**
+
+```typescript
+// AppLayout automatically handles these events:
+// - 'connected' - Initial unread count
+// - 'notification' - New notification arrived
+// - 'markedAsRead' - Single notification marked as read
+// - 'markedAllAsRead' - All notifications marked as read
+```
+
+**Database schema:**
+- `notifications` table: id, user_id, type, title, message, read_at, created_at
+- Auto-cleanup: Notifications older than 90 days are purged
+
 ### Dark Mode
 
 Enabled via `@variant dark` in `app.css`. Toggle by adding/removing `.dark` class on `<html>`.

@@ -22,6 +22,13 @@
       "when": 1771379716417,
       "tag": "0002_glamorous_mentor",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1771381293372,
+      "tag": "0003_early_power_man",
+      "breakpoints": true
     }
   ]
 }
