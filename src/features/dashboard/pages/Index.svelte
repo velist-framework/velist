@@ -224,6 +224,16 @@
           Send a test notification to yourself. Watch the bell icon in the navbar update in real-time! 
           This uses WebSocket to push notifications instantly.
         </p>
+        <p class="text-sm mb-4">
+          <a 
+            href="https://velist.dev/guide/notifications.html" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 underline"
+          >
+            📖 Learn how to add notifications to your features →
+          </a>
+        </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onclick={() => sendTestNotification('info')}
