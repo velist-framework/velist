@@ -9,6 +9,9 @@ export const users = sqliteTable('users', {
   role: text('role').notNull().default('user'),
   googleId: text('google_id').unique(),
   emailVerifiedAt: text('email_verified_at'),
+  twoFactorSecret: text('two_factor_secret'), // Encrypted TOTP secret
+  twoFactorEnabled: integer('two_factor_enabled').notNull().default(0), // 0 = disabled, 1 = enabled
+  twoFactorConfirmedAt: text('two_factor_confirmed_at'), // Timestamp when setup completed
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -26,6 +29,15 @@ export const passwordResetTokens = sqliteTable('password_reset_tokens', {
   email: text('email').primaryKey(),
   token: text('token').notNull(),
   createdAt: text('created_at'),
+});
+
+// Two-factor backup codes for account recovery
+export const twoFactorBackupCodes = sqliteTable('two_factor_backup_codes', {
+  id: text('id').primaryKey(), // UUID v7
+  userId: text('user_id').notNull().references(() => users.id),
+  codeHash: text('code_hash').notNull(), // Hashed backup code (NOT plain text!)
+  usedAt: text('used_at'), // Null if not used yet
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 // Assets table for file uploads

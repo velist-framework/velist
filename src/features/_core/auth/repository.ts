@@ -45,6 +45,7 @@ export class AuthRepository {
         google_id: data.google_id || null,
         role: data.role || 'user',
         email_verified_at: data.email_verified_at || null,
+        two_factor_enabled: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

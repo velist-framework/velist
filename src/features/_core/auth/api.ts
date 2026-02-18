@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia'
+import { Elysia, t } from 'elysia'
 import { AuthService, LoginSchema, RegisterSchema } from './service'
 import { AuthRepository } from './repository'
 import { cookie } from '@elysiajs/cookie'
@@ -6,6 +6,7 @@ import { jwt } from '@elysiajs/jwt'
 import { inertia, type Inertia } from '../../../inertia/plugin'
 import { google, getGoogleUserInfo, type GoogleUserInfo } from './google'
 import { generateState, generateCodeVerifier } from 'arctic'
+import { TwoFactorService } from '../../settings/twoFactorService'
 
 // Extend Elysia context
 declare module 'elysia' {
@@ -35,7 +36,8 @@ export const authApi = new Elysia({ prefix: '/auth' })
   // Dependency injection
   .derive(() => ({
     authService: new AuthService(),
-    authRepo: new AuthRepository()
+    authRepo: new AuthRepository(),
+    twoFactorService: new TwoFactorService()
   }))
 
   // GET /auth/login - Show login page
@@ -51,6 +53,21 @@ export const authApi = new Elysia({ prefix: '/auth' })
     const { body, authService, jwt, cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
     try {
       const user = await authService.attempt(body.email, body.password)
+      
+      // Check if 2FA is enabled
+      if (user.two_factor_enabled === 1) {
+        // Store pending auth in temporary cookie
+        cookie.pending_2fa.set({
+          value: user.id,
+          httpOnly: true,
+          maxAge: 300, // 5 minutes
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/'
+        })
+        
+        return inertia.redirect('/auth/2fa')
+      }
       
       // Create token with UUID sub and role
       const token = await jwt.sign({ 
@@ -80,6 +97,128 @@ export const authApi = new Elysia({ prefix: '/auth' })
     }
   }, {
     body: LoginSchema
+  })
+
+  // GET /auth/2fa - Show 2FA verification page
+  .get('/2fa', async (ctx) => {
+    const { cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const pendingUserId = (cookie.pending_2fa as { value?: string }).value
+    
+    if (!pendingUserId) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    return inertia.render('auth/TwoFactor', {
+      errors: {}
+    })
+  })
+
+  // POST /auth/2fa - Verify TOTP code
+  .post('/2fa', async (ctx) => {
+    const { body, twoFactorService, jwt, cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const pendingUserId = (cookie.pending_2fa as { value?: string }).value
+    
+    if (!pendingUserId) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    // Verify TOTP code
+    const verified = await twoFactorService.verifyToken(pendingUserId, body.code)
+    
+    if (!verified) {
+      return inertia.render('auth/TwoFactor', {
+        errors: { code: 'Invalid verification code' }
+      })
+    }
+    
+    // Get user data
+    const authRepo = new AuthRepository()
+    const user = await authRepo.findById(pendingUserId)
+    
+    if (!user) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    // Clear pending 2FA cookie
+    ;(cookie.pending_2fa as { remove?: () => void }).remove?.()
+    
+    // Create auth token
+    const token = await jwt.sign({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'user'
+    })
+    
+    // Set auth cookie
+    cookie.auth.set({
+      value: token,
+      httpOnly: true,
+      maxAge: 86400, // 1 day
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/'
+    })
+    
+    return inertia.redirect('/dashboard')
+  }, {
+    body: t.Object({
+      code: t.String({ minLength: 6, maxLength: 6 })
+    })
+  })
+
+  // POST /auth/2fa/backup - Use backup code
+  .post('/2fa/backup', async (ctx) => {
+    const { body, twoFactorService, jwt, cookie, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const pendingUserId = (cookie.pending_2fa as { value?: string }).value
+    
+    if (!pendingUserId) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    // Verify backup code
+    const verified = await twoFactorService.verifyBackupCode(pendingUserId, body.code)
+    
+    if (!verified) {
+      return inertia.render('auth/TwoFactor', {
+        errors: { code: 'Invalid backup code' }
+      })
+    }
+    
+    // Get user data
+    const authRepo = new AuthRepository()
+    const user = await authRepo.findById(pendingUserId)
+    
+    if (!user) {
+      return inertia.redirect('/auth/login')
+    }
+    
+    // Clear pending 2FA cookie
+    ;(cookie.pending_2fa as { remove?: () => void }).remove?.()
+    
+    // Create auth token
+    const token = await jwt.sign({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'user'
+    })
+    
+    // Set auth cookie
+    cookie.auth.set({
+      value: token,
+      httpOnly: true,
+      maxAge: 86400,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/'
+    })
+    
+    return inertia.redirect('/dashboard')
+  }, {
+    body: t.Object({
+      code: t.String({ minLength: 16 }) // Format: XXXX-XXXX-XXXX
+    })
   })
 
   // GET /auth/register
@@ -201,6 +340,20 @@ export const authApi = new Elysia({ prefix: '/auth' })
       
       // Find or create user
       const user = await authService.findOrCreateGoogleUser(googleUser)
+      
+      // Check if 2FA is enabled
+      if (user.two_factor_enabled === 1) {
+        cookie.pending_2fa.set({
+          value: user.id,
+          httpOnly: true,
+          maxAge: 300,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/'
+        })
+        
+        return inertia.redirect('/auth/2fa')
+      }
       
       // Create JWT token
       const token = await jwt.sign({

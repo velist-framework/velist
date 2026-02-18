@@ -10,10 +10,15 @@
       email: string
       name: string
     }
+    path: string
     children: import('svelte').Snippet
   }
   
-  let { title, user, children }: Props = $props()
+  let { title, user, path, children }: Props = $props()
+  
+  function isActive(menuPath: string): boolean {
+    return path === menuPath || path.startsWith(menuPath + '/')
+  }
   
   let mobileMenuOpen = $state(false)
   let userMenuOpen = $state(false)
@@ -85,13 +90,13 @@
             </a>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <a href="/dashboard" use:inertia class="border-indigo-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+            <a href="/dashboard" use:inertia class="{isActive('/dashboard') ? 'border-indigo-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Dashboard
             </a>
-            <a href="/users" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+            <a href="/users" use:inertia class="{isActive('/users') ? 'border-indigo-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Users
             </a>
-            <a href="/settings" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+            <a href="/settings" use:inertia class="{isActive('/settings') ? 'border-indigo-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-slate-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-slate-300'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
               Settings
             </a>
           </div>
@@ -150,12 +155,9 @@
               >
                 <div class="px-4 py-2 text-sm text-gray-700 dark:text-slate-200 border-b border-gray-200 dark:border-slate-700">
                   <p class="font-medium">{user.name}</p>
-                  <p class="text-gray-500 dark:text-slate-400">{user.email}</p>
-                </div>
-                <a href="#" use:inertia class="block px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                  Your Profile
-                </a>
-                <a href="#" use:inertia class="block px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                  <p class="text-gray-500 dark:text-slate-400 truncate">{user.email}</p>
+                </div> 
+                <a href="/settings" use:inertia class="block px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                   Settings
                 </a>
                 <button
@@ -207,13 +209,13 @@
     {#if mobileMenuOpen}
       <div class="sm:hidden bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 transition-colors">
         <div class="pt-2 pb-3 space-y-1">
-          <a href="/dashboard" use:inertia class="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-300 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+          <a href="/dashboard" use:inertia class="{isActive('/dashboard') ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Dashboard
           </a>
-          <a href="/users" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+          <a href="/users" use:inertia class="{isActive('/users') ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Users
           </a>
-          <a href="/settings" use:inertia class="border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200 block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
+          <a href="/settings" use:inertia class="{isActive('/settings') ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500 text-indigo-700 dark:text-indigo-300' : 'border-transparent text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-300 dark:hover:border-slate-600 hover:text-gray-700 dark:hover:text-slate-200'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors">
             Settings
           </a>
         </div>

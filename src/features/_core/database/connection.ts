@@ -12,6 +12,9 @@ export interface DatabaseSchema {
     role: string
     google_id: string | null
     email_verified_at: string | null
+    two_factor_secret: string | null
+    two_factor_enabled: number // 0 = false, 1 = true
+    two_factor_confirmed_at: string | null
     created_at: string
     updated_at: string
   }
@@ -29,6 +32,14 @@ export interface DatabaseSchema {
     email: string
     token: string
     created_at: string | null
+  }
+  
+  two_factor_backup_codes: {
+    id: string
+    user_id: string
+    code_hash: string
+    used_at: string | null
+    created_at: string
   }
   
   assets: {

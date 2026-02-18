@@ -24,7 +24,12 @@ export type LoginPayload = Static<typeof LoginSchema>
 export type RegisterPayload = Static<typeof RegisterSchema>
 
 // Safe user type (without password)
-export type SafeUser = Omit<NewUser, 'password_hash'> & { id: string; role: string }
+export type SafeUser = Omit<NewUser, 'password_hash'> & { 
+  id: string; 
+  role: string
+  two_factor_enabled?: number
+  two_factor_secret?: string | null
+}
 
 export class AuthService {
   constructor(private repo: AuthRepository = new AuthRepository()) {}

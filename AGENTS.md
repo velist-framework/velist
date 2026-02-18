@@ -631,6 +631,54 @@ S3_SECRET_KEY=your-secret
 CDN_URL=https://cdn.example.com  # Optional
 ```
 
+### Input Styling Standard
+
+Use **simple border color change** on focus - NO ring/glow effects.
+
+```svelte
+<!-- Standard text input -->
+<input 
+  type="text"
+  class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 
+    bg-white dark:bg-slate-700 text-gray-900 dark:text-white 
+    focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 
+    transition-colors"
+/>
+
+<!-- Input with icon (padding adjusted) -->
+<input 
+  type="email"
+  class="block w-full pl-10 pr-3 py-2.5 border rounded-lg text-sm 
+    bg-white dark:bg-slate-900 text-slate-900 dark:text-white 
+    placeholder-slate-400 dark:placeholder-slate-500
+    border-slate-200 dark:border-slate-600 
+    focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 
+    transition-colors"
+/>
+
+<!-- Error state -->
+<input 
+  type="email"
+  class="... border-red-300 dark:border-red-700 
+    focus:border-red-500 dark:focus:border-red-400 ..."
+/>
+
+<!-- Disabled state -->
+<input 
+  disabled
+  class="... border-gray-200 dark:border-slate-700 
+    bg-gray-50 dark:bg-slate-800 text-gray-500 dark:text-slate-400 ..."
+/>
+```
+
+**Key rules:**
+- `focus:outline-none` - Remove default browser outline
+- `focus:border-{color}` / `dark:focus:border-{color}` - Only change border color on focus
+- NO `focus:ring-2`, NO `focus:ring-{color}` - Avoid glow effects
+- NO `focus:border-transparent` - Keep border visible
+- Always include `transition-colors` for smooth transition
+- Dark mode colors: `-400` for focus (brighter), `-500` for borders
+
 ### Dark Mode
 
 Enabled via `@variant dark` in `app.css`. Toggle by adding/removing `.dark` class on `<html>`.

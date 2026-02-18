@@ -15,6 +15,13 @@
       "when": 1771326352794,
       "tag": "0001_lumpy_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771379716417,
+      "tag": "0002_glamorous_mentor",
+      "breakpoints": true
     }
   ]
 }
