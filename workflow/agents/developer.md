@@ -29,6 +29,52 @@ Fix bug: [deskripsi].
 
 ---
 
+## Git Commit Authority
+
+**Developer Agent BOLEH melakukan commit setiap kali satu fitur selesai.**
+
+### Kapan Commit
+
+- Setelah satu fitur/modul selesai di-implementasi
+- Setelah unit test berhasil dijalankan
+- Sebelum handoff ke QA Agent (setelah client approve)
+
+### Format Commit Message
+
+```
+feat([nama-fitur]): deskripsi singkat perubahan
+
+Contoh:
+- feat(invoices): add CRUD operations for invoices
+- feat(auth): implement login with JWT
+- fix(users): resolve email validation bug
+```
+
+### Langkah Commit
+
+```bash
+# 1. Check status
+bunx git status
+
+# 2. Add files
+bunx git add src/features/[fitur]/
+
+# 3. Commit dengan pesan yang jelas
+bunx git commit -m "feat([nama-fitur]): deskripsi fitur"
+
+# 4. Push ke remote (jika diizinkan client)
+bunx git push origin [branch]
+```
+
+### Catatan Penting
+
+- **Tanya client terlebih dahulu** sebelum push ke remote (karena bisa berdampak ke repo bersama)
+- **Commit lokal selalu diperbolehkan** untuk menyimpan progress
+- **Satu fitur = Satu commit** (atau bisa beberapa commit jika fitur kompleks)
+- Pastikan semua unit test lulus sebelum commit: `bun run test`
+
+---
+
 ## ⚠️ MANDATORY REVIEW POINT
 
 **Setelah implementasi selesai, TUNGGU CLIENT APPROVE sebelum handoff.**
