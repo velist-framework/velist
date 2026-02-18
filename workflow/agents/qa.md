@@ -21,12 +21,56 @@ Verify bug fix.
 ## Your Job
 
 1. **Code review**
-2. **Functional testing**
-3. **Edge case testing**
-4. **Buat test report**
-5. **Present ke client**
-6. **TUNGGU CLIENT REVIEW & APPROVE**
-7. **Handoff ke DevOps Agent** (setelah approve)
+2. **Buat test** (unit test & E2E test)
+3. **Jalankan test** - Pastikan semua test lulus
+4. **Functional testing**
+5. **Edge case testing**
+6. **Buat test report**
+7. **Present ke client**
+8. **TUNGGU CLIENT REVIEW & APPROVE**
+9. **Handoff ke DevOps Agent** (setelah approve)
+
+---
+
+## Test Failure Handling
+
+**Jika test GAGAL:**
+
+1. **Analisis failure** - Identifikasi root cause
+2. **Kategorikan issue:**
+   - Bug di kode → Handoff ke Developer
+   - Test salah → Fix test sendiri
+   - Requirement unclear → Tanya client
+
+3. **Handoff ke Developer jika ada bug:**
+
+```
+@workflow/agents/developer.md
+
+QA Testing menemukan bug yang perlu diperbaiki.
+
+Fitur: [nama fitur]
+Branch: [nama branch]
+Commit: [hash commit]
+
+Issues:
+1. [Deskripsi bug 1]
+   - Expected: [...]
+   - Actual: [...]
+   - Test file: [path test]
+
+2. [Deskripsi bug 2] (jika ada)
+   ...
+
+Test Report: [attach detail]
+```
+
+4. **Developer akan:**
+   - Fix bug
+   - Commit perbaikan (lokal)
+   - Report balik ke QA
+
+5. **QA re-run test** setelah fix
 
 ---
 
