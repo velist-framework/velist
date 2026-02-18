@@ -2,7 +2,6 @@ import { Database } from 'bun:sqlite'
 import { existsSync, mkdirSync } from 'fs'
 import { copyFile, readdir, stat, unlink } from 'fs/promises'
 import { join, basename } from 'path'
-import { notificationService } from '../notifications/notificationService'
 import { createStorage } from '../_core/storage'
 
 export interface BackupConfig {
@@ -66,9 +65,9 @@ export class BackupService {
   }
 
   /**
-   * Perform backup manually
+   * Perform backup (silent - no notifications)
    */
-  async performBackup(userId?: string): Promise<{
+  async performBackup(): Promise<{
     success: boolean
     filename: string
     size: number
@@ -108,15 +107,8 @@ export class BackupService {
 
       console.log(`[Backup] Success: ${filename} (${this.formatBytes(stats.size)})`)
 
-      // Send notification if triggered by user
-      if (userId) {
-        await notificationService.create({
-          userId,
-          type: 'success',
-          title: 'Database Backup Complete',
-          message: `Backup ${filename} created (${this.formatBytes(stats.size)})${s3Uploaded ? ' and uploaded to S3' : ''}`
-        })
-      }
+      // Log success (silent - no user notification needed)
+      console.log(`[Backup] Completed: ${filename} (${this.formatBytes(stats.size)})`)
 
       return {
         success: true,
@@ -129,14 +121,8 @@ export class BackupService {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error'
       console.error('[Backup] Failed:', errorMsg)
 
-      if (userId) {
-        await notificationService.create({
-          userId,
-          type: 'error',
-          title: 'Database Backup Failed',
-          message: errorMsg
-        })
-      }
+      // Log error (silent - no user notification needed)
+      console.error(`[Backup] Failed: ${errorMsg}`)
 
       return {
         success: false,

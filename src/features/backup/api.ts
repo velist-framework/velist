@@ -5,10 +5,7 @@ import { db } from '../_core/database/connection'
 
 export const backupApi = createProtectedApi('/backup')
 
-  // Start auto-backup on module load (if enabled)
-  .onBeforeHandle(() => {
-    backupService.start()
-  })
+
 
   // GET /backup - Backup management page
   .get('/', async (ctx) => {
@@ -33,9 +30,8 @@ export const backupApi = createProtectedApi('/backup')
   // POST /backup/now - Trigger manual backup
   .post('/now', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
     
-    const result = await backupService.performBackup(userId)
+    const result = await backupService.performBackup()
     
     const backups = await backupService.getBackups()
     const config = backupService.getConfig()
