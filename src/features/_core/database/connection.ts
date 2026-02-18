@@ -82,6 +82,10 @@ const sqliteDb = new Database(dbPath, { create: true })
 // Enable foreign keys
 sqliteDb.exec('PRAGMA foreign_keys = ON;')
 
+// Enable WAL mode for better performance and concurrent access
+// This creates 3 files: db.sqlite, db.sqlite-wal, db.sqlite-shm
+sqliteDb.exec('PRAGMA journal_mode = WAL;')
+
 // Singleton instance with BunSqliteDialect
 export const db = new Kysely<DatabaseSchema>({
   dialect: new BunSqliteDialect({
