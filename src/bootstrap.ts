@@ -1,6 +1,12 @@
 import { Elysia } from 'elysia'
 import { staticPlugin } from '@elysiajs/static' 
 import { inertia, type Inertia } from './inertia/plugin'
+import { mkdirSync, existsSync } from 'fs'
+
+// Ensure dist folder exists (for fresh install)
+if (!existsSync('./dist')) {
+  mkdirSync('./dist', { recursive: true })
+}
 import { authApi } from './features/_core/auth/api'
 import { dashboardApi } from './features/dashboard/api'
 import { usersApi } from './features/users/api'
