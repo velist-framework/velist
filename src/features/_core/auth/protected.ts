@@ -36,6 +36,11 @@ export function createProtectedApi(prefix: string) {
       
       try {
         const payload = await jwt.verify(token)
+
+        if (!payload) {
+          return inertia.redirect('/auth/login')
+        }
+
         // Attach user to context
         ;(ctx as any).user = payload as { sub: string; email: string; name: string; role: string }
       } catch {
