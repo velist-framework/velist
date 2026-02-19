@@ -144,7 +144,7 @@ services:
       - ./storage:/app/storage
 ```
 
-See [Deployment Guide](https://velist.dev/docs/deployment) for PM2, Docker, and CI/CD options.
+See [Deployment Guide](https://velist.dev/guide/production.html) for PM2, Docker, and CI/CD options.
 
 ---
 

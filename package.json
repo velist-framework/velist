@@ -2,7 +2,7 @@
   "name": "velist",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
+    "dev": "concurrently -n \"VITE,SERVER\" -c \"cyan.bold,green.bold\" \"bun run dev:client\" \"sleep 1 && bun run dev:server\"",
     "dev:server": "bun --watch src/bootstrap.ts",
     "dev:client": "vite",
     "build": "vite build",

@@ -60,12 +60,9 @@ if (env.BACKUP_ENABLED) {
 console.log(`🚀 Starting Velist v${env.APP_VERSION} in ${env.NODE_ENV} mode\n`)
 
 const app = new Elysia()
-  // Security middleware
-  .use(helmet())
-  .use(cors({
-    origin: env.NODE_ENV === 'development' ? ['http://localhost:5173', 'http://localhost:5174'] : false,
-    credentials: true
-  }))
+  // Security middleware (production only)
+  .use(env.NODE_ENV === 'production' ? helmet() : (a: Elysia) => a)
+  .use(env.NODE_ENV === 'production' ? cors({ origin: false, credentials: true }) : (a: Elysia) => a)
   
   // Request logging (skip health checks to reduce noise)
   .use(requestLogger({
@@ -134,16 +131,33 @@ const app = new Elysia()
 const PORT = env.PORT
 
 const server = app.listen(PORT, () => {
-  console.log(`\n🦊 Elysia is running at http://localhost:${PORT}`)
-  console.log(`📦 Environment: ${env.NODE_ENV}`)
-  console.log(`🔒 JWT Secret: ${env.JWT_SECRET.substring(0, 8)}...`)
-  console.log(`💾 Database: ${env.DATABASE_URL}`)
-  console.log(`📁 Storage: ${env.STORAGE_DRIVER} (${env.LOCAL_STORAGE_PATH})`)
-  console.log(`\nHealth checks:`)
-  console.log(`  • /health       - Comprehensive status`)
-  console.log(`  • /health/live  - Liveness probe`)
-  console.log(`  • /health/ready - Readiness probe`)
-  console.log(`\nPress Ctrl+C to stop gracefully\n`)
+  // ANSI color codes
+  const bold = '\x1b[1m'
+  const green = '\x1b[32m'
+  const cyan = '\x1b[36m'
+  const yellow = '\x1b[33m'
+  const dim = '\x1b[2m'
+  const reset = '\x1b[0m'
+  
+  console.log(`
+${green}${bold}╔══════════════════════════════════════════════════════════════╗${reset}
+${green}${bold}║                                                              ║${reset}
+${green}${bold}║${reset}  🚀 Server running at ${cyan}${bold}http://localhost:${PORT}${reset}${green}${bold}              ║${reset}
+${green}${bold}║                                                              ║${reset}
+${green}${bold}╚══════════════════════════════════════════════════════════════╝${reset}
+
+📦 Environment: ${yellow}${env.NODE_ENV}${reset}
+🔒 JWT Secret: ${dim}${env.JWT_SECRET.substring(0, 8)}...${reset}
+💾 Database: ${dim}${env.DATABASE_URL}${reset}
+📁 Storage: ${dim}${env.STORAGE_DRIVER} (${env.LOCAL_STORAGE_PATH})${reset}
+
+Health checks:
+  • /health       - Comprehensive status
+  • /health/live  - Liveness probe  
+  • /health/ready - Readiness probe
+
+Press Ctrl+C to stop gracefully
+`)
 })
 
 // Store server instance for graceful shutdown
