@@ -1050,6 +1050,148 @@ JWT_SECRET=change-this-in-production
 
 ---
 
+## Production-Ready Features
+
+### Environment Variable Validation
+
+All environment variables are validated at startup using Zod. Invalid or missing variables will cause the application to exit immediately with a clear error message.
+
+**Location:** `src/config/env.ts`
+
+```typescript
+import { env, isS3Configured, backupConfig } from '$config/env'
+
+// Use validated env vars
+const port = env.PORT
+const jwtSecret = env.JWT_SECRET // Guaranteed to be at least 32 chars
+```
+
+**Required in production:**
+- `JWT_SECRET` - Must be at least 32 characters
+- `NODE_ENV=production`
+- `DATABASE_URL` - SQLite database path
+
+### Rate Limiting
+
+Protects against brute force attacks and abuse.
+
+**Location:** `src/features/_core/middleware/rateLimit.ts`
+
+```typescript
+import { createRateLimit, rateLimits } from '$features/_core/middleware/rateLimit'
+
+// Use predefined limits
+export const api = createProtectedApi('/api')
+  .use(rateLimits.strict)    // 5 req/min - for auth endpoints
+  .use(rateLimits.standard)  // 100 req/min - for API
+  .use(rateLimits.generous)  // 1000 req/min - for public
+
+// Or custom limit
+.use(createRateLimit({ maxRequests: 10, windowMs: 60000 }))
+```
+
+**Rate limit headers:**
+- `X-RateLimit-Limit` - Maximum requests allowed
+- `X-RateLimit-Remaining` - Remaining requests in window
+- `X-RateLimit-Reset` - Unix timestamp when window resets
+
+### Centralized Error Handling
+
+Consistent error responses with proper logging.
+
+**Location:** `src/features/_core/middleware/errorHandler.ts`
+
+```typescript
+import { 
+  AppError, 
+  ValidationError, 
+  NotFoundError, 
+  AuthenticationError,
+  AuthorizationError 
+} from '$features/_core/middleware/errorHandler'
+
+// Throw specific errors in services
+throw new NotFoundError('User')
+throw new ValidationError('Email is required')
+throw new AuthenticationError()
+
+// Error response format:
+{
+  success: false,
+  error: {
+    code: 'NOT_FOUND',
+    message: 'User not found'
+  },
+  timestamp: '2024-01-01T00:00:00.000Z',
+  requestId: 'abc-123-xyz'
+}
+```
+
+### Comprehensive Health Checks
+
+Monitor application health for load balancers and monitoring tools.
+
+**Endpoints:**
+- `GET /health` - Full health check with all services
+- `GET /health/live` - Liveness probe (fast)
+- `GET /health/ready` - Readiness probe (checks DB/storage)
+
+**Health response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "version": "1.0.0",
+  "environment": "production",
+  "uptime": 3600,
+  "checks": {
+    "database": { "status": "pass", "responseTimeMs": 5 },
+    "storage": { "status": "pass", "responseTimeMs": 10 },
+    "memory": { "status": "pass", "details": { "heapUsedMB": 45 } }
+  }
+}
+```
+
+### Graceful Shutdown
+
+Clean shutdown on SIGTERM/SIGINT:
+1. Stop accepting new requests
+2. Wait for active requests to complete (with timeout)
+3. Stop background services (backup, etc.)
+4. Close database connections
+5. Exit process
+
+**Location:** `src/features/_core/middleware/gracefulShutdown.ts`
+
+### Request Logging
+
+Structured request logging with response times and metadata.
+
+**Location:** `src/features/_core/middleware/requestLogger.ts`
+
+**Log format (development):**
+```
+14:32:01 GET    200   23ms    1.2KB  /api/users                chrome
+14:32:02 POST   201   45ms    0.5KB  /api/users                chrome user:abc123
+14:32:03 GET    500  120ms      -    /api/error                [Database timeout]
+```
+
+**Log format (production - JSON):**
+```json
+{"timestamp":"2024-01-01T00:00:00.000Z","level":"info","method":"GET","path":"/api/users","statusCode":200,"responseTimeMs":23,"ip":"1.2.3.4","requestId":"abc-123"}
+```
+
+### Security Headers
+
+Automatic security headers via `elysia-helmet`:
+- Content Security Policy
+- X-Frame-Options
+- X-Content-Type-Options
+- Strict-Transport-Security
+- And more...
+
+---
+
 ## Common Issues & Solutions
 
 ### "disk I/O error" with SQLite
@@ -1091,6 +1233,12 @@ Only set `VITE_URL` manually if auto-detection fails.
 | Dual entry Vite build | CSS and JS loaded separately, cleaner architecture |
 | Dark mode | Tailwind `@variant dark` with CSS variables (toggle via `.dark` class) |
 | Auto port detection | Vite plugin writes port to `.vite-port`, server reads it dynamically |
+| Zod env validation | Fail fast on misconfiguration, prevents runtime errors |
+| In-memory rate limiting | Simple and fast; use Redis for multi-instance |
+| Centralized error handling | Consistent API responses, proper error tracking |
+| Health check endpoints | Required for load balancers and Kubernetes |
+| Graceful shutdown | Prevents request loss during deployments |
+| Structured logging | Better observability and log aggregation |
 
 ---
 

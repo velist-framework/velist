@@ -2,6 +2,7 @@ import { Elysia } from 'elysia'
 import { cookie } from '@elysiajs/cookie'
 import { jwt } from '@elysiajs/jwt'
 import { inertia, type Inertia } from '../../../inertia/plugin'
+import { env } from '../../../config/env'
 
 /**
  * Create a protected Elysia instance with authentication middleware
@@ -20,7 +21,7 @@ export function createProtectedApi(prefix: string) {
   return new Elysia({ prefix })
     .use(cookie())
     .use(jwt({
-      secret: process.env.JWT_SECRET || 'your-secret-key',
+      secret: env.JWT_SECRET,
       exp: '7d'
     }))
     .use(inertia())

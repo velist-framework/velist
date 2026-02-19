@@ -7,6 +7,7 @@ import { inertia, type Inertia } from '../../../inertia/plugin'
 import { google, getGoogleUserInfo, type GoogleUserInfo } from './google'
 import { generateState, generateCodeVerifier } from 'arctic'
 import { TwoFactorService } from '../../settings/twoFactorService'
+import { env } from '../../../config/env'
 
 // Extend Elysia context
 declare module 'elysia' {
@@ -29,7 +30,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
   .use(inertia())
   .use(cookie())
   .use(jwt({
-    secret: process.env.JWT_SECRET || 'your-secret-key',
+    secret: env.JWT_SECRET,
     exp: '7d'
   }))
   

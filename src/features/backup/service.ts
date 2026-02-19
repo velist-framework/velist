@@ -3,6 +3,7 @@ import { existsSync, mkdirSync } from 'fs'
 import { copyFile, readdir, stat, unlink } from 'fs/promises'
 import { join, basename } from 'path'
 import { createStorage } from '../_core/storage'
+import { backupConfig, env } from '../../config/env'
 
 export interface BackupConfig {
   enabled: boolean
@@ -19,16 +20,17 @@ export class BackupService {
   private timer: Timer | null = null
 
   constructor(config: Partial<BackupConfig> = {}) {
+    // Use environment config as base, allow override
     this.config = {
-      enabled: config.enabled ?? true,
-      intervalMinutes: config.intervalMinutes ?? 10,
-      retentionCount: config.retentionCount ?? 10,
-      localPath: config.localPath ?? './storage/backups',
-      s3Enabled: config.s3Enabled ?? false,
-      s3Path: config.s3Path ?? 'backups/database'
+      enabled: config.enabled ?? backupConfig.enabled,
+      intervalMinutes: config.intervalMinutes ?? backupConfig.intervalMinutes,
+      retentionCount: config.retentionCount ?? backupConfig.retentionCount,
+      localPath: config.localPath ?? backupConfig.localPath,
+      s3Enabled: config.s3Enabled ?? backupConfig.s3Enabled,
+      s3Path: config.s3Path ?? backupConfig.s3Path
     }
     
-    this.dbPath = process.env.DATABASE_URL || './db/dev.sqlite'
+    this.dbPath = env.DATABASE_URL
     
     // Ensure backup directory exists
     if (!existsSync(this.config.localPath)) {

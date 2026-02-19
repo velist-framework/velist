@@ -72,11 +72,14 @@ export type UserUpdate = Updateable<DatabaseSchema['users']>
 
 export type Transaction = Kysely<DatabaseSchema>
 
+// Import env for database URL
+import { env } from '../../../config/env'
+
 // Ensure db directory exists
 await Bun.write('./db/.keep', '')
 
 // Create SQLite connection using kysely-bun-sqlite
-const dbPath = process.env.DATABASE_URL || './db/dev.sqlite'
+const dbPath = env.DATABASE_URL
 const sqliteDb = new Database(dbPath, { create: true })
 
 // Enable foreign keys

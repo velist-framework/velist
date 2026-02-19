@@ -8,14 +8,15 @@
 import { writeFile, readFile, access, unlink, mkdir } from 'fs/promises'
 import { join, dirname } from 'path'
 import type { StorageProvider } from './index'
+import { env } from '../../../config/env'
 
 export class LocalStorage implements StorageProvider {
   private basePath: string
   private publicUrl: string
 
   constructor() {
-    this.basePath = process.env.LOCAL_STORAGE_PATH || './storage'
-    this.publicUrl = process.env.LOCAL_STORAGE_URL || '/storage'
+    this.basePath = env.LOCAL_STORAGE_PATH
+    this.publicUrl = env.LOCAL_STORAGE_URL
   }
 
   async upload(key: string, file: File | Buffer, contentType?: string): Promise<void> {

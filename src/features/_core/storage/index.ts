@@ -9,6 +9,8 @@
  *   await storage.upload('path/to/file', fileBuffer, 'image/png')
  */
 
+import { env } from '../../../config/env'
+
 export interface StorageProvider {
   upload(key: string, file: File | Buffer, contentType?: string): Promise<void>
   get(key: string): Promise<Buffer>
@@ -25,7 +27,7 @@ export interface StorageProvider {
  * Factory function to create storage provider based on env
  */
 export function createStorage(): StorageProvider {
-  const driver = process.env.STORAGE_DRIVER || 'local'
+  const driver = env.STORAGE_DRIVER
   
   if (driver === 's3') {
     const { S3Storage } = require('./s3')

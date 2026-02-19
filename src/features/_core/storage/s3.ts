@@ -18,6 +18,7 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import type { StorageProvider } from './index'
+import { env, isS3Configured } from '../../../config/env'
 
 export class S3Storage implements StorageProvider {
   private client: S3Client
@@ -25,19 +26,22 @@ export class S3Storage implements StorageProvider {
   private cdnUrl?: string
 
   constructor() {
-    this.bucket = process.env.S3_BUCKET!
-    this.cdnUrl = process.env.CDN_URL
-    
-    if (!this.bucket) {
-      throw new Error('S3_BUCKET is required')
+    if (!isS3Configured()) {
+      throw new Error(
+        'S3 storage is not properly configured. ' +
+        'Please set S3_BUCKET, S3_REGION, S3_ENDPOINT, S3_ACCESS_KEY, and S3_SECRET_KEY'
+      )
     }
+    
+    this.bucket = env.S3_BUCKET!
+    this.cdnUrl = env.CDN_URL
 
     this.client = new S3Client({
-      region: process.env.S3_REGION,
-      endpoint: process.env.S3_ENDPOINT,
+      region: env.S3_REGION,
+      endpoint: env.S3_ENDPOINT,
       credentials: {
-        accessKeyId: process.env.S3_ACCESS_KEY!,
-        secretAccessKey: process.env.S3_SECRET_KEY!,
+        accessKeyId: env.S3_ACCESS_KEY!,
+        secretAccessKey: env.S3_SECRET_KEY!,
       },
       forcePathStyle: true,
     })
