@@ -1152,35 +1152,6 @@ Automatic security headers via `elysia-helmet`:
 
 ---
 
-## Common Issues & Solutions
-
-### "disk I/O error" with SQLite
-Solution: Using `kysely-bun-sqlite` instead of default Kysely SQLite driver.
-
-### Type errors in Svelte files
-Run: `bun run typecheck`
-
-### Inertia page not found
-Check:
-1. Page exists in `features/[feature]/pages/[Name].svelte`
-2. Component name matches render call: `inertia.render('feature/Name')`
-3. Case sensitivity (PascalCase for pages)
-
-### Migration fails
-- Ensure `db/` directory exists
-- Check foreign key constraints order in SQL
-
-### Port 5173 already in use
-**Not a problem!** The framework now auto-detects Vite's actual port:
-1. Vite automatically finds the next available port (5174, 5175, etc.)
-2. The Vite plugin writes the actual port to `.vite-port`
-3. Elysia server reads this file for CORS and Inertia HTML generation
-4. No manual `VITE_URL` configuration needed
-
-Only set `VITE_URL` manually if auto-detection fails.
-
----
-
 ## Key Technical Decisions
 
 | Decision | Rationale |
