@@ -75,26 +75,37 @@ export const notificationsApi = createProtectedApi('/notifications')
 
   // Send test notification to self
   .post('/send', async (ctx) => {
-    const { body, inertia } = ctx
+    const { body } = ctx
     const userId = (ctx as any).user.sub
     
-    const notification = await notificationService.create({
-      userId,
-      type: body.type,
-      title: body.title,
-      message: body.message
-    })
-    
-    // Broadcast via WebSocket
-    notifyUser(userId, {
-      id: notification.id,
-      type: notification.type,
-      title: notification.title,
-      message: notification.message,
-      created_at: notification.created_at
-    })
-    
-    return { success: true }
+    try {
+      const notification = await notificationService.create({
+        userId,
+        type: body.type,
+        title: body.title,
+        message: body.message
+      })
+      
+      // Broadcast via WebSocket
+      notifyUser(userId, {
+        id: notification.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        created_at: notification.created_at
+      })
+      
+      return { success: true }
+    } catch (error: any) {
+      // Check for foreign key constraint error
+      if (error.message?.includes('FOREIGN KEY')) {
+        return {
+          success: false,
+          error: 'User not found in database. Please logout and login again.'
+        }
+      }
+      throw error
+    }
   }, {
     body: t.Object({
       type: t.Union([

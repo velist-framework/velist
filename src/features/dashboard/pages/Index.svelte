@@ -79,10 +79,11 @@
         })
       })
       
-      if (response.ok) {
+      const result = await response.json()
+      if (response.ok && result.success) {
         toast.success('Notification sent! Check the bell icon ↑')
       } else {
-        toast.error('Failed to send notification')
+        toast.error(result.error || 'Failed to send notification')
       }
     } catch {
       toast.error('Network error')
