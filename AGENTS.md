@@ -261,15 +261,11 @@ export class InvoiceService {
 
 ```typescript
 // src/features/invoices/api.ts
-import { Elysia } from 'elysia'
-import { authApi } from '../_core/auth/api'
+import { createProtectedApi } from '../_core/auth/protected'
 import { InvoiceService, CreateInvoiceSchema, UpdateInvoiceSchema } from './service'
 import { inertia, type Inertia } from '../../inertia/plugin'
 
-export const invoiceApi = new Elysia({ prefix: '/invoices' })
-  .use(authApi)
-  .auth(true)  // Require authentication
-  .use(inertia())
+export const invoiceApi = createProtectedApi('/invoices')
   .derive(() => ({ invoiceService: new InvoiceService() }))
   
   // List all invoices
@@ -830,10 +826,11 @@ import { Elysia } from 'elysia'
 import { cookie } from '@elysiajs/cookie'
 import { jwt } from '@elysiajs/jwt'
 import { inertia } from '../../inertia/plugin'
+import { env } from '../../../config/env'
 
 export const customApi = new Elysia({ prefix: '/custom' })
   .use(cookie())
-  .use(jwt({ secret: process.env.JWT_SECRET || 'your-secret-key', exp: '7d' }))
+  .use(jwt({ secret: env.JWT_SECRET, exp: '7d' }))
   .use(inertia())
   .onBeforeHandle(async (ctx) => {
     // Custom auth logic here
@@ -1010,43 +1007,6 @@ E2E tests automatically:
 1. Start dev server (`bun run dev:server`)
 2. Use separate test database
 3. Clean up after completion
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env`:
-
-```bash
-NODE_ENV=development
-PORT=3000
-APP_VERSION=1.0.0
-JWT_SECRET=change-this-in-production
-
-# VITE_URL is optional - auto-detected from Vite dev server
-# Vite automatically finds available port (5173, 5174, etc.) if 5173 is taken
-# Only set this manually if auto-detection fails
-# VITE_URL=http://localhost:5173
-```
-
----
-
-## Deployment
-
-### Production Checklist
-
-1. Set `NODE_ENV=production`
-2. Change `JWT_SECRET` to secure random string
-3. Build assets: `bun run build`
-4. Run migrations: `bun run db:migrate`
-5. Start: `bun src/bootstrap.ts`
-
-### Docker Notes
-
-- Use official Bun image
-- SQLite database should be on persistent volume
-- Build assets during image build
-- Port 3000 exposed
 
 ---
 
