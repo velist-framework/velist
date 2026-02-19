@@ -73,6 +73,41 @@ export const notificationsApi = createProtectedApi('/notifications')
     })
   })
 
+  // Send test notification to self
+  .post('/send', async (ctx) => {
+    const { body, inertia } = ctx
+    const userId = (ctx as any).user.sub
+    
+    const notification = await notificationService.create({
+      userId,
+      type: body.type,
+      title: body.title,
+      message: body.message
+    })
+    
+    // Broadcast via WebSocket
+    notifyUser(userId, {
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      created_at: notification.created_at
+    })
+    
+    return { success: true }
+  }, {
+    body: t.Object({
+      type: t.Union([
+        t.Literal('info'),
+        t.Literal('success'),
+        t.Literal('warning'),
+        t.Literal('error')
+      ]),
+      title: t.String(),
+      message: t.String()
+    })
+  })
+
 // Helper function to send notification (for use in other features)
 export async function sendNotification({
   userId,
