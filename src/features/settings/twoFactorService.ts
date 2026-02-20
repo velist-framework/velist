@@ -2,11 +2,138 @@ import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import { db } from '../_core/database/connection'
 import { uuidv7 } from '../../shared/lib/uuid'
+import { env } from '../../config/env'
 
 export interface TwoFactorSetupResult {
   secret: string
   qrCodeUrl: string
   backupCodes: string[]
+}
+
+/**
+ * Encryption utilities using AES-256-GCM
+ * Format: iv:authTag:ciphertext (all base64url encoded, separated by ':')
+ */
+async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+  const encoder = new TextEncoder()
+  const passwordData = encoder.encode(password)
+  
+  // Import password as key material
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    passwordData,
+    'PBKDF2',
+    false,
+    ['deriveBits', 'deriveKey']
+  )
+  
+  // Derive AES-256 key using PBKDF2
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt.buffer as ArrayBuffer,
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  )
+}
+
+/**
+ * Encrypt data using AES-256-GCM
+ * Returns: base64(salt):base64(iv):base64(authTag):base64(ciphertext)
+ */
+async function encryptAES256(plaintext: string, password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(plaintext)
+  
+  // Generate random salt (16 bytes) and IV (12 bytes for GCM)
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  
+  // Derive key
+  const key = await deriveKey(password, salt)
+  
+  // Encrypt
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: iv.buffer as ArrayBuffer },
+    key,
+    data
+  )
+  
+  // Extract auth tag (last 16 bytes) and ciphertext
+  const encryptedArray = new Uint8Array(encrypted)
+  const ciphertext = encryptedArray.slice(0, -16)
+  const authTag = encryptedArray.slice(-16)
+  
+  // Encode all parts as base64
+  const toBase64 = (arr: Uint8Array) => btoa(String.fromCharCode(...arr))
+  
+  return `${toBase64(salt)}:${toBase64(iv)}:${toBase64(authTag)}:${toBase64(ciphertext)}`
+}
+
+/**
+ * Decrypt data using AES-256-GCM
+ * Input format: base64(salt):base64(iv):base64(authTag):base64(ciphertext)
+ */
+async function decryptAES256(encryptedData: string, password: string): Promise<string> {
+  const decoder = new TextDecoder()
+  
+  // Decode base64
+  const fromBase64 = (str: string) => {
+    const binary = atob(str)
+    return new Uint8Array(binary.split('').map(c => c.charCodeAt(0)))
+  }
+  
+  const parts = encryptedData.split(':')
+  if (parts.length !== 4) {
+    throw new Error('Invalid encrypted data format')
+  }
+  
+  const [saltB64, ivB64, authTagB64, ciphertextB64] = parts
+  
+  const salt = fromBase64(saltB64)
+  const iv = fromBase64(ivB64)
+  const authTag = fromBase64(authTagB64)
+  const ciphertext = fromBase64(ciphertextB64)
+  
+  // Derive key
+  const key = await deriveKey(password, salt)
+  
+  // Combine ciphertext and auth tag for Web Crypto API
+  const encrypted = new Uint8Array(ciphertext.length + authTag.length)
+  encrypted.set(ciphertext)
+  encrypted.set(authTag, ciphertext.length)
+  
+  // Decrypt
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: iv.buffer as ArrayBuffer },
+    key,
+    encrypted
+  )
+  
+  return decoder.decode(decrypted)
+}
+
+/**
+ * Get encryption key from environment
+ * Falls back to JWT_SECRET only in development (with warning)
+ */
+function getEncryptionKey(): string {
+  if (env.ENCRYPTION_KEY) {
+    return env.ENCRYPTION_KEY
+  }
+  
+  // Fallback to JWT_SECRET only in development
+  if (env.NODE_ENV === 'development') {
+    console.warn('[2FA] Warning: Using JWT_SECRET as fallback for encryption. Set ENCRYPTION_KEY in production!')
+    return env.JWT_SECRET
+  }
+  
+  throw new Error('ENCRYPTION_KEY is required in production environment')
 }
 
 export class TwoFactorService {
@@ -26,8 +153,9 @@ export class TwoFactorService {
     // Generate 10 backup codes
     const backupCodes = this.generateBackupCodes()
 
-    // Encrypt secret before storing (simple encryption with app key)
-    const encryptedSecret = await this.encryptSecret(secret.base32)
+    // Encrypt secret before storing (AES-256-GCM)
+    const encryptionKey = getEncryptionKey()
+    const encryptedSecret = await encryptAES256(secret.base32, encryptionKey)
 
     // Save encrypted secret to user (but not enabled yet)
     await db
@@ -67,7 +195,8 @@ export class TwoFactorService {
     }
 
     // Decrypt secret
-    const secret = await this.decryptSecret(user.two_factor_secret)
+    const encryptionKey = getEncryptionKey()
+    const secret = await decryptAES256(user.two_factor_secret, encryptionKey)
 
     // Verify token
     const verified = speakeasy.totp.verify({
@@ -107,7 +236,8 @@ export class TwoFactorService {
       return false
     }
 
-    const secret = await this.decryptSecret(user.two_factor_secret)
+    const encryptionKey = getEncryptionKey()
+    const secret = await decryptAES256(user.two_factor_secret, encryptionKey)
 
     return speakeasy.totp.verify({
       secret,
@@ -209,35 +339,5 @@ export class TwoFactorService {
         })
         .execute()
     }
-  }
-
-  /**
-   * Encrypt secret (simple XOR with app key)
-   * In production, use proper encryption like AES-256
-   */
-  private async encryptSecret(secret: string): Promise<string> {
-    const key = process.env.JWT_SECRET || 'fallback-key-min-32-chars-long!'
-    let encrypted = ''
-    for (let i = 0; i < secret.length; i++) {
-      encrypted += String.fromCharCode(
-        secret.charCodeAt(i) ^ key.charCodeAt(i % key.length)
-      )
-    }
-    return Buffer.from(encrypted).toString('base64')
-  }
-
-  /**
-   * Decrypt secret
-   */
-  private async decryptSecret(encrypted: string): Promise<string> {
-    const key = process.env.JWT_SECRET || 'fallback-key-min-32-chars-long!'
-    const decoded = Buffer.from(encrypted, 'base64').toString()
-    let decrypted = ''
-    for (let i = 0; i < decoded.length; i++) {
-      decrypted += String.fromCharCode(
-        decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length)
-      )
-    }
-    return decrypted
   }
 }

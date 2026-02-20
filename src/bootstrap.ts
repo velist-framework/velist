@@ -47,10 +47,6 @@ if (!existsSync('./dist')) {
   mkdirSync('./dist', { recursive: true })
 }
 
-// Run migrations on startup (dev only)
-if (env.NODE_ENV !== 'production') {
-  await runMigrations()
-}
 
 // Start auto-backup service (silent background process)
 if (env.BACKUP_ENABLED) {
