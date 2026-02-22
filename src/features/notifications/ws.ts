@@ -65,12 +65,12 @@ export const notificationWs = new Elysia({ prefix: '/ws' })
         
         // Verify JWT
         const payload = await (ws.data as any).jwt.verify(token)
-        if (!payload || !payload.sub) {
+        if (!payload || !payload.id) {
           ws.close(4001, 'Invalid token')
           return
         }
         
-        const userId = payload.sub as string
+        const userId = payload.id as string
         
         // Store connection
         if (!connections.has(userId)) {

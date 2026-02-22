@@ -18,7 +18,7 @@ export const settingsApi = createProtectedApi('/settings')
   // Settings page
   .get('/', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     const user = await getUserWith2FA(userId)
     console.log(user)
@@ -32,7 +32,7 @@ export const settingsApi = createProtectedApi('/settings')
   // Update profile
   .put('/profile', async (ctx) => {
     const { body, inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
 
     // Update name
     await db
@@ -61,7 +61,7 @@ export const settingsApi = createProtectedApi('/settings')
   // Update password
   .put('/password', async (ctx) => {
     const { body, inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
 
     // Get user with password
     const dbUser = await db
@@ -116,7 +116,7 @@ export const settingsApi = createProtectedApi('/settings')
   // 2FA: Setup page (GET)
   .get('/2fa/setup', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     const email = (ctx as any).user.email
 
     try {
@@ -140,7 +140,7 @@ export const settingsApi = createProtectedApi('/settings')
   // 2FA: Setup (POST - for inertia form)
   .post('/2fa/setup', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     const email = (ctx as any).user.email
 
     try {
@@ -164,7 +164,7 @@ export const settingsApi = createProtectedApi('/settings')
   // 2FA: Verify and enable
   .post('/2fa/verify', async (ctx) => {
     const { body, inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
 
     const verified = await twoFactorService.verifyAndEnable(userId, body.code)
 
@@ -192,7 +192,7 @@ export const settingsApi = createProtectedApi('/settings')
   // 2FA: Disable
   .delete('/2fa', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
 
     await twoFactorService.disable(userId)
 

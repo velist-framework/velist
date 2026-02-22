@@ -70,9 +70,9 @@ export const authApi = new Elysia({ prefix: '/auth' })
         return inertia.redirect('/auth/2fa')
       }
       
-      // Create token with UUID sub and role
+      // Create token with UUID id and role
       const token = await jwt.sign({ 
-        sub: user.id,  // UUID v7
+        id: user.id,  // UUID v7
         email: user.email,
         name: user.name,
         role: user.role || 'user'
@@ -145,7 +145,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
     
     // Create auth token
     const token = await jwt.sign({
-      sub: user.id,
+      id: user.id,
       email: user.email,
       name: user.name,
       role: user.role || 'user'
@@ -199,7 +199,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
     
     // Create auth token
     const token = await jwt.sign({
-      sub: user.id,
+      id: user.id,
       email: user.email,
       name: user.name,
       role: user.role || 'user'
@@ -236,7 +236,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
 
       // Create token (auto-login)
       const token = await jwt.sign({ 
-        sub: user.id,
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role || 'user'
@@ -358,7 +358,7 @@ export const authApi = new Elysia({ prefix: '/auth' })
       
       // Create JWT token
       const token = await jwt.sign({
-        sub: user.id,
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role || 'user'

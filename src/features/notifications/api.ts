@@ -10,11 +10,11 @@ export const notificationsApi = createProtectedApi('/notifications')
     const { inertia } = ctx
     const user = (ctx as any).user
     
-    const notifications = await notificationService.getRecent(user.sub)
-    const unreadCount = await notificationService.getUnreadCount(user.sub)
+    const notifications = await notificationService.getRecent(user.id)
+    const unreadCount = await notificationService.getUnreadCount(user.id)
     
     return inertia.render('notifications/Index', {
-      user: { id: user.sub, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name },
       notifications,
       unreadCount
     })
@@ -23,7 +23,7 @@ export const notificationsApi = createProtectedApi('/notifications')
   // Get recent notifications (for dropdown)
   .get('/recent', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     const notifications = await notificationService.getRecent(userId, 10)
     const unreadCount = await notificationService.getUnreadCount(userId)
@@ -37,7 +37,7 @@ export const notificationsApi = createProtectedApi('/notifications')
   // Mark as read
   .put('/:id/read', async (ctx) => {
     const { params, inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     await notificationService.markAsRead(params.id, userId)
     
@@ -50,7 +50,7 @@ export const notificationsApi = createProtectedApi('/notifications')
   // Mark all as read
   .put('/read-all', async (ctx) => {
     const { inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     await notificationService.markAllAsRead(userId)
     
@@ -63,7 +63,7 @@ export const notificationsApi = createProtectedApi('/notifications')
   // Delete notification
   .delete('/:id', async (ctx) => {
     const { params, inertia } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     await notificationService.delete(params.id, userId)
     
@@ -76,7 +76,7 @@ export const notificationsApi = createProtectedApi('/notifications')
   // Send test notification to self
   .post('/send', async (ctx) => {
     const { body } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     try {
       const notification = await notificationService.create({

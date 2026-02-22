@@ -34,7 +34,7 @@ export const dashboardApi = createProtectedApi('/dashboard')
   // API endpoint untuk kirim notifikasi demo
   .post('/api/notifications/send', async (ctx) => {
     const { body } = ctx
-    const userId = (ctx as any).user.sub
+    const userId = (ctx as any).user.id
     
     const notification = await sendNotification({
       userId,

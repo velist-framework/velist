@@ -42,7 +42,7 @@ export function createProtectedApi(prefix: string) {
         }
 
         // Attach user to context
-        ;(ctx as any).user = payload as { sub: string; email: string; name: string; role: string }
+        ;(ctx as any).user = payload as { id: string; email: string; name: string; role: string }
       } catch {
         return inertia.redirect('/auth/login')
       }
@@ -55,7 +55,7 @@ export function createProtectedApi(prefix: string) {
  */
 export interface ProtectedContext {
   user: {
-    sub: string
+    id: string
     email: string
     name: string
     role: string
