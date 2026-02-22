@@ -156,15 +156,11 @@ Hasil kerja agent tersimpan di:
 ```
 workflow/outputs/
 ├── 01-product/           # @workflow/agents/product.md
-│   ├── PRD.md
-│   ├── USER_STORIES.md
-│   └── ROADMAP.md
+│   └── PRD.md            # 1 file saja
 ├── 02-engineering/       # @workflow/agents/tech-lead.md
-│   ├── TECH_SPEC.md
-│   ├── ARCHITECTURE.md
-│   ├── PAGE_ROUTES.md    # Inertia pages (bukan API)
-│   ├── DATABASE_SCHEMA.md
-│   └── DESIGN_SYSTEM.md
-├── 03-tasks/             # Task breakdowns
+│   ├── ARCHITECTURE.md   # Struktur folder & patterns
+│   ├── DATABASE_SCHEMA.md # Schema changes
+│   └── TASKS.md          # Routes + checklist
 └── 04-reports/           # @workflow/agents/qa.md
+    └── TEST_REPORT.md
 ```

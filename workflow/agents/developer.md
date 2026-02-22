@@ -20,8 +20,14 @@ Fix bug: [deskripsi].
 
 ## Your Job
 
-1. **Baca Tech Spec dan Tasks**
-2. **Implement** (pilih mode)
+> 📚 **Reference Documents:** Developer Agent membaca output dari Tech Lead Agent:
+> - `workflow/outputs/02-engineering/ARCHITECTURE.md` — Struktur folder & patterns
+> - `workflow/outputs/02-engineering/DATABASE_SCHEMA.md` — Schema changes
+> - `workflow/outputs/02-engineering/TASKS.md` — Checklist implementasi
+> - `workflow/outputs/01-product/PRD.md` — Context fitur & requirements
+
+1. **Baca semua reference documents** (di atas)
+2. **Implement** sesuai TASKS.md (pilih mode)
 3. **Update progress**
 4. **Present hasil ke client**
 5. **TUNGGU CLIENT REVIEW & APPROVE**
@@ -110,45 +116,66 @@ Kasih list prioritas jika client bingung.
 
 ---
 
-## Inertia.js Patterns
+## Inertia.js Patterns (Sama dengan AGENTS.md)
 
 ### Routing (Elysia)
+
+**⚠️ PENTING:** Gunakan pattern yang sama persis dengan AGENTS.md untuk type safety.
+
 ```typescript
 // api.ts
-export const featureApi = new Elysia({ prefix: '/items' })
-  .use(inertia())
+import { createProtectedApi } from '../_core/auth/protected'
+import { ItemService, CreateItemSchema, UpdateItemSchema } from './service'
+import { inertia, type Inertia } from '../../inertia/plugin'
+
+export const itemApi = createProtectedApi('/items')
+  .derive(() => ({ itemService: new ItemService() }))
   
   // List page
   .get('/', async (ctx) => {
-    const items = await service.getAll()
-    return ctx.inertia.render('items/Index', { items })
+    const { inertia, itemService } = ctx as typeof ctx & { inertia: Inertia }
+    const items = await itemService.getAll()
+    return inertia.render('items/Index', { items })
   })
   
   // Create form page
   .get('/create', (ctx) => {
-    return ctx.inertia.render('items/Create', { errors: {} })
+    const { inertia } = ctx as typeof ctx & { inertia: Inertia }
+    return inertia.render('items/Create', { errors: {} })
   })
   
   // Handle create
   .post('/', async (ctx) => {
+    const { body, itemService, inertia } = ctx as typeof ctx & { inertia: Inertia }
     try {
-      await service.create(ctx.body)
-      return ctx.inertia.redirect('/items')
+      await itemService.create(body)
+      return inertia.redirect('/items')
     } catch (error: any) {
-      return ctx.inertia.render('items/Create', { 
+      return inertia.render('items/Create', { 
         errors: { message: error.message } 
       })
     }
-  }, { body: CreateSchema })
+  }, { body: CreateItemSchema })
+  
+  // Show edit form
+  .get('/:id/edit', async (ctx) => {
+    const { params, itemService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    const item = await itemService.getById(params.id)
+    if (!item) {
+      return inertia.render('errors/404', { path: ctx.request.url })
+    }
+    return inertia.render('items/Edit', { item, errors: {} })
+  })
   
   // Handle update
   .put('/:id', async (ctx) => {
+    const { params, body, itemService, inertia } = ctx as typeof ctx & { inertia: Inertia }
     try {
-      await service.update(ctx.params.id, ctx.body)
-      return ctx.inertia.redirect('/items')
+      await itemService.update(params.id, body)
+      return inertia.redirect('/items')
     } catch (error: any) {
-      const item = await service.findById(ctx.params.id)
-      return ctx.inertia.render('items/Edit', { 
+      const item = await itemService.getById(params.id)
+      return inertia.render('items/Edit', { 
         item, 
         errors: { message: error.message } 
       })
@@ -157,12 +184,18 @@ export const featureApi = new Elysia({ prefix: '/items' })
   
   // Handle delete
   .delete('/:id', async (ctx) => {
-    await service.delete(ctx.params.id)
-    return ctx.inertia.redirect('/items')
+    const { params, itemService, inertia } = ctx as typeof ctx & { inertia: Inertia }
+    await itemService.delete(params.id)
+    return inertia.redirect('/items')
   })
 ```
 
-**Catatan:** Plugin Inertia sudah handle redirect status code (303) secara otomatis.
+**Key Points:**
+1. Gunakan `createProtectedApi()` untuk protected routes
+2. Gunakan `.derive()` untuk inject service
+3. **WAJIB** destructuring dengan type assertion: `const { inertia, itemService } = ctx as typeof ctx & { inertia: Inertia }`
+4. Jangan lupa import `type Inertia` dari plugin
+5. Plugin Inertia sudah handle redirect status code (303) secara otomatis
 
 ### Svelte Page dengan Form
 
@@ -410,6 +443,52 @@ export const wrongApi = new Elysia({ prefix: '/wrong' })
   .use(authApi)
   .auth(true)  // ❌ Error! auth() macro tidak ada di sini
 ```
+
+---
+
+## Reference Documents (WAJIB Baca)
+
+Sebelum mulai coding, Developer Agent WAJIB membaca:
+
+### 1. PRD.md (Product Context)
+**Lokasi:** `workflow/outputs/01-product/PRD.md`
+
+**Isi yang perlu diperhatikan:**
+- Vision & success metrics
+- Target users
+- **Features by Priority (P0/P1/P2)** ← Mulai dari P0
+- Design direction (color, style)
+
+### 2. ARCHITECTURE.md (Structure)
+**Lokasi:** `workflow/outputs/02-engineering/ARCHITECTURE.md`
+
+**Isi yang perlu diperhatikan:**
+- Folder structure
+- Patterns yang digunakan
+- Shared components yang perlu dibuat
+
+### 3. DATABASE_SCHEMA.md (Schema)
+**Lokasi:** `workflow/outputs/02-engineering/DATABASE_SCHEMA.md`
+
+**Isi yang perlu diperhatikan:**
+- Modified tables (kolom baru)
+- New tables (struktur lengkap)
+- Migration notes
+
+**Actions:**
+```bash
+# Setelah update schema.ts:
+bun run db:generate   # Generate migration
+bun run db:migrate    # Apply migration
+```
+
+### 4. TASKS.md (Checklist)
+**Lokasi:** `workflow/outputs/02-engineering/TASKS.md`
+
+**Isi yang perlu diperhatikan:**
+- Route table (URL → Page)
+- Checklist implementasi per phase
+- Dependencies antar task
 
 ---
 
